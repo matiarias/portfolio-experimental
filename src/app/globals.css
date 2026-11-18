@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  background: #101425;
+  color: #fff3e2;
+  font-family: "Lato", system-ui, sans-serif;
+  --ink: #fff3e2;
+  --accent: #f4c797;
+  --cta: #f2c294;
+  --paper: #263550;
+  --lit-paper: #30415c;
+  --control-surface: #11182a;
+  --ease-soft: cubic-bezier(.22, 1, .36, 1);
+}
+
+button { cursor: pointer; }
+button, a { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid #ffbf75; outline-offset: 3px; }
+
+.preview { margin: 0; background: #0c1221; }
+.scene {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1672 / 941;
+  min-height: 490px;
+  max-height: calc(100svh - 68px);
+  background: #0c1221;
+}
+.backdrop { position: absolute; inset: 0; }
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: clamp(3rem, 12cqw, 9rem);
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--control-surface) 60%, transparent) 62%, var(--control-surface));
+  pointer-events: none;
+}
+.room {
+  object-fit: cover;
+  filter: brightness(.69) saturate(.74);
+  transition: filter .7s ease-out;
+}
+.projection-frame {
+  position: absolute;
+  inset: 11% 13% 15%;
+  z-index: 1;
+  padding: clamp(3px, .55cqw, 8px);
+  isolation: isolate;
+  background: #080d19;
+  border: 1px solid #89909d;
+  box-shadow: 0 0 2cqw #02050d9c;
+  transition: box-shadow .8s ease-out;
+}
+.projection-frame::before, .projection-frame::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  width: .55cqw;
+  height: 5cqw;
+  background: #090e19;
+  border-left: 1px solid #46506a;
+  z-index: -1;
+}
+.projection-frame::before { left: 8%; }
+.projection-frame::after { right: 8%; }
+.screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  height: 100%;
+  overflow: auto;
+  scrollbar-color: #8f9db2 #1c2940;
+  padding: 2.5cqw 5cqw;
+  background-color: var(--paper);
+  transition: background-color .65s ease-out;
+}
+.preview[data-active]:not([data-active="cover"]) .room,
+.preview:not([data-active]):has(.shot:target:not(#cover)) .room { filter: brightness(.59) saturate(.67); }
+.preview[data-active]:not([data-active="cover"]) .projection-frame,
+.preview:not([data-active]):has(.shot:target:not(#cover)) .projection-frame { box-shadow: 0 0 3cqw #f6b77538; }
+.preview[data-active]:not([data-active="cover"]) .screen,
+.preview:not([data-active]):has(.shot:target:not(#cover)) .screen { background-color: var(--lit-paper); }
+
+.shot { display: none; gap: clamp(.5rem, 1cqw, 1rem); }
+.preview:not([data-active]) #cover,
+.preview:not([data-active]) .shot:target,
+.preview[data-active="cover"] #cover,
+.preview[data-active="about"] #about,
+.preview[data-active="experience"] #experience,
+.preview[data-active="contact"] #contact { display: grid; }
+.preview:not([data-active]):has(.shot:target:not(#cover)) #cover { display: none; }
+.preview[data-active="cover"] .transport,
+.preview:not([data-active]):not(:has(.shot:target:not(#cover))) .transport { display: none; }
+
+.locale { top: .75rem; right: 1rem; gap: .25rem; }
+.locale a, .actions > *, .controls :is(a, button) {
+  display: inline-grid;
+  min-width: 44px;
+  min-height: 44px;
+  place-items: center;
+  padding: .35rem .65rem;
+  border: 1px solid transparent;
+}
+.locale a { border-color: #424e65; background: #11192a; font-size: .875rem; }
+.locale [aria-current="page"] { color: #1a2131; background: #f0dcc3; border-color: #f0dcc3; }
+.controls {
+  gap: .35rem 1.6rem;
+  padding: .65rem .8rem;
+  background: linear-gradient(var(--control-surface), #101425);
+}
+.controls [aria-current="location"],
+.preview:not([data-active]):has(#about:target) .chapter-links [href="#about"],
+.preview:not([data-active]):has(#experience:target) .chapter-links [href="#experience"],
+.preview:not([data-active]):has(#contact:target) .chapter-links [href="#contact"] { color: #f9dfb8; border-bottom-color: #e4b484; }
+.title-shot, .end-shot { text-align: center; justify-items: center; }
+.screen h1 { font-size: clamp(2rem, 7.1cqw, 6.3rem); font-weight: 900; line-height: .99; letter-spacing: -.05em; text-wrap: balance; }
+.screen h2 { font-size: clamp(1.4rem, 3.2cqw, 2.85rem); font-weight: 700; line-height: 1.12; letter-spacing: -.035em; text-wrap: balance; }
+.screen :is(h1, h2)[tabindex="-1"]:focus { outline: 0; }
+.screen p { max-width: 59ch; font-size: clamp(1rem, 1.52cqw, 1.2rem); line-height: 1.5; }
+.screen .eyebrow { color: var(--accent); font-size: .76rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.about-shot { max-width: 42rem; margin-inline: auto; }
+.about-copy { display: grid; gap: .7rem; color: #f0e5d9; }
+.about-copy p:first-child { color: var(--ink); font-weight: 700; }
+.actions { align-items: center; gap: .3rem 1rem; }
+.actions > * { display: inline-block; align-content: center; border-color: #efd0a78c; border-radius: 5px; font-size: .875rem; font-weight: 700; }
+.actions .primary { background: var(--cta); color: #171623; }
+.experience-shot { width: min(100%, 58rem); margin-inline: auto; }
+.experience-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1rem, 3cqw, 2rem); }
+.experience-role { border-top: 1px solid #f4c79780; padding-top: .8rem; }
+.role-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .3rem .8rem; margin-bottom: 1rem; }
+.role-heading h3 { font-size: 1.15rem; font-weight: 900; }
+.screen .role-heading p { color: var(--accent); font-size: .875rem; }
+.experience-role ul { display: grid; gap: 1rem; padding-inline-start: 1rem; list-style: disc outside; }
+.experience-role li::marker { color: var(--accent); }
+.experience-role strong { font-weight: 700; transition: color 280ms var(--ease-soft); }
+.screen .experience-role li p { font-size: clamp(.95rem, 1.2cqw, 1.08rem); color: #f0e5d9; }
+
+.credits { display: grid; justify-self: center; width: min(100%, 29rem); gap: .45rem; text-align: left; }
+.credits a {
+  display: grid;
+  grid-template-columns: 1.3rem minmax(0, 1fr) 1rem;
+  align-items: center;
+  gap: .75rem;
+  min-height: 58px;
+  padding: .55rem .75rem;
+  border: 1px solid #eed6b54d;
+  border-radius: 5px;
+  background-color: #10182b35;
+}
+.contact-icon, .contact-arrow { color: var(--accent); width: 100%; height: auto; }
+.contact-detail { display: block; font-size: .875rem; color: #e3d7ca; overflow-wrap: anywhere; }
+.contact-arrow { transition: transform 280ms var(--ease-soft); }
+
+.locale a, .controls :is(a, button), .actions > *, .credits a {
+  transition: color 240ms var(--ease-soft), background-color 280ms var(--ease-soft),
+    border-color 280ms var(--ease-soft), transform 280ms var(--ease-soft);
+}
+.credits a:focus-visible { border-color: var(--accent); background-color: #10182b70; }
+.credits a:focus-visible .contact-arrow { transform: translate(2px, -2px); }
+@media (hover: hover) {
+  .controls :is(a, button):hover { color: var(--accent); background-color: #f4c79712; }
+  .locale a:not([aria-current]):hover, .actions > :not(.primary):hover, .credits a:hover {
+    border-color: var(--accent);
+    background-color: #10182b70;
+    transform: translateY(-2px);
+  }
+  .actions .primary:hover { background-color: #ffdbb5; border-color: #ffdbb5; transform: translateY(-2px); }
+  .credits a:hover .contact-arrow { transform: translate(2px, -2px); }
+  .experience-role li:hover strong { color: var(--accent); }
+}
+
+@media (max-width: 800px) {
+  .scene { aspect-ratio: 3 / 4; min-height: 510px; max-height: 680px; }
+  .backdrop { height: 23%; }
+  .room { object-position: 50% 93%; }
+  .projection-frame { inset: 13% 3% 9%; }
+  .screen { padding: 4cqw; }
+  .screen h1 { font-size: clamp(2.2rem, 11cqw, 5rem); }
+  .screen h2 { font-size: clamp(1.5rem, 7cqw, 2.1rem); }
+  .screen p { font-size: .98rem; }
+  .experience-list { grid-template-columns: 1fr; }
+  .actions { gap: .35rem .5rem; }
+  .locale { right: .6rem; top: .3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room, .projection-frame, .screen, .locale a, .controls :is(a, button), .actions > *, .credits a,
+  .contact-arrow, .experience-role strong { transition: none; }
+  .locale a:hover, .actions > *:hover, .credits a:hover, .credits a:is(:hover, :focus-visible) .contact-arrow { transform: none; }
+}
