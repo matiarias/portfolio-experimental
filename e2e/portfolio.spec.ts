@@ -19,7 +19,7 @@ test("renders chapters and navigation without JavaScript", async ({ browser, bas
   try {
     const page = await context.newPage();
     await page.goto("/es#about");
-    await expect(page.getByRole("heading", { name: "Desarrollo productos de inversión que llegan a producción." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Software Engineer con foco en frontend para banca y fintech" })).toBeVisible();
     await page.getByRole("link", { name: "Contacto", exact: true }).click();
     await expect(page.getByRole("link", { name: /^GitHub/ })).toHaveAttribute("href", "https://github.com/matiarias");
     await expect(page.getByRole("link", { name: /^LinkedIn/ })).toHaveAttribute("href", "https://www.linkedin.com/in/matiasarias27");
@@ -40,7 +40,7 @@ test("plays real audio after a keyboard gesture, pauses and finishes the screeni
   await play.focus();
   await page.keyboard.press("Enter");
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
-  await expect(page.getByRole("heading", { name: "I build investment products for production." })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Software Engineer focused on frontend for banking and fintech" })).toBeFocused();
   await page.getByRole("button", { name: "Pause" }).click();
   await expect(audio).toHaveJSProperty("paused", true);
   await page.clock.fastForward(16_000);
@@ -59,12 +59,26 @@ test("plays real audio after a keyboard gesture, pauses and finishes the screeni
 test("keeps reduced motion silent and follows browser history", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/es");
-  await page.getByRole("button", { name: "Play", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Desarrollo productos de inversión que llegan a producción." })).toBeVisible();
+  await page.getByRole("button", { name: "Play", exact: true }).press("Enter");
+  await expect(page.getByRole("heading", { name: "Software Engineer con foco en frontend para banca y fintech" })).toBeVisible();
   await expect(page.locator("audio")).toHaveJSProperty("paused", true);
-  await page.getByRole("link", { name: "Experiencia", exact: true }).click();
+  await page.getByRole("link", { name: "Experiencia", exact: true }).press("Enter");
   await page.goBack();
   await expect(page.getByRole("link", { name: "Sobre mí", exact: true })).toHaveAttribute("aria-current", "location");
+});
+
+test("highlights the role and achievement titles in both experience periods on hover", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/es#experience");
+  const experience = page.getByRole("region", { name: "Santander Tecnología Argentina" });
+  const titles = experience.locator(".role-heading h3, li > strong");
+  await expect(titles).toHaveCount(10);
+  const accent = await experience.locator(".eyebrow").evaluate((element) => getComputedStyle(element).color);
+  for (const title of await titles.all()) {
+    await expect(title).not.toHaveCSS("color", accent);
+    await title.hover();
+    await expect(title).toHaveCSS("color", accent);
+  }
 });
 
 for (const width of [320, 390, 820, 1440]) {
