@@ -8,3 +8,8 @@
 - Consultá el [índice de skills](.agents/skills/README.md) para elegir la guía del proyecto. Antes de cambiar CSS o comportamiento del navegador, consultá `modern-web-guidance` para el patrón específico. Preferí CSS nativo con degradación progresiva y verificá las interacciones en Chromium, Firefox y WebKit.
 - Mantené iguales el HTML del servidor y el primer render del cliente. Leé valores del navegador después de hidratar o usá `useSyncExternalStore` con un snapshot inicial compatible con SSR. Si aparece un aviso, compará el HTML de la respuesta con el DOM y reproducilo en un navegador sin extensiones. Reservá `suppressHydrationWarning` en `<html>` para atributos externos comprobados. Corregí las discrepancias propias en su origen y mantené las pruebas de hidratación en Playwright.
 - Después de cambios, corré `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` y `npm run test:e2e`. Usá Vitest para la interacción local y Playwright para los flujos del sitio compilado.
+
+## Commit y push
+
+- Cuando el usuario pida explícitamente hacer commit y push, delegá ambas operaciones a `git-publisher`, definido en [`.codex/agents/git-publisher.toml`](.codex/agents/git-publisher.toml). Pasale los archivos autorizados, el destino conocido y las verificaciones hechas. Esperá su resultado y comunicá el hash, la rama y el resultado del push.
+- Si la herramienta de delegación solo permite elegir modelo y esfuerzo, iniciá el subagente con `gpt-6.1-terra` y `medium`, e incluí en el encargo las instrucciones del archivo TOML.
