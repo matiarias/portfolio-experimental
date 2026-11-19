@@ -1,0 +1,152 @@
+.backdrop {
+  overflow: hidden;
+  container-type: size;
+}
+
+.plate {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  /* Keep the foreground in view on short desktop screens. */
+  width: max(100cqw, calc(100cqh * 1672 / 941));
+  aspect-ratio: 1672 / 941;
+  translate: -50% -100%;
+}
+
+.zone {
+  position: absolute;
+  pointer-events: none;
+}
+
+.light {
+  position: absolute;
+  pointer-events: none;
+  opacity: var(--light-strength, var(--rest, 0));
+}
+
+.tower { inset: 28% auto auto 0; width: 9%; height: 23%; }
+.towerLight {
+  inset: -4% 0 3% -9%;
+  background:
+    radial-gradient(ellipse 12% 12% at 43% 36%, #ffe1a7df, #f5af626b 44%, transparent 100%),
+    radial-gradient(ellipse 14% 22% at 43% 47%, #d7a56752, transparent 100%),
+    radial-gradient(ellipse 44% 42% at 43% 39%, #e9ac5b3d, transparent 100%);
+}
+.bridge { inset: 53% 0 auto auto; width: 15%; height: 17%; }
+.bridgeLight {
+  inset: 0;
+  background:
+    radial-gradient(ellipse 12% 14% at 33% 28%, #f1c792ce, transparent),
+    radial-gradient(ellipse 6% 37% at 34% 55%, #c9a18675, transparent),
+    radial-gradient(ellipse 70% 7% at 48% 82%, #efbd83a3, transparent),
+    radial-gradient(ellipse 51% 65% at 43% 61%, #7779a13d, transparent);
+}
+.lantern { inset: 65% auto auto 0; width: 14%; height: 21%; }
+.lanternLight {
+  inset: 23% 22% -4% -15%;
+  background:
+    radial-gradient(ellipse 42% 20% at 60% 77%, #cf874540, transparent 100%),
+    radial-gradient(ellipse 47% 67% at 60% 50%, #ffc77dba, #ffa85843 44%, transparent 88%);
+}
+
+.river { inset: 70% 0 auto auto; width: 17%; height: 9%; }
+.riverLight {
+  inset: 5% 3% -55% 12%;
+  background:
+    radial-gradient(ellipse 16% 2% at 56% 18%, #edbc91ae, transparent),
+    radial-gradient(ellipse 23% 2.5% at 36% 28%, #96bbedd9, transparent),
+    radial-gradient(ellipse 14% 2% at 67% 34%, #a6c8f4a0, transparent),
+    radial-gradient(ellipse 20% 2% at 50% 41%, #bfd8ffc7, transparent),
+    radial-gradient(ellipse 14% 1.5% at 29% 50%, #ffcd9a9e, transparent),
+    radial-gradient(ellipse 18% 2% at 63% 54%, #d7b37dd0, transparent),
+    radial-gradient(ellipse 22% 3% at 49% 66%, #9abef29c, transparent),
+    radial-gradient(ellipse 11% 2% at 71% 74%, #9abef26e, transparent),
+    radial-gradient(ellipse 44% 43% at 49% 45%, #597eab42, transparent);
+  scale: var(--ripple-width, .82) 1;
+}
+
+.reeds { inset: 81% 0 auto auto; width: 18%; height: 13%; }
+.reedCluster {
+  position: absolute;
+  right: 3%;
+  bottom: 12%;
+  width: 55%;
+  height: 67%;
+  translate: calc(var(--touch-shift, 0px) * .55) 0;
+  pointer-events: none;
+}
+.reed {
+  position: absolute;
+  bottom: var(--stem-base, 0%);
+  left: var(--stem-x, 50%);
+  width: clamp(2px, .35cqw, 6px);
+  height: var(--stem-height, 72%);
+  transform-origin: 50% bottom;
+  rotate: calc(var(--stem-lean, -5deg) + var(--reed-sway, 0deg));
+}
+.reed::before, .reed::after {
+  content: "";
+  position: absolute;
+}
+.reed::before {
+  inset: 0;
+  clip-path: polygon(18% 100%, 21% 61%, 40% 23%, 91% 0, 65% 34%, 57% 66%, 66% 100%);
+  background: linear-gradient(#536661, #35464a 48%, #131c25);
+}
+.reed:not(:nth-child(3n))::after {
+  inset: 46% 30% 7% -85%;
+  clip-path: polygon(0 0, 64% 35%, 100% 100%, 61% 62%);
+  background: linear-gradient(#42524d, #18242c);
+}
+.reed:nth-child(3n)::after {
+  inset: 8% 1% auto 42%;
+  height: 17%;
+  border-radius: 50%;
+  background: #625b4e;
+}
+.reed:nth-child(1) { --stem-x: 5%; --stem-base: 3%; --stem-height: 45%; --stem-lean: -27deg; }
+.reed:nth-child(2) { --stem-x: 24%; --stem-base: 9%; --stem-height: 66%; --stem-lean: -18deg; }
+.reed:nth-child(3) { --stem-x: 30%; --stem-base: 5%; --stem-height: 84%; --stem-lean: -8deg; }
+.reed:nth-child(5) { --stem-x: 64%; --stem-base: 11%; --stem-height: 100%; --stem-lean: 10deg; }
+.reed:nth-child(6) { --stem-x: 72%; --stem-base: 5%; --stem-height: 76%; --stem-lean: 22deg; }
+.reed:nth-child(7) { --stem-x: 92%; --stem-base: 9%; --stem-height: 52%; --stem-lean: 31deg; }
+
+@media (max-width: 800px) {
+  .plate {
+    top: var(--skyline-height);
+    width: max(calc(100cqw + 16px), calc(var(--skyline-height) * 1672 / 941));
+    touch-action: pan-y pinch-zoom;
+  }
+  .lantern { --rest: .19; }
+  .tower, .bridge { --rest: .25; }
+  .river { --rest: .14; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zone { pointer-events: auto; }
+  .light { transition: opacity .42s ease-out, scale .65s var(--ease-soft); }
+  .reedCluster { transition: translate .55s var(--ease-soft); }
+  .reed { transition: rotate .85s var(--ease-soft); }
+  .reed:nth-child(even) { transition-delay: .06s; }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .zone:hover {
+    --light-strength: .9;
+    --ripple-width: 1;
+    --reed-sway: 13deg;
+  }
+}
+
+@media (max-width: 800px) and (prefers-reduced-motion: no-preference) {
+  .plate {
+    translate: calc(-50% + var(--touch-shift, 0px)) -100%;
+    transition: translate .55s var(--ease-soft);
+  }
+  .plate[data-dragging], .plate[data-dragging] .reedCluster { transition-duration: 0s; }
+  .zone[data-touched] {
+    --light-strength: .9;
+    --ripple-width: 1;
+    --reed-sway: 10deg;
+  }
+}

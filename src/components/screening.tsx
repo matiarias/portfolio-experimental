@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from "react";
 import { chapters, locales, name, panelFromHash, role, type Dictionary, type Locale, type Panel } from "@/content/portfolio";
 import { playbackReducer } from "./playback";
+import SceneBackdrop from "./scene-backdrop";
 
 const quietQuery = "(prefers-reduced-motion: reduce)";
 const soundtrack = "/media/loop-crepusculo.wav";
@@ -147,35 +147,14 @@ export default function Screening({ locale, copy, children }: {
     viewport.querySelector<HTMLElement>(`#${panel} :is(h1, h2)`)?.focus({ preventScroll: true });
   }, [panel, state]);
 
-  const hasNavigated = state !== null;
-
-  useEffect(() => {
-    if (!hasNavigated || panel === "cover" || reduced) return;
-    const shot = screen.current?.querySelector(`#${panel}`);
-    if (!shot) return;
-    let cancelled = false;
-    let restore: (() => void) | undefined;
-    void import("gsap").then(({ gsap }) => {
-      if (cancelled) return;
-      const context = gsap.context(() => {
-        gsap.from(shot, { opacity: 0.45, duration: 0.5, ease: "power2.out", clearProps: "opacity" });
-        const credits = shot.querySelector(".credits");
-        if (credits) gsap.from(credits, { opacity: 0.3, y: 12, duration: 0.7, ease: "power2.out", clearProps: "opacity,transform" });
-      }, shot);
-      restore = () => context.revert();
-    }).catch(() => {});
-    return () => {
-      cancelled = true;
-      restore?.();
-    };
-  }, [panel, hasNavigated, reduced]);
-
   const playbackLabel = status === "playing" ? copy.pause : status === "paused" ? copy.resume : copy.replay;
+  const projectionLit = !reduced && panel !== "contact" && (status === "playing" || status === "paused");
 
   return (
     <main className="mx-auto max-w-[1600px]">
       <audio ref={audio} src={soundtrack} preload="none" loop onError={() => setAudioUnavailable(true)} />
-      <figure className="preview" aria-label={copy.cinema} data-active={hash === null ? undefined : panel}>
+      <figure className="preview" aria-label={copy.cinema}
+        data-active={hash === null ? undefined : panel} data-projection={projectionLit ? "lit" : undefined}>
         <div className="scene">
           <nav className="locale absolute z-10 flex items-center" aria-label={copy.language}>
             {locales.map((language) => (
@@ -191,19 +170,18 @@ export default function Screening({ locale, copy, children }: {
                 }}>{language.toUpperCase()}</Link>
             ))}
           </nav>
-          <div className="backdrop">
-            <Image className="room" src="/media/ciudad-nocturna-asimetrica.webp" alt="" fill unoptimized preload />
-          </div>
+          <SceneBackdrop />
+          <div className="projection-spill" aria-hidden="true" />
           <div className="projection-frame">
             <div className="screen" ref={screen}>
               <section id="cover" data-panel className="shot title-shot" aria-labelledby="cover-heading">
-                <p className="eyebrow">{role}</p>
                 <h1 id="cover-heading" tabIndex={-1}>{name}</h1>
+                <p className="cover-role">{role}</p>
                 <div className="actions flex flex-wrap justify-center">
                   {hash !== null && <button className="primary" type="button" onClick={start}>
                     <span aria-hidden="true">▶ </span>{copy.play}
                   </button>}
-                  <a href="#about" onClick={(event) => followChapter(event, "about")}>{copy.browse}</a>
+                  <a href="#experience" onClick={(event) => followChapter(event, "experience")}>{copy.viewExperience}</a>
                 </div>
               </section>
               {children}
@@ -211,16 +189,19 @@ export default function Screening({ locale, copy, children }: {
           </div>
         </div>
         <figcaption className="controls flex flex-wrap justify-center">
-          <div className="transport flex flex-wrap justify-center gap-2" role="group" aria-label={copy.playback}>
-            <a className="return-link" href="#cover" onClick={(event) => followChapter(event, "cover")}>{copy.cover}</a>
-            {!reduced && status !== "reading" && <button type="button" onClick={togglePlayback}>{playbackLabel}</button>}
-          </div>
           <nav className="chapter-links flex flex-wrap justify-center gap-2" aria-label={copy.navigation}>
+            <a href="#cover" aria-current={hash !== null && panel === "cover" ? "location" : undefined}
+              onClick={(event) => followChapter(event, "cover")}>{copy.cover}</a>
             {chapters.map((chapter) => (
-              <a key={chapter} href={`#${chapter}`} aria-current={panel === chapter ? "location" : undefined}
+              <a key={chapter} href={`#${chapter}`} aria-current={hash !== null && panel === chapter ? "location" : undefined}
                 onClick={(event) => followChapter(event, chapter)}>{copy.labels[chapter]}</a>
             ))}
           </nav>
+          {!reduced && status !== "reading" && (
+            <div className="transport flex flex-wrap justify-center gap-2" role="group" aria-label={copy.playback}>
+              <button type="button" onClick={togglePlayback}>{playbackLabel}</button>
+            </div>
+          )}
           <p className="sr-only" role="status">{audioUnavailable && status === "playing" ? copy.silentNote : ""}</p>
         </figcaption>
       </figure>
