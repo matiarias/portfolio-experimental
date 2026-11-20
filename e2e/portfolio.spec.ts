@@ -19,7 +19,9 @@ test("renders chapters and navigation without JavaScript", async ({ browser, bas
   try {
     const page = await context.newPage();
     await page.goto("/es#about");
-    await expect(page.getByRole("heading", { name: /Software Engineer .* Fintech & Banca/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Software Engineer | Frontend", exact: true })).toBeVisible();
+    await expect(page.getByText("React · TypeScript · Next.js · Node.js · NestJS", { exact: true })).toBeVisible();
+    await expect(page.getByText("Fintech & Banca", { exact: true })).toBeVisible();
     await page.getByRole("link", { name: "Contacto", exact: true }).click();
     await expect(page.getByRole("heading", {
       name: "Estoy abierto a oportunidades remotas como Software Engineer.",
@@ -51,7 +53,7 @@ test("plays real audio after a keyboard gesture, pauses and finishes the screeni
   await page.keyboard.press("Enter");
   await expect(projection).toHaveAttribute("data-projection", "lit");
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
-  await expect(page.getByRole("heading", { name: /Software Engineer .* Fintech & Banking/ })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Software Engineer | Frontend", exact: true })).toBeFocused();
   await page.getByRole("button", { name: "Pause" }).click();
   await expect(audio).toHaveJSProperty("paused", true);
   await expect(projection).toHaveAttribute("data-projection", "lit");
@@ -154,7 +156,7 @@ test("keeps reduced motion silent and follows browser history", async ({ page })
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/es");
   await page.getByRole("button", { name: "Play", exact: true }).press("Enter");
-  await expect(page.getByRole("heading", { name: /Software Engineer .* Fintech & Banca/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Software Engineer | Frontend", exact: true })).toBeVisible();
   await expect(page.locator("audio")).toHaveJSProperty("paused", true);
   await page.getByRole("link", { name: "Experiencia", exact: true }).press("Enter");
   await page.goBack();

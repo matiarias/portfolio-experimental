@@ -29,7 +29,8 @@ const en = {
   viewExperience: "View experience",
   silentNote: "The screening is continuing without music.",
   labels: { about: "About", experience: "Experience", contact: "Contact" },
-  headline: "Software Engineer | Frontend · React · TypeScript · Next.js | Node.js · NestJS | Fintech & Banking",
+  headline: "Software Engineer | Frontend",
+  aboutSector: "Fintech & Banking",
   about: [
     "I’m a Software Engineer from Argentina. I spent over three years on the Investments team at Santander Tecnología Argentina, building banking and investment features for web and mobile, including Dólar MEP trading and Markets and Tenders.",
     "I have experience developing projects end to end, working closely with UX/UI and business teams. I helped define the user flows, built the frontend and BFF, and took features into production. After launch, I monitored how they performed, investigated incidents and coordinated fixes.",
@@ -57,7 +58,8 @@ export const dictionaries = {
     viewExperience: "Ver experiencia",
     silentNote: "La proyección continúa sin música.",
     labels: { about: "Sobre mí", experience: "Experiencia", contact: "Contacto" },
-    headline: "Software Engineer | Frontend · React · TypeScript · Next.js | Node.js · NestJS | Fintech & Banca",
+    headline: "Software Engineer | Frontend",
+    aboutSector: "Fintech & Banca",
     about: [
       "Soy Software Engineer de Argentina. Trabajé más de tres años en el equipo de Inversiones de Santander Tecnología Argentina, donde desarrollé funcionalidades de banca e inversión para web y móvil, como la compra y venta de Dólar MEP y los flujos de Mercados y Licitaciones.",
       "Tengo experiencia desarrollando proyectos de punta a punta, en colaboración con equipos de UX/UI y negocio. Participé en la definición de los flujos, desarrollé el frontend y el BFF y acompañé la puesta en producción. Después del lanzamiento, monitoreé su funcionamiento, investigué incidencias y coordiné su resolución.",
@@ -70,6 +72,7 @@ export const dictionaries = {
 
 export const name = "Matias Arias";
 export const role = "Software Engineer";
+export const aboutStack = "React · TypeScript · Next.js · Node.js · NestJS";
 export const contacts = [
   { label: "GitHub", detail: "@matiarias", href: "https://github.com/matiarias" },
   { label: "LinkedIn", detail: "/in/matiasarias27", href: "https://www.linkedin.com/in/matiasarias27" },

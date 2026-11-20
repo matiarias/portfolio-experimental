@@ -158,6 +158,18 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .screen .eyebrow { color: var(--accent); font-size: .76rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
 .screen .cover-role { color: var(--accent); font-size: clamp(1rem, 1.65cqw, 1.45rem); }
 .about-shot { max-width: 42rem; margin-inline: auto; }
+.about-header {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(.3rem, .55cqw, .55rem);
+  padding-block-end: .25rem;
+}
+.screen .about-stack {
+  color: var(--accent);
+  font-size: clamp(.9rem, 1.35cqw, 1.05rem);
+  font-weight: 600;
+}
+.screen .about-sector { color: #c3d0e3; font-size: .875rem; }
 .about-copy { display: grid; gap: .7rem; color: #f0e5d9; }
 .about-copy p { text-wrap: pretty; }
 .about-copy p:first-child { color: var(--ink); font-weight: 700; }

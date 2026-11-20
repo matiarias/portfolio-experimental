@@ -1,5 +1,5 @@
 import { FiArrowUpRight, FiGithub, FiLinkedin, FiMail } from "react-icons/fi";
-import { contacts, type Dictionary } from "@/content/portfolio";
+import { aboutStack, contacts, type Dictionary } from "@/content/portfolio";
 
 const contactIcons = { GitHub: FiGithub, LinkedIn: FiLinkedin, Email: FiMail };
 
@@ -7,8 +7,12 @@ export default function ChapterPanels({ copy }: { copy: Dictionary }) {
   return (
     <>
       <section id="about" data-panel className="shot about-shot" aria-labelledby="about-heading">
-        <p className="eyebrow">{copy.labels.about}</p>
-        <h2 id="about-heading" tabIndex={-1}>{copy.headline}</h2>
+        <header className="about-header">
+          <p className="eyebrow">{copy.labels.about}</p>
+          <h2 id="about-heading" tabIndex={-1}>{copy.headline}</h2>
+          <p className="about-stack">{aboutStack}</p>
+          <p className="about-sector">{copy.aboutSector}</p>
+        </header>
         <div className="about-copy">
           {copy.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
