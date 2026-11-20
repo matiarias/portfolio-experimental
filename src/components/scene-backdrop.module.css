@@ -111,7 +111,33 @@
 .reed:nth-child(6) { --stem-x: 72%; --stem-base: 5%; --stem-height: 76%; --stem-lean: 22deg; }
 .reed:nth-child(7) { --stem-x: 92%; --stem-base: 9%; --stem-height: 52%; --stem-lean: 31deg; }
 
+.dew { position: absolute; inset: 0; }
+.dew > span {
+  position: absolute;
+  top: var(--drop-y, 31%);
+  left: var(--drop-x, 55%);
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #a4c2d2;
+  opacity: 0;
+  animation-duration: .72s;
+  animation-timing-function: ease-out;
+  animation-delay: var(--drop-delay, 0s);
+  animation-fill-mode: both;
+}
+.dew > span:nth-child(1) { --drop-x: 39%; --drop-y: 28%; --drop-drift: 7px; }
+.dew > span:nth-child(2) { --drop-x: 62%; --drop-y: 15%; --drop-delay: .07s; --drop-drift: 12px; }
+.dew > span:nth-child(3) { --drop-x: 72%; --drop-y: 25%; --drop-delay: .13s; --drop-drift: 16px; }
+
+@keyframes dew-fall {
+  0% { opacity: 0; translate: 0 0; }
+  22% { opacity: .64; translate: calc(var(--drop-drift) * .28) -6px; }
+  100% { opacity: 0; translate: var(--drop-drift) 15px; }
+}
+
 @media (max-width: 800px) {
+  .backdrop { overflow: clip; }
   .plate {
     top: var(--skyline-height);
     width: max(calc(100cqw + 16px), calc(var(--skyline-height) * 1672 / 941));
@@ -136,6 +162,7 @@
     --ripple-width: 1;
     --reed-sway: 13deg;
   }
+  .reeds:hover .dew > span { animation-name: dew-fall; }
 }
 
 @media (max-width: 800px) and (prefers-reduced-motion: no-preference) {
@@ -149,4 +176,5 @@
     --ripple-width: 1;
     --reed-sway: 10deg;
   }
+  .reeds[data-touched] .dew > span { animation-name: dew-fall; }
 }

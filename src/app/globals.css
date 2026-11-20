@@ -4,7 +4,7 @@
   color-scheme: dark;
   background: #101425;
   color: #fff3e2;
-  font-family: "Lato", system-ui, sans-serif;
+  font-family: var(--font-geist), system-ui, sans-serif;
   --ink: #fff3e2;
   --accent: #f3d5c2;
   --cta: #efd2bf;
@@ -149,7 +149,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .preview:not([data-active]):has(#about:target) .chapter-links [href="#about"],
 .preview:not([data-active]):has(#experience:target) .chapter-links [href="#experience"],
 .preview:not([data-active]):has(#contact:target) .chapter-links [href="#contact"] { color: var(--accent); border-bottom-color: var(--accent); }
-.title-shot, .end-shot { text-align: center; justify-items: center; }
+.title-shot { text-align: center; justify-items: center; }
 .screen :is(h1, h2) { font-family: Georgia, "Palatino Linotype", serif; font-weight: 400; text-wrap: balance; }
 .screen h1 { font-size: clamp(2.55rem, 1.2rem + 6.15cqi, 6.65rem); line-height: .99; letter-spacing: -.045em; }
 .screen h2 { font-size: clamp(1.4rem, .55rem + 2.6cqi, 2.85rem); line-height: 1.12; letter-spacing: -.025em; overflow-wrap: anywhere; }
@@ -175,21 +175,50 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .experience-role strong { font-weight: 700; }
 .screen .experience-role li p { font-size: clamp(.95rem, 1.2cqw, 1.08rem); color: #f0e5d9; }
 
-.credits { display: grid; justify-self: center; width: min(100%, 29rem); gap: .45rem; text-align: left; }
+.end-shot { width: min(100%, 32rem); margin-inline: auto; gap: clamp(1rem, 2.2cqw, 1.8rem); }
+.screen .contact-intro {
+  max-width: 36ch;
+  justify-self: center;
+  color: #ffdbb0;
+  font-size: clamp(1.35rem, .95rem + 1.55cqw, 2.35rem);
+  line-height: 1.25;
+  text-align: center;
+}
+.credits { display: grid; gap: .45rem; min-width: 0; }
 .credits a {
   display: grid;
-  grid-template-columns: 1.3rem minmax(0, 1fr) 1rem;
+  grid-template-columns: 2.1rem minmax(0, 1fr) 1rem;
   align-items: center;
   gap: .75rem;
   min-height: 58px;
   padding: .55rem .75rem;
   border: 1px solid #eed6b54d;
   border-radius: 5px;
-  background-color: #10182b35;
+  background-color: #141f34a6;
 }
-.contact-icon, .contact-arrow { color: var(--accent); width: 100%; height: auto; }
+.contact-icon {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  color: #ffdbb0;
+  background: #eeb8861f;
+  border-radius: 4px;
+}
+.contact-icon svg { width: 1.05rem; height: 1.05rem; }
+.contact-arrow { color: var(--accent); width: 100%; height: auto; }
 .contact-detail { display: block; font-size: .875rem; color: #e3d7ca; overflow-wrap: anywhere; }
 .credits a:focus-visible { border-color: var(--accent); background-color: #10182b70; }
+@container (min-width: 1120px) {
+  .end-shot { width: min(100%, 54rem); }
+  .credits { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+  .credits a {
+    grid-template: "icon arrow" auto "label label" 1fr / 2.1rem 1fr;
+    padding: .8rem .9rem;
+  }
+  .contact-icon { grid-area: icon; }
+  .contact-label { grid-area: label; }
+  .contact-arrow { grid-area: arrow; justify-self: end; width: 1rem; }
+}
 @media (hover: hover) {
   .controls :is(a, button):hover { color: var(--accent); background-color: color-mix(in srgb, var(--accent) 7%, transparent); }
   .locale a:not([aria-current]):hover, .actions > :not(.primary):hover, .credits a:hover {
@@ -203,6 +232,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 @media (max-width: 800px) {
   .scene {
+    overflow: clip;
     --skyline-height: clamp(11.5rem, 53cqw, 25.5rem);
     --screen-bottom: 8%;
     aspect-ratio: auto;

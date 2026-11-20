@@ -33,14 +33,14 @@ export default function ChapterPanels({ copy }: { copy: Dictionary }) {
         </div>
       </section>
       <section id="contact" data-panel className="shot end-shot" aria-labelledby="contact-heading">
-        <h2 id="contact-heading" tabIndex={-1}>{copy.labels.contact}</h2>
+        <h2 id="contact-heading" className="contact-intro" tabIndex={-1}>{copy.contactIntro}</h2>
         <div className="credits">
           {contacts.map(({ label, detail, href }) => {
             const Icon = contactIcons[label];
             return (
               <a key={href} href={href}>
-                <Icon className="contact-icon" aria-hidden="true" />
-                <span><strong>{label}</strong><span className="contact-detail">{detail}</span></span>
+                <span className="contact-icon" aria-hidden="true"><Icon /></span>
+                <span className="contact-label"><strong>{label}</strong><span className="contact-detail">{detail}</span></span>
                 <FiArrowUpRight className="contact-arrow" aria-hidden="true" />
               </a>
             );

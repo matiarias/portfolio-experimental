@@ -6,8 +6,9 @@
 
 - Pantalla azul fija y frontal. Torre y farol a la izquierda, puente y ribera a la derecha. La pantalla tiene el mayor contraste y el mayor tamaño tipográfico.
 - Ciudad en penumbra con capas de luz ancladas a la placa existente. El farol usa ámbar y el agua combina reflejos fríos con pequeños trazos cálidos. Los juncos con hojas inclinadas y bases en sombra se funden con la orilla derecha. El auto estacionado queda para una próxima iteración.
-- En portada, el nombre es el título principal. **Frontend Engineer**, **Play** y **Ver experiencia** quedan visibles en el mismo cuadro. Portada y los capítulos están siempre disponibles debajo de la pantalla.
-- Serif editorial para títulos y sans para lectura y controles. Azul de reposo `#263550`, azul activo `#30415C`, marfil `#FFF3E2` y ámbar `#F4C797` como referencias de color.
+- En portada, el nombre es el título principal. **Software Engineer**, **Play** y **Ver experiencia** quedan visibles en el mismo cuadro. Portada y los capítulos están siempre disponibles debajo de la pantalla.
+- Georgia para los títulos y Geist para la lectura y los controles. Azul de reposo `#263550`, azul activo `#30415C`, marfil `#FFF3E2` y ámbar `#F4C797` como referencias de color.
+- Contacto centra el mensaje de disponibilidad remota y las tarjetas de GitHub, LinkedIn y correo. Las tarjetas se disponen en fila en escritorio amplio y se apilan en pantallas angostas. Comparten el mismo estilo en reposo.
 
 ## Interacción
 
@@ -17,7 +18,7 @@
 | Cursor cerca del farol | Aparece un halo cálido con un reflejo breve y suave bajo el farol. |
 | Cursor cerca del puente | Se destacan el pilar y la línea de luz del tablero. |
 | Cursor sobre el agua | Los reflejos se abren horizontalmente, separados del efecto del puente. |
-| Cursor cerca de la orilla | Los juncos se inclinan suavemente y vuelven al reposo. |
+| Cursor cerca de la orilla | Los juncos se inclinan suavemente, sueltan tres gotas de rocío y vuelven al reposo. |
 | Cursor en la pantalla o fuera de la escena | Las luces locales vuelven al reposo. |
 | Play | Sobre mí aparece de inmediato. La luz azul cae sobre el patio y los soportes mientras empieza el audio. |
 | Pausa y Continuar | El tiempo y la música siguen el comportamiento de reproducción actual. La luz sostiene el plano durante la pausa. |

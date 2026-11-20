@@ -80,7 +80,7 @@ describe("screening", () => {
     expect(playingAudio).toBe(false);
     expect(window.location.hash).toBe("#contact");
     expect(screen.getByRole("link", { name: "Español" })).toHaveAttribute("href", "/es#contact");
-    expect(screen.getByRole("heading", { name: "Contact" })).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "I’m open to remote Software Engineer roles." })).toHaveFocus();
   });
 
   it("keeps showing chapters when audio is rejected", async () => {

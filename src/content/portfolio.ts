@@ -16,7 +16,7 @@ export function panelFromHash(hash: string): Panel {
 }
 
 const en = {
-  description: "Matias Arias, frontend engineer from San Juan, Argentina. Explore his work in banking and investment products in an interactive drive-in cinema.",
+  description: "Matias Arias, Software Engineer from Argentina with a focus on frontend. Explore his work in banking and investment products in an interactive drive-in cinema.",
   cinema: "Drive-in cinema",
   language: "Language",
   navigation: "Chapters",
@@ -29,12 +29,13 @@ const en = {
   viewExperience: "View experience",
   silentNote: "The screening is continuing without music.",
   labels: { about: "About", experience: "Experience", contact: "Contact" },
-  headline: "Software Engineer focused on frontend for banking and fintech",
+  headline: "Software Engineer | Frontend · React · TypeScript · Next.js | Node.js · NestJS | Fintech & Banking",
   about: [
-    "I’m a Frontend Engineer from San Juan, Argentina. I spent over three years at Santander Tecnología Argentina building production-critical banking and investment features with React and TypeScript.",
-    "I work with Next.js and develop BFFs with Node.js and NestJS. I’ve also worked on high-volume transactional systems and resolved incidents in production.",
-    "I use agentic workflows in my daily development with GitHub Copilot, Windsurf, Devin, Claude Code and Codex.",
+    "I’m a Software Engineer from Argentina. I spent over three years on the Investments team at Santander Tecnología Argentina, building banking and investment features for web and mobile, including Dólar MEP trading and Markets and Tenders.",
+    "I have experience developing projects end to end, working closely with UX/UI and business teams. I helped define the user flows, built the frontend and BFF, and took features into production. After launch, I monitored how they performed, investigated incidents and coordinated fixes.",
+    "I work with Claude Code, OpenAI Codex, GitHub Copilot and Devin. I use them to research technical options, turn requirements into specs, plan the implementation and coordinate subagents on specific tasks. On this portfolio, I run lint, type checks and end-to-end tests with Playwright across browsers. If a check fails, I investigate, fix the issue and verify the flow again.",
   ],
+  contactIntro: "I’m open to remote Software Engineer roles.",
   experience: santander.en,
 };
 
@@ -43,7 +44,7 @@ export type Dictionary = typeof en;
 export const dictionaries = {
   en,
   es: {
-    description: "Matias Arias, Frontend Engineer de San Juan, Argentina. Conocé mi trabajo en productos bancarios y de inversión en un autocine interactivo.",
+    description: "Matias Arias, Software Engineer de Argentina con foco en frontend. Conocé mi trabajo en productos bancarios y de inversión en un autocine interactivo.",
     cinema: "Autocine",
     language: "Idioma",
     navigation: "Capítulos",
@@ -56,18 +57,19 @@ export const dictionaries = {
     viewExperience: "Ver experiencia",
     silentNote: "La proyección continúa sin música.",
     labels: { about: "Sobre mí", experience: "Experiencia", contact: "Contacto" },
-    headline: "Software Engineer con foco en frontend para banca y fintech",
+    headline: "Software Engineer | Frontend · React · TypeScript · Next.js | Node.js · NestJS | Fintech & Banca",
     about: [
-      "Soy Frontend Engineer de San Juan, Argentina. Durante más de tres años en Santander Tecnología Argentina desarrollé funcionalidades bancarias y de inversión críticas para producción con React y TypeScript.",
-      "Trabajo con Next.js y desarrollo BFF con Node.js y NestJS. También tengo experiencia con sistemas transaccionales de alto volumen y resolución de incidentes en producción.",
-      "Integro flujos de desarrollo con agentes en mi trabajo diario con GitHub Copilot, Windsurf, Devin, Claude Code y Codex.",
+      "Soy Software Engineer de Argentina. Trabajé más de tres años en el equipo de Inversiones de Santander Tecnología Argentina, donde desarrollé funcionalidades de banca e inversión para web y móvil, como la compra y venta de Dólar MEP y los flujos de Mercados y Licitaciones.",
+      "Tengo experiencia desarrollando proyectos de punta a punta, en colaboración con equipos de UX/UI y negocio. Participé en la definición de los flujos, desarrollé el frontend y el BFF y acompañé la puesta en producción. Después del lanzamiento, monitoreé su funcionamiento, investigué incidencias y coordiné su resolución.",
+      "Trabajo con Claude Code, OpenAI Codex, GitHub Copilot y Devin. Los uso para investigar alternativas técnicas, convertir requisitos en especificaciones, planificar la implementación y coordinar tareas concretas entre subagentes. En este portfolio, verifico los cambios con lint, chequeo de tipos y pruebas end to end con Playwright en varios navegadores. Si algo falla, investigo la causa, corrijo el cambio y vuelvo a probar el flujo.",
     ],
+    contactIntro: "Estoy abierto a oportunidades remotas como Software Engineer.",
     experience: santander.es,
   },
 } satisfies Record<Locale, Dictionary>;
 
 export const name = "Matias Arias";
-export const role = "Frontend Engineer";
+export const role = "Software Engineer";
 export const contacts = [
   { label: "GitHub", detail: "@matiarias", href: "https://github.com/matiarias" },
   { label: "LinkedIn", detail: "/in/matiasarias27", href: "https://www.linkedin.com/in/matiasarias27" },

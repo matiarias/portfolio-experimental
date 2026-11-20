@@ -53,6 +53,9 @@ export default function SceneBackdrop() {
         <div className={`${styles.zone} ${styles.reeds}`} data-scene-zone="reeds">
           <span className={styles.reedCluster} data-scene-reeds>
             {reedStems.map((stem) => <span key={stem} className={styles.reed} />)}
+            <span className={styles.dew} data-scene-dew>
+              <span /><span /><span />
+            </span>
           </span>
         </div>
       </div>

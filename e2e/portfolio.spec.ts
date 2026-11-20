@@ -19,8 +19,12 @@ test("renders chapters and navigation without JavaScript", async ({ browser, bas
   try {
     const page = await context.newPage();
     await page.goto("/es#about");
-    await expect(page.getByRole("heading", { name: "Software Engineer con foco en frontend para banca y fintech" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Software Engineer .* Fintech & Banca/ })).toBeVisible();
     await page.getByRole("link", { name: "Contacto", exact: true }).click();
+    await expect(page.getByRole("heading", {
+      name: "Estoy abierto a oportunidades remotas como Software Engineer.",
+      exact: true,
+    })).toBeVisible();
     await expect.poll(() => page.locator(".projection-spill").evaluate(
       (element) => getComputedStyle(element, "::after").opacity,
     )).toBe("0.35");
@@ -47,7 +51,7 @@ test("plays real audio after a keyboard gesture, pauses and finishes the screeni
   await page.keyboard.press("Enter");
   await expect(projection).toHaveAttribute("data-projection", "lit");
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
-  await expect(page.getByRole("heading", { name: "Software Engineer focused on frontend for banking and fintech" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: /Software Engineer .* Fintech & Banking/ })).toBeFocused();
   await page.getByRole("button", { name: "Pause" }).click();
   await expect(audio).toHaveJSProperty("paused", true);
   await expect(projection).toHaveAttribute("data-projection", "lit");
@@ -57,7 +61,10 @@ test("plays real audio after a keyboard gesture, pauses and finishes the screeni
   await page.clock.fastForward(11_000);
   await expect(page.getByRole("heading", { name: "Santander Tecnología Argentina" })).toBeVisible();
   await page.clock.fastForward(15_000);
-  await expect(page.getByRole("heading", { name: "Contact", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", {
+    name: "I’m open to remote Software Engineer roles.",
+    exact: true,
+  })).toBeVisible();
   await expect(projection).not.toHaveAttribute("data-projection", "lit");
   await page.clock.fastForward(6_000);
   await expect(page.getByRole("button", { name: "Watch again" })).toBeVisible();
@@ -83,9 +90,12 @@ test("lights each part of the city on the cover and in chapters", async ({ page 
   }
 
   const reed = page.locator("[data-scene-reeds] > span").first();
+  const drop = page.locator("[data-scene-dew] > span").first();
   await expect(reed).toHaveCSS("rotate", "-27deg");
+  await expect(drop).toHaveCSS("animation-name", "none");
   await page.locator('[data-scene-zone="reeds"]').hover();
   await expect(reed).toHaveCSS("rotate", "-14deg");
+  await expect(drop).not.toHaveCSS("animation-name", "none");
   await title.hover();
   await expect(reed).toHaveCSS("rotate", "-27deg");
 
@@ -100,6 +110,7 @@ test("lights each part of the city on the cover and in chapters", async ({ page 
 
   const lantern = page.locator('[data-scene-light="lantern"]');
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(drop).toHaveCSS("animation-name", "none");
   const area = await lantern.locator("..").boundingBox();
   if (!area) throw new Error("Lantern zone is missing");
   await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
@@ -112,6 +123,21 @@ test("lights each part of the city on the cover and in chapters", async ({ page 
 test("shows the tower, bridge and reeds above the projection on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/es");
+  await expect(page.locator(".cover-role")).toHaveText("Software Engineer");
+  const widths = await page.evaluate(() => {
+    const scene = document.querySelector<HTMLElement>(".scene")!;
+    const backdrop = document.querySelector<HTMLElement>(".backdrop")!;
+    scene.scrollLeft = 100;
+    backdrop.scrollLeft = 100;
+    window.scrollTo(100, 0);
+    return {
+      page: document.documentElement.scrollWidth,
+      viewport: document.documentElement.clientWidth,
+      horizontalScroll: window.scrollX + scene.scrollLeft + backdrop.scrollLeft,
+    };
+  });
+  expect(widths.page).toBe(widths.viewport);
+  expect(widths.horizontalScroll).toBe(0);
   const screen = await page.locator(".projection-frame").boundingBox();
   if (!screen) throw new Error("Projection frame is missing");
 
@@ -128,7 +154,7 @@ test("keeps reduced motion silent and follows browser history", async ({ page })
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/es");
   await page.getByRole("button", { name: "Play", exact: true }).press("Enter");
-  await expect(page.getByRole("heading", { name: "Software Engineer con foco en frontend para banca y fintech" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Software Engineer .* Fintech & Banca/ })).toBeVisible();
   await expect(page.locator("audio")).toHaveJSProperty("paused", true);
   await page.getByRole("link", { name: "Experiencia", exact: true }).press("Enter");
   await page.goBack();
