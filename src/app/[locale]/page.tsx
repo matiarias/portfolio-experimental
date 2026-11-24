@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ChapterPanels from "@/components/chapter-panels";
-import Screening from "@/components/screening";
+import Alley from "@/components/alley";
 import { dictionaries, isLocale, name, role } from "@/content/portfolio";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -35,9 +34,5 @@ export default async function PortfolioPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const copy = dictionaries[locale];
-  return (
-    <Screening key={locale} locale={locale} copy={copy}>
-      <ChapterPanels copy={copy} />
-    </Screening>
-  );
+  return <Alley key={locale} locale={locale} copy={copy} />;
 }

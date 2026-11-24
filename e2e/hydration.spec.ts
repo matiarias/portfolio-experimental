@@ -15,15 +15,15 @@ function collectHydrationErrors(page: Page) {
   return errors;
 }
 
-test("hydrates both locales and a direct chapter without warnings", async ({ page }) => {
+test("hydrates both locales and a direct stop without warnings", async ({ page }) => {
   const errors = collectHydrationErrors(page);
   await page.goto("/es");
   await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
-  await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Matias Arias" })).toBeVisible();
 
   await page.goto("/en#experience");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("link", { name: "Experience", exact: true })).toHaveAttribute("aria-current", "location");
+  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
   expect(errors).toEqual([]);
 });
 
@@ -46,9 +46,9 @@ test("tolerates classes injected into the document root before hydration", async
   await page.goto("/es");
   await expect(page.locator("html")).toHaveClass(/\baddrdx idc0_350\b/);
   await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
-  const play = page.getByRole("button", { name: "Play", exact: true });
-  await expect(play).toBeVisible();
-  await play.press("Enter");
-  await expect(page.getByRole("link", { name: "Sobre mí", exact: true })).toHaveAttribute("aria-current", "location");
+
+  const about = page.getByRole("link", { name: "Sobre mí", exact: true });
+  await about.click();
+  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "about");
   expect(errors).toEqual([]);
 });

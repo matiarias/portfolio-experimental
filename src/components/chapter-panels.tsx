@@ -6,7 +6,7 @@ const contactIcons = { GitHub: FiGithub, LinkedIn: FiLinkedin, Email: FiMail };
 export default function ChapterPanels({ copy }: { copy: Dictionary }) {
   return (
     <>
-      <section id="about" data-panel className="shot about-shot" aria-labelledby="about-heading">
+      <section id="about" className="reading-section about-shot" aria-labelledby="about-heading">
         <header className="about-header">
           <p className="eyebrow">{copy.labels.about}</p>
           <h2 id="about-heading" tabIndex={-1}>{copy.headline}</h2>
@@ -17,7 +17,8 @@ export default function ChapterPanels({ copy }: { copy: Dictionary }) {
           {copy.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
       </section>
-      <section id="experience" data-panel className="shot experience-shot" aria-labelledby="experience-heading">
+
+      <section id="experience" className="reading-section experience-shot" aria-labelledby="experience-heading">
         <p className="eyebrow">{copy.labels.experience} · 2023–2026</p>
         <h2 id="experience-heading" tabIndex={-1}>Santander Tecnología Argentina</h2>
         <div className="experience-list">
@@ -36,7 +37,8 @@ export default function ChapterPanels({ copy }: { copy: Dictionary }) {
           ))}
         </div>
       </section>
-      <section id="contact" data-panel className="shot end-shot" aria-labelledby="contact-heading">
+
+      <section id="contact" className="reading-section end-shot" aria-labelledby="contact-heading">
         <h2 id="contact-heading" className="contact-intro" tabIndex={-1}>{copy.contactIntro}</h2>
         <div className="credits">
           {contacts.map(({ label, detail, href }) => {
