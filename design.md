@@ -16,16 +16,14 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
 
 ## Estado y próximos pasos
 
-- **Fase 1 — implementada en `feat/alley-scene`.** La portada y las tres secciones
+- **Fase 1 — implementada.** La portada y las tres secciones
   son paradas de una tira horizontal. El HUD permite saltar entre paradas,
-  cambiar de idioma sin perder la parada y alternar el modo lectura. Las fachadas
-  son maquetas CSS, los rótulos japoneses son texto decorativo y el gato es un
-  SVG estático. El modo lectura ya muestra todo el contenido y los enlaces reales.
-- **Fase 2 — en pausa hasta el OK del usuario.** Reemplazar las maquetas por
-  fachadas frontales con SVG independientes, dibujar los rótulos japoneses como
-  paths y trabajar el neón, los materiales y los objetos de cada parada. Conservar
-  la geometría responsive y el contrato de scroll; comprobar que el cartel de
-  portada no se recorte. Las ventanas todavía serán decorativas.
+  cambiar de idioma sin perder la parada y alternar el modo lectura, que
+  muestra todo el contenido y los enlaces reales.
+- **Fase 2 — implementada para revisión local en `feat/alley-scene`.** Cuatro
+  fachadas SVG independientes, rótulos japoneses vectoriales, halo por
+  parada, cables, lluvia, grano y reflejos en el asfalto. La portada conserva
+  su margen al hidratar; las ventanas siguen siendo decorativas.
 - **Fase 3 — pendiente.** Rig SVG del gato con GSAP, caminata en función del
   progreso del paseo y animaciones de reposo.
 - **Fase 4 — pendiente.** Ventanas como interacción principal de Experiencia,
@@ -33,8 +31,7 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   La base de datos ya está en el manifiesto: ocho logros de Santander en dos
   períodos (cinco y tres), sin duplicar el contenido.
 
-No empezar la Fase 2 sin aprobación ni integrar a `main` hasta que el proyecto
-esté terminado y el usuario dé el visto bueno.
+No integrar a `main` hasta que el proyecto esté terminado y el usuario dé el visto bueno.
 
 ## Composición
 
@@ -52,14 +49,16 @@ esté terminado y el usuario dé el visto bueno.
 | `experience` | edificio de oficinas | experiencia |
 | `contact` | cabina telefónica y expendedora | contacto |
 
-- La maqueta de experiencia muestra dos filas de cuatro ventanas decorativas.
+- La torre de experiencia muestra ocho ventanas decorativas en dos pisos (cinco y tres).
   En el diseño final, cada ventana iluminada representa un proyecto; la pared
   lateral lleva el timeline 2023 → 2026.
 - El gato queda anclado al 38% del ancho de pantalla. La calle se mueve debajo de él.
-- En escritorio, el ancho de cada fachada se limita al doble del ancla para que
-  su borde izquierdo no se recorte al llegar a la parada. En móvil (hasta 720 px),
-  se mantiene una fachada más ancha y se desplaza el contenido del cartel hacia
-  el interior para que siga siendo legible.
+- La entrada se compone con margen fluido y se queda en `x = 0` durante toda
+  la primera pausa: no se recentra al arrancar GSAP. Las otras paradas se ajustan
+  al ancla del gato. En móvil (hasta 720 px) los carteles de esas paradas tienen
+  un margen interior que compensa el posible recorte de la fachada.
+- Las [fachadas](src/components/scene/facades) y los carteles se renderizan en el
+  servidor. El cliente mueve sus contenedores, no vuelve a construir el arte.
 
 ## Paleta
 
@@ -72,6 +71,7 @@ esté terminado y el usuario dé el visto bueno.
 | `--neon-magenta` | `#ff2e88` | acento primario |
 | `--neon-cyan` | `#22e0ff` | acento secundario |
 | `--neon-amber` | `#ffb347` | luz cálida y portada |
+| `--neon-jade` | `#83edc3` | cabina y reflejos de contacto |
 | `--neon-violet` | `#8b5cf6` | acento terciario |
 | `--paper` | `#fff4e6` | texto principal |
 | `--muted` | `#9aa6bd` | texto secundario |
@@ -85,22 +85,18 @@ profundo para que el color sea información, no decoración.
 
 - Títulos y body: Geist, ya instalada como fuente local.
 - Acentos, HUD y etiquetas cortas: pila monoespaciada del sistema.
-- No se descarga ninguna fuente japonesa. En Fase 1 los rótulos usan el
-  fallback del sistema; en Fase 2 pasan a paths SVG. Son decorativos. Los
-  futuros controles tendrán nombres accesibles traducidos.
+- Los rótulos japoneses son paths SVG decorativos extraídos de Noto Sans JP
+  ([OFL](src/content/NotoSansJP-OFL.txt)). No se descarga ninguna fuente japonesa.
+  Los futuros controles tendrán nombres accesibles traducidos.
 
 ## Materiales
 
-Objetivos visuales para las fachadas definitivas; no describen las maquetas actuales.
-
-- Cero rellenos planos: cada superficie lleva un gradiente de dos o tres stops y
-  una banda de sombra de contacto.
-- Grano estático al 5–8% de opacidad.
-- Halation en los neones fuertes, con `mix-blend-mode: screen`.
-- Charcos: espejo de la capa de carteles, `blur(2px)`, `opacity(.22)` y máscara
-  de gradiente horizontal.
-- Aberración cromática de 1 px solo en los dos carteles más brillantes.
-- Paths con imperfección: nunca rectángulos perfectos.
+- Gradientes, tramas y sombras de contacto distinguen el metal, la tela,
+  el hormigón y el vidrio. El grano es una textura SVG estática.
+- Una capa de lluvia usa una textura repetida y se mueve con `transform`.
+  Su contraste se reduce en móvil; no se anima con movimiento reducido.
+- Los charcos usan gradientes y una máscara de líneas. El halo del neón
+  usa un gradiente radial sin filtros grandes.
 
 ## Movimiento
 
@@ -119,17 +115,17 @@ Objetivos visuales para las fachadas definitivas; no describen las maquetas actu
   historial y salta al destino; el scroll reemplaza el hash al asentarse o
   después de un salto grande. Se mantienen `#about`, `#experience` y `#contact`
   en ambos idiomas. `#experience/<id>` todavía no abre detalles.
+- El neón acentúa la parada activa mediante una transición de opacidad del
+  halo; los glifos siguen legibles. No hay parpadeos ni animación de trazo.
 
 ### Pendiente
 
 - El gato acelera con la velocidad del scroll y se detiene al parar.
-- Encendido de neones con DrawSVG; el flicker anima solo la capa de halo, nunca
-  el elemento filtrado.
 - Paneles con `<dialog>` nativo y expansión con GSAP Flip.
 
 ## Interacción
 
-Objetivos de las fases siguientes. En Fase 1 la escena es decorativa: se recorre
+Objetivos de las fases siguientes. La escena actual es decorativa: se recorre
 por scroll o desde el HUD y el contenido completo se consulta en modo lectura.
 
 | Momento | Respuesta |

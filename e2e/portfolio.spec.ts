@@ -70,6 +70,19 @@ test("lands on a deep link without walking", async ({ page }) => {
   await expect(page.locator("main")).toHaveAttribute("data-mode", "scene");
 });
 
+test("renders four independent SVG facades and keeps project windows decorative", async ({ page }) => {
+  await page.goto("/es#experience");
+  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
+  await expect(page.locator(".storefront-art")).toHaveCount(4);
+  await expect(page.locator('.neon-sign[lang="ja"][aria-hidden="true"] svg path')).toHaveCount(4);
+  await expect(page.locator('.storefront[data-stop="experience"] [data-window]')).toHaveCount(8);
+  await expect(page.locator("#alley-stage").getByRole("button")).toHaveCount(0);
+  const svgBytes = await page.locator(".storefront svg").evaluateAll((nodes) =>
+    nodes.reduce((bytes, node) => bytes + new TextEncoder().encode(node.outerHTML).length, 0),
+  );
+  expect(svgBytes).toBeLessThanOrEqual(120_000);
+});
+
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 

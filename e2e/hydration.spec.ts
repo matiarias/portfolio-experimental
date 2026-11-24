@@ -27,6 +27,49 @@ test("hydrates both locales and a direct stop without warnings", async ({ page }
   expect(errors).toEqual([]);
 });
 
+for (const width of [390, 1280, 1366]) {
+  test(`leaves a safe left margin on the entrance sign through hydration at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    let allowScripts!: () => void;
+    const gate = new Promise<void>((resolve) => { allowScripts = resolve; });
+    await page.route("**/_next/static/**/*.js", async (route) => {
+      await gate;
+      await route.continue();
+    });
+
+    const plate = page.locator('[data-stop="entrance"] .storefront-sign-plate');
+    let before;
+    try {
+      await page.goto("/es", { waitUntil: "commit" });
+      await expect(plate).toBeVisible();
+      await expect(page.locator(".band-street")).not.toHaveAttribute("style", /transform/);
+      before = await plate.boundingBox();
+    } finally {
+      allowScripts();
+    }
+
+    await page.waitForLoadState("load");
+    await expect(page.locator(".band-street")).toHaveAttribute("style", /transform/, { timeout: 10_000 });
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    const after = await plate.boundingBox();
+    expect(before?.x).toBeGreaterThanOrEqual(20);
+    expect(after?.x).toBeCloseTo(before?.x ?? -1, 1);
+    const text = plate.locator(".storefront-label, .storefront-role");
+    await expect(text).toHaveCount(2);
+    for (const box of await text.evaluateAll((nodes) => nodes.map((node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const { left, right, top, bottom } = range.getBoundingClientRect();
+      return { left, right, top, bottom };
+    }))) {
+      expect(box.left).toBeGreaterThanOrEqual(20);
+      expect(box.right).toBeLessThanOrEqual(width - 20);
+      expect(box.top).toBeGreaterThan(0);
+      expect(box.bottom).toBeLessThan(800);
+    }
+  });
+}
+
 test("tolerates classes injected into the document root before hydration", async ({ page }) => {
   const errors = collectHydrationErrors(page);
   await page.addInitScript(() => {

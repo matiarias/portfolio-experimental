@@ -9,15 +9,15 @@ La dirección visual está documentada en [design.md](design.md). El approach an
 
 ## Estado de la rama
 
-`feat/alley-scene` contiene la Fase 1: motor de parallax, cuatro paradas, HUD,
-navegación por hash y modo lectura. Las fachadas y el gato son provisionales.
+La Fase 2 está lista para revisión local en `feat/alley-scene`: cuatro fachadas SVG,
+carteles de neón y una calle con lluvia y reflejos, sobre el motor de parallax,
+el HUD y el modo lectura de la Fase 1. El gato sigue siendo estático.
 Para leer el contenido completo o usar los enlaces de contacto, activá **Modo lectura**.
 Las ventanas todavía no abren proyectos y la escena no reproduce audio.
 
-La Fase 2 está en pausa hasta recibir aprobación explícita. El alcance y los
-pasos siguientes están en [design.md](design.md); las reglas para continuar el
-trabajo están en [AGENTS.md](AGENTS.md). No se integra a `main` hasta terminar el
-proyecto y recibir el visto bueno.
+El alcance y los pasos siguientes están en [design.md](design.md); las reglas
+para continuar el trabajo están en [AGENTS.md](AGENTS.md). No se integra a
+`main` hasta terminar el proyecto y recibir el visto bueno.
 
 ## Desarrollo local
 
@@ -60,6 +60,9 @@ para probar una preview.
 - [`alley.tsx`](src/components/alley.tsx) coordina la navegación y el modo lectura.
   [`stage.tsx`](src/components/scene/stage.tsx) mide y mueve las tres bandas.
   [`chapter-panels.tsx`](src/components/chapter-panels.tsx) renderiza el contenido de lectura.
+- Las [fachadas SVG](src/components/scene/facades) se componen en el servidor en
+  [`storefronts.tsx`](src/components/scene/storefronts.tsx). Los glifos japoneses
+  provienen de Noto Sans JP ([licencia OFL](src/content/NotoSansJP-OFL.txt)); no se descarga la fuente.
 - El [loop del autocine](public/media/loop-crepusculo.wav) se conserva, pero
   todavía no se usa en el callejón.
 - En producción, configurá `SITE_URL` con el origen canónico. Las previews de Vercel

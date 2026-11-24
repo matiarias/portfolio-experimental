@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties, type RefObject } from "react";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { name, role, type Locale } from "@/content/portfolio";
-import { stops, type Stop, type StopId } from "@/content/scene";
+import { stops, type StopId } from "@/content/scene";
 import { anchorXFor, progressToX, stopAt, type Layout } from "@/lib/alley-engine";
 import Cat from "./cat/cat";
 
@@ -14,19 +13,12 @@ const FOREGROUND_DEPTH = 1.35;
 const SMOOTHING = 0.18;
 const SKYLINE = [14, 22, 17, 30, 19, 34, 15, 27, 21, 31, 18, 25];
 
-const facades: Record<StopId, { windows: number; layout: "row" | "tower"; door: boolean }> = {
-  entrance: { windows: 2, layout: "row", door: true },
-  about: { windows: 3, layout: "row", door: false },
-  experience: { windows: 8, layout: "tower", door: false },
-  contact: { windows: 2, layout: "row", door: true },
-};
-
 type Props = {
-  locale: Locale;
   scrollHint: string;
   activeStop: StopId;
   barRef: RefObject<HTMLDivElement | null>;
   onStopChange: (stop: StopId) => void;
+  children: ReactNode;
 };
 
 /**
@@ -35,7 +27,7 @@ type Props = {
  * El pin se resuelve con `position: sticky`; ScrollTrigger solo lee el progreso
  * y un único ticker escribe `transform` sobre las tres bandas.
  */
-export default function Stage({ locale, scrollHint, activeStop, barRef, onStopChange }: Props) {
+export default function Stage({ scrollHint, activeStop, barRef, onStopChange, children }: Props) {
   const stageRef = useRef<HTMLElement>(null);
   const streetRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -66,9 +58,11 @@ export default function Stage({ locale, scrollHint, activeStop, barRef, onStopCh
 
       const measure = (): Layout => {
         const stopCenter = {} as Record<StopId, number>;
+        const streetLeft = street.getBoundingClientRect().left;
         street.querySelectorAll<HTMLElement>("[data-stop]").forEach((element) => {
           const id = element.dataset.stop as StopId;
-          stopCenter[id] = element.offsetLeft + element.offsetWidth / 2;
+          const rect = element.getBoundingClientRect();
+          stopCenter[id] = rect.left - streetLeft + rect.width / 2;
         });
         const viewportW = stage.clientWidth;
         return {
@@ -155,15 +149,7 @@ export default function Stage({ locale, scrollHint, activeStop, barRef, onStopCh
       // Con hash manda el deep link; sin hash respetamos el scroll restaurado.
       if (!window.location.hash) report(state.current);
 
-      let cancelled = false;
-      document.fonts?.ready
-        .then(() => {
-          if (!cancelled) ScrollTrigger.refresh();
-        })
-        .catch(() => undefined);
-
       return () => {
-        cancelled = true;
         gsap.ticker.remove(tick);
         trigger.kill();
       };
@@ -188,22 +174,29 @@ export default function Stage({ locale, scrollHint, activeStop, barRef, onStopCh
               <span key={index} style={{ height: `${height}svh` }} />
             ))}
           </div>
+          <svg className="overhead-wires" viewBox="0 0 1600 200" preserveAspectRatio="none" focusable="false">
+            <path d="M0 21Q360 194 754 36T1600 60M0 49Q408 218 792 63T1600 92M0 110Q495 35 1012 164T1600 112" />
+            <path d="M146 0V97M747 0v77m615-77v135" />
+          </svg>
         </div>
 
         <div ref={streetRef} className="band band-street">
-          {stops.map((stop) => (
-            <Storefront key={stop.id} stop={stop} locale={locale} />
-          ))}
+          {children}
         </div>
 
-        <div className="ground" />
+        <div className="ground">
+          <div className="street-reflection" />
+        </div>
 
         <Cat />
 
         <div ref={foregroundRef} className="band band-foreground">
-          {Array.from({ length: 14 }, (_, index) => (
-            <span key={index} className="fg-pole" style={{ left: `${index * 7.4 + 2}%` }} />
+          {Array.from({ length: 12 }, (_, index) => (
+            <span key={index} className="fg-bollard" style={{ left: `${index * 56 + 9}vw` }} />
           ))}
+        </div>
+        <div className="alley-weather">
+          <div className="alley-rain" />
         </div>
 
         {activeStop === "entrance" && (
@@ -216,38 +209,6 @@ export default function Stage({ locale, scrollHint, activeStop, barRef, onStopCh
             </span>
           </p>
         )}
-      </div>
-    </section>
-  );
-}
-
-function Storefront({ stop, locale }: { stop: Stop; locale: Locale }) {
-  const facade = facades[stop.id];
-  const isEntrance = stop.id === "entrance";
-
-  return (
-    <section
-      className="storefront"
-      data-stop={stop.id}
-      style={{ "--neon": `var(--neon-${stop.neon})` } as CSSProperties}
-    >
-      <div className="storefront-sign">
-        <span className="storefront-kanji" lang="ja">
-          {stop.kanji}
-        </span>
-        <span className="storefront-label">{isEntrance ? name : stop.label[locale]}</span>
-        {isEntrance && <span className="storefront-role">{role}</span>}
-        {stop.id === "experience" && <span className="storefront-role">2023 — 2026</span>}
-      </div>
-
-      <div className={`storefront-facade${facade.door ? " has-door" : ""}`}>
-        <div className="facade-awning" />
-        <div className={`facade-windows facade-windows-${facade.layout}`}>
-          {Array.from({ length: facade.windows }, (_, index) => (
-            <span key={index} className="facade-window" />
-          ))}
-        </div>
-        {facade.door && <div className="facade-door" />}
       </div>
     </section>
   );

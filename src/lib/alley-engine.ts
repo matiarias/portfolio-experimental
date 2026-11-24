@@ -17,7 +17,7 @@ export type Layout = {
   stopCenter: Record<StopId, number>;
 };
 
-/** El gato camina en el 38% del ancho de pantalla. */
+/** El gato se ancla al 38% del ancho de pantalla. */
 export const ANCHOR_RATIO = 0.38;
 
 function clamp(value: number, min: number, max: number): number {
@@ -35,10 +35,12 @@ export function maxTravel(layout: Layout): number {
 }
 
 /**
- * Desplazamiento necesario para que una fachada quede anclada en `anchorX`.
+ * La entrada usa la posición de reposo de CSS antes y después de hidratar.
+ * Las demás fachadas se alinean con `anchorX`.
  * Una fachada con centro `c` aparece en pantalla en `c + x`.
  */
 export function xForStop(stop: StopId, layout: Layout): number {
+  if (stop === "entrance") return 0;
   return layout.anchorX - layout.stopCenter[stop];
 }
 

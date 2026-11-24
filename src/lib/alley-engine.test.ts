@@ -22,10 +22,16 @@ const layout: Layout = {
 const anchored = (stop: (typeof stopIds)[number]) => layout.stopCenter[stop] + xForStop(stop, layout);
 
 describe("alley engine", () => {
-  it("anchors every storefront on the cat", () => {
+  it("anchors the later storefronts on the cat", () => {
     for (const stop of stopIds) {
+      if (stop === "entrance") continue;
       expect(anchored(stop)).toBeCloseTo(layout.anchorX, 6);
     }
+  });
+
+  it("keeps the entrance at the CSS origin even if its center differs from the anchor", () => {
+    expect(progressToX(0, layout)).toBe(0);
+    expect(progressToX(0.1, layout)).toBe(0);
   });
 
   it("keeps the street still during dwells", () => {

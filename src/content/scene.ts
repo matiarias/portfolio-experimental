@@ -12,7 +12,7 @@ import { santander } from "./santander";
 export const stopIds = ["entrance", "about", "experience", "contact"] as const;
 export type StopId = (typeof stopIds)[number];
 
-export type NeonColor = "amber" | "magenta" | "cyan" | "violet";
+export type NeonColor = "amber" | "magenta" | "cyan" | "jade";
 
 export type Stop = {
   id: StopId;
@@ -53,7 +53,7 @@ export const stops = [
     hash: "#contact",
     kanji: "連絡",
     label: { en: "Contact", es: "Contacto" },
-    neon: "violet",
+    neon: "jade",
   },
 ] as const satisfies readonly Stop[];
 

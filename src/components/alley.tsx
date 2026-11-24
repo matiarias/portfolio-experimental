@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import type { Dictionary, Locale } from "@/content/portfolio";
 import { stops, type StopId } from "@/content/scene";
 import { progressForStop } from "@/lib/alley-engine";
@@ -18,7 +18,11 @@ function stopFromHash(hash: string): StopId | null {
   return stop?.id ?? null;
 }
 
-export default function Alley({ locale, copy }: { locale: Locale; copy: Dictionary }) {
+export default function Alley({ locale, copy, children }: {
+  locale: Locale;
+  copy: Dictionary;
+  children: ReactNode;
+}) {
   const reduced = useReducedMotion();
   const [preference, setPreference] = useReadingMode();
   const reading = reduced || preference === "reading";
@@ -156,12 +160,13 @@ export default function Alley({ locale, copy }: { locale: Locale; copy: Dictiona
         ) : (
           <>
             <Stage
-              locale={locale}
               scrollHint={copy.scrollHint}
               activeStop={activeStop}
               barRef={barRef}
               onStopChange={handleStopChange}
-            />
+            >
+              {children}
+            </Stage>
             <div className="reading-fallback">
               <ReadingMode copy={copy} />
             </div>
