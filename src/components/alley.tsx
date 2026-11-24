@@ -161,6 +161,8 @@ export default function Alley({ locale, copy, children }: {
           <>
             <Stage
               scrollHint={copy.scrollHint}
+              petLabel={copy.petCat}
+              petFeedback={copy.catFeedback}
               activeStop={activeStop}
               barRef={barRef}
               onStopChange={handleStopChange}

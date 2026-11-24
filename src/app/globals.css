@@ -305,6 +305,7 @@ a {
 
 .band-foreground {
   bottom: 0;
+  z-index: 5;
   width: 650%;
   height: 100%;
   pointer-events: none;
@@ -543,6 +544,9 @@ a {
    --------------------------------------------------------------------------- */
 
 .alley-cat {
+  --cat-fur-light: #d9e0ed;
+  --cat-fur-dark: #aab5c8;
+  --cat-emerald: #21c694;
   position: absolute;
   bottom: calc(var(--ground-h) - 0.5rem);
   left: var(--anchor);
@@ -559,6 +563,27 @@ a {
   overflow: visible;
 }
 
+.cat-pet {
+  position: absolute;
+  inset: auto 0 0;
+  width: 100%;
+  height: max(44px, 78%);
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  background: transparent;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.cat-pet:hover {
+  border-color: rgb(255 247 238 / 26%);
+}
+
+[data-cat-state="walk"] .cat-pet,
+[data-cat-state="run"] .cat-pet {
+  cursor: default;
+}
+
 .cat-shadow {
   fill: #000;
   opacity: 0.35;
@@ -573,7 +598,7 @@ a {
 
 .cat-tail {
   fill: none;
-  stroke: #b7c1d4;
+  stroke: var(--cat-fur-dark);
   stroke-width: 7;
   stroke-linecap: round;
 }
@@ -600,7 +625,7 @@ a {
 }
 
 .cat-eye {
-  fill: #2ee6a8;
+  fill: var(--cat-emerald);
 }
 
 .cat-pupil {

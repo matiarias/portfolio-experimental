@@ -9,9 +9,11 @@ La dirección visual está documentada en [design.md](design.md). El approach an
 
 ## Estado de la rama
 
-La Fase 2 está lista para revisión local en `feat/alley-scene`: cuatro fachadas SVG,
-carteles de neón y una calle con lluvia y reflejos, sobre el motor de parallax,
-el HUD y el modo lectura de la Fase 1. El gato sigue siendo estático.
+La Fase 3 está lista para revisión local en `feat/alley-scene`: el gato camina
+con el scroll, se sienta al parar y se duerme si no hay actividad. Acercá el
+puntero para que mire hacia arriba o tocá el gato para acariciarlo; el mismo
+control funciona con teclado. El callejón conserva sus cuatro fachadas SVG,
+el parallax y los carteles de neón.
 Para leer el contenido completo o usar los enlaces de contacto, activá **Modo lectura**.
 Las ventanas todavía no abren proyectos y la escena no reproduce audio.
 

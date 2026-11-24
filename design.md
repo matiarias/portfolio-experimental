@@ -24,8 +24,10 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   fachadas SVG independientes, rótulos japoneses vectoriales, halo por
   parada, cables, lluvia, grano y reflejos en el asfalto. La portada conserva
   su margen al hidratar; las ventanas siguen siendo decorativas.
-- **Fase 3 — pendiente.** Rig SVG del gato con GSAP, caminata en función del
-  progreso del paseo y animaciones de reposo.
+- **Fase 3 — implementada para revisión local.** Rig SVG del gato con GSAP:
+  camina, corre y cambia de dirección según la calle, se sienta al parar y se
+  duerme por inactividad. El puntero cercano activa la mirada; acariciarlo
+  funciona con clic, toque o teclado, todavía sin audio.
 - **Fase 4 — pendiente.** Ventanas como interacción principal de Experiencia,
   paneles de detalle, timeline vertical en la pared y deep links de proyectos.
   La base de datos ya está en el manifiesto: ocho logros de Santander en dos
@@ -107,9 +109,9 @@ profundo para que el color sea información, no decoración.
   desplazamiento, con easing cúbico entre paradas y sin acceso al DOM.
 - [`stage.tsx`](src/components/scene/stage.tsx) fija el viewport con `sticky`
   dentro de un contenedor alto. ScrollTrigger mide el progreso (sin `pin`).
-  Un solo callback de `gsap.ticker`, activo mientras el movimiento se asienta,
-  escribe el desplazamiento con `quickSetter`: fondo `0.15×`, calle `1×` y
-  primer plano `1.35×`.
+  Un solo callback de `gsap.ticker` escribe el desplazamiento con `quickSetter`:
+  fondo `0.15×`, calle `1×` y primer plano `1.35×`. El callback se duerme cuando
+  se asientan tanto la calle como la pose.
 - [`alley.tsx`](src/components/alley.tsx) lee la parada activa del hash vía
   [`useHash`](src/lib/use-hash.ts). La navegación explícita actualiza el
   historial y salta al destino; el scroll reemplaza el hash al asentarse o
@@ -117,16 +119,20 @@ profundo para que el color sea información, no decoración.
   en ambos idiomas. `#experience/<id>` todavía no abre detalles.
 - El neón acentúa la parada activa mediante una transición de opacidad del
   halo; los glifos siguen legibles. No hay parpadeos ni animación de trazo.
+- El gato usa el desplazamiento horizontal real entre frames: el rig no da
+  pasos mientras la calle está quieta o en un salto directo de cámara.
+  [La lógica de zancada](src/lib/cat-motion.ts) es pura. En modo lectura,
+  con movimiento reducido o sin JavaScript se conserva el contenido sin el rig.
 
 ### Pendiente
 
-- El gato acelera con la velocidad del scroll y se detiene al parar.
 - Paneles con `<dialog>` nativo y expansión con GSAP Flip.
 
 ## Interacción
 
-Objetivos de las fases siguientes. La escena actual es decorativa: se recorre
-por scroll o desde el HUD y el contenido completo se consulta en modo lectura.
+El callejón se recorre por scroll o desde el HUD; el contenido completo se
+consulta en modo lectura. El gato ya responde al movimiento y se puede
+acariciar. Los paneles, ventanas y timeline de la tabla siguen pendientes.
 
 | Momento | Respuesta |
 | --- | --- |
@@ -137,8 +143,8 @@ por scroll o desde el HUD y el contenido completo se consulta en modo lectura.
 | Click en una ventana | Panel con el detalle del proyecto |
 | Hover en el timeline | Se iluminan las ventanas del período |
 | Cursor cerca del gato | Las pupilas lo siguen |
-| Click sostenido en el gato | Se deja acariciar y ronronea |
-| Ocho segundos sin actividad | El gato se sienta y se lame la pata |
+| Clic, toque o teclado sobre el gato | Se acurruca; el ronroneo queda para la fase de audio |
+| Pausa en la calle | Se sienta y, tras unos 12 segundos de inactividad, se duerme |
 
 En móvil no hay hover: cada interacción se resuelve con tap y los targets tienen
 al menos 44×44 px. El gesto vertical sigue desplazando la página; no se secuestra
@@ -150,8 +156,9 @@ el scroll horizontal.
   `prefers-reduced-motion` y de no-JS.
 - Con movimiento reducido: sin pin, sin parallax, sin caminata y sin audio; las
   paradas se apilan como secciones normales.
-- El modo lectura contiene el contenido en HTML semántico. La escena actual es
-  decorativa y queda fuera del árbol de accesibilidad; el HUD sí es accesible.
+- El modo lectura contiene el contenido en HTML semántico. Las capas visuales
+  quedan fuera del árbol de accesibilidad; el HUD y el botón del gato sí están
+  disponibles con foco visible y nombre traducido.
 - Fase 4: botones reales para carteles y ventanas interactivos, con foco visible.
   ESC cierra los paneles y devuelve el foco al disparador.
 

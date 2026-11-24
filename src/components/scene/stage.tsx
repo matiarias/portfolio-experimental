@@ -6,15 +6,19 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { stops, type StopId } from "@/content/scene";
 import { anchorXFor, progressToX, stopAt, type Layout } from "@/lib/alley-engine";
+import { animateCat } from "./cat/animate-cat";
 import Cat from "./cat/cat";
 
 const BACKDROP_DEPTH = 0.15;
 const FOREGROUND_DEPTH = 1.35;
 const SMOOTHING = 0.18;
+const FRAME_MS = 1_000 / 60;
 const SKYLINE = [14, 22, 17, 30, 19, 34, 15, 27, 21, 31, 18, 25];
 
 type Props = {
   scrollHint: string;
+  petLabel: string;
+  petFeedback: string;
   activeStop: StopId;
   barRef: RefObject<HTMLDivElement | null>;
   onStopChange: (stop: StopId) => void;
@@ -27,11 +31,13 @@ type Props = {
  * El pin se resuelve con `position: sticky`; ScrollTrigger solo lee el progreso
  * y un único ticker escribe `transform` sobre las tres bandas.
  */
-export default function Stage({ scrollHint, activeStop, barRef, onStopChange, children }: Props) {
+export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, barRef, onStopChange, children }: Props) {
   const stageRef = useRef<HTMLElement>(null);
   const streetRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const foregroundRef = useRef<HTMLDivElement>(null);
+  const catRef = useRef<HTMLDivElement>(null);
+  const petRef = useRef<(() => void) | null>(null);
   const layoutRef = useRef<Layout | null>(null);
   const stopRef = useRef<StopId>("entrance");
   const onStopChangeRef = useRef(onStopChange);
@@ -73,14 +79,18 @@ export default function Stage({ scrollHint, activeStop, barRef, onStopChange, ch
         };
       };
 
+      let streetX = 0;
       const apply = (value: number) => {
         const layout = layoutRef.current;
-        if (!layout) return;
+        if (!layout) return 0;
         const x = progressToX(value, layout);
+        const travel = (streetX - x) / Math.max(layout.viewportW, 1);
+        streetX = x;
         setBackdrop(x * BACKDROP_DEPTH);
         setStreet(x);
         setForeground(x * FOREGROUND_DEPTH);
         setBar?.(value);
+        return travel;
       };
 
       // La parada se anuncia al asentarse, no en cada frame: un paseo
@@ -97,26 +107,39 @@ export default function Stage({ scrollHint, activeStop, barRef, onStopChange, ch
 
       const state = { target: 0, current: 0 };
       let ticking = false;
+      let previousFrame = 0;
 
-      const tick = () => {
+      const cat = catRef.current ? animateCat(catRef.current, ensureTicker) : null;
+      petRef.current = cat?.pet ?? null;
+
+      function tick() {
+        // Time from the browser clock, not GSAP's lag-smoothed timeline clock.
+        const now = performance.now();
+        const elapsed = gsap.utils.clamp(1, 1_000, now - previousFrame);
+        previousFrame = now;
         const delta = state.target - state.current;
-        if (Math.abs(delta) < 0.0002) {
-          state.current = state.target;
-          apply(state.current);
-          report(state.current);
+        const drifting = Math.abs(delta) >= 0.0002;
+        let travel = 0;
+        if (delta !== 0) {
+          // Mantiene la duración del frenado incluso si el navegador entrega pocos frames.
+          const smoothing = 1 - (1 - SMOOTHING) ** (elapsed / FRAME_MS);
+          state.current = drifting ? state.current + delta * smoothing : state.target;
+          travel = apply(state.current);
+        }
+        if (!drifting) report(state.current);
+        const catMoving = cat?.advance(elapsed / 1_000, travel);
+        if (!drifting && !catMoving) {
           gsap.ticker.remove(tick);
           ticking = false;
-          return;
         }
-        state.current += delta * SMOOTHING;
-        apply(state.current);
-      };
+      }
 
-      const ensureTicker = () => {
+      function ensureTicker() {
         if (ticking) return;
         ticking = true;
+        previousFrame = performance.now() - FRAME_MS;
         gsap.ticker.add(tick);
-      };
+      }
 
       const trigger = ScrollTrigger.create({
         trigger: stage,
@@ -140,6 +163,7 @@ export default function Stage({ scrollHint, activeStop, barRef, onStopChange, ch
           layoutRef.current = measure();
           state.current = state.target;
           apply(state.current);
+          cat?.remeasure();
         },
       });
 
@@ -150,6 +174,8 @@ export default function Stage({ scrollHint, activeStop, barRef, onStopChange, ch
       if (!window.location.hash) report(state.current);
 
       return () => {
+        petRef.current = null;
+        cat?.destroy();
         gsap.ticker.remove(tick);
         trigger.kill();
       };
@@ -163,10 +189,9 @@ export default function Stage({ scrollHint, activeStop, barRef, onStopChange, ch
       id="alley-stage"
       className="alley-stage"
       style={{ height: `${(stops.length + 1) * 100}svh` }}
-      aria-hidden="true"
     >
       <div className="alley-stage-viewport">
-        <div ref={backdropRef} className="band band-backdrop">
+        <div ref={backdropRef} className="band band-backdrop" aria-hidden="true">
           <div className="sky" />
           <div className="moon" />
           <div className="skyline">
@@ -180,22 +205,22 @@ export default function Stage({ scrollHint, activeStop, barRef, onStopChange, ch
           </svg>
         </div>
 
-        <div ref={streetRef} className="band band-street">
+        <div ref={streetRef} className="band band-street" aria-hidden="true">
           {children}
         </div>
 
-        <div className="ground">
+        <div className="ground" aria-hidden="true">
           <div className="street-reflection" />
         </div>
 
-        <Cat />
+        <Cat rootRef={catRef} petLabel={petLabel} petFeedback={petFeedback} onPet={() => petRef.current?.()} />
 
-        <div ref={foregroundRef} className="band band-foreground">
+        <div ref={foregroundRef} className="band band-foreground" aria-hidden="true">
           {Array.from({ length: 12 }, (_, index) => (
             <span key={index} className="fg-bollard" style={{ left: `${index * 56 + 9}vw` }} />
           ))}
         </div>
-        <div className="alley-weather">
+        <div className="alley-weather" aria-hidden="true">
           <div className="alley-rain" />
         </div>
 

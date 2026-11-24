@@ -76,7 +76,7 @@ test("renders four independent SVG facades and keeps project windows decorative"
   await expect(page.locator(".storefront-art")).toHaveCount(4);
   await expect(page.locator('.neon-sign[lang="ja"][aria-hidden="true"] svg path')).toHaveCount(4);
   await expect(page.locator('.storefront[data-stop="experience"] [data-window]')).toHaveCount(8);
-  await expect(page.locator("#alley-stage").getByRole("button")).toHaveCount(0);
+  await expect(page.locator(".storefront button")).toHaveCount(0);
   const svgBytes = await page.locator(".storefront svg").evaluateAll((nodes) =>
     nodes.reduce((bytes, node) => bytes + new TextEncoder().encode(node.outerHTML).length, 0),
   );
