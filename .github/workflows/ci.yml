@@ -18,6 +18,15 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium firefox webkit
+      - name: Provision virtual audio output for browser tests
+        run: |
+          if ! command -v pulseaudio >/dev/null || ! command -v pactl >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y pulseaudio pulseaudio-utils
+          fi
+          pactl info >/dev/null 2>&1 || pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=playwright
+          echo "PULSE_SINK=playwright" >> "$GITHUB_ENV"
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()

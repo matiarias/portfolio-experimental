@@ -1,6 +1,30 @@
-# Portfolio experimental · Autocine de noche
+# Portfolio · Callejón de noche
 
-Portfolio bilingüe de Matias Arias. Una pantalla de autocine presenta Sobre mí, Experiencia y Contacto sobre una ciudad nocturna. Se puede recorrer como una función con música o abrir un capítulo directamente.
+Portfolio bilingüe de Matias Arias. Un callejón nocturno de Tokio, visto de perfil,
+se recorre con el scroll: cada fachada es una sección y un gato guía el paseo.
+
+La dirección visual está documentada en [design.md](design.md). El approach anterior
+—el autocine— quedó en stand by y su material sigue en
+[handoff-autocine-final](handoff-autocine-final/HANDOFF.md).
+
+## Estado de la rama
+
+En `feat/alley-scene`, «Ver experiencia» abre la trayectoria completa desde
+la torre. El ramen abre la bio y la cabina abre los enlaces de contacto.
+El callejón conserva el parallax y el gato animado. Los reflejos de la
+acera toman el color del cartel apenas el gato entra en su fachada.
+
+**Home / Inicio** vuelve a la entrada del callejón. **Modo lectura** ofrece
+el mismo contenido sin animación. Los enlaces directos
+a logros de experiencia funcionan tanto en escena como en lectura.
+
+La Fase 5 centra una fachada por parada en móvil, aligera los efectos y
+pausa la escena en pestañas ocultas. La Fase 6 incluye el reproductor de
+*Gentle Pathways*, disponible desde el HUD de la escena. La pista no se
+descarga ni suena hasta pulsar Reproducir. El [CI de Fase 6](https://github.com/matiarias/portfolio-experimental/actions/runs/45721819440)
+pasó en Ubuntu para `176baf3`. El alcance y el estado de la revisión final
+están en [design.md](design.md); las reglas, en [AGENTS.md](AGENTS.md).
+No se integra a `main` sin autorización explícita.
 
 ## Desarrollo local
 
@@ -11,9 +35,18 @@ npm ci
 npm run dev
 ```
 
-Abrí [localhost:3000](http://localhost:3000). La portada redirige a `/en` y la versión en español vive en `/es`.
+Abrí [localhost:3000](http://localhost:3000). La portada redirige a `/en` y la versión
+en español vive en [`/es`](http://localhost:3000/es). Para probar una parada
+directamente, abrí por ejemplo [`/es#experience`](http://localhost:3000/es#experience).
+Para abrir la trayectoria, probá [`/es#experience/details`](http://localhost:3000/es#experience/details).
+Para ir directo a un logro, usá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
+El modo lectura se guarda en el navegador y también se activa con movimiento
+reducido o al navegar sin JavaScript.
 
 ## Verificación
+
+Durante una iteración, elegí los checks que cubran el cambio. Corré la suite
+completa antes de publicar o cerrar una fase, no en cada ajuste menor.
 
 ```sh
 npm run lint
@@ -24,11 +57,59 @@ npx playwright install chromium firefox webkit
 npm run test:e2e
 ```
 
-`npm run test:watch` mantiene Vitest abierto. Playwright arranca el build local en el puerto 3100. También acepta `PLAYWRIGHT_BASE_URL` para probar una preview.
+`npm run test:watch` mantiene Vitest abierto. Playwright sirve el build existente
+en el puerto 3100 y ejecuta los flujos en Chromium, Firefox y WebKit; volvé a
+correr `npm run build` si cambió el código. También acepta `PLAYWRIGHT_BASE_URL`
+para probar una preview. En Ubuntu, CI usa una salida virtual para probar el
+MP3 real. Si la prueba de audio falla, el artefacto `playwright-results`
+incluye los eventos del medio y los cambios de visibilidad.
+
+Para repetir Lighthouse móvil, serví el build con `npm run start -- --port 3100`
+y ejecutá `npx --yes lighthouse@13.6.0 http://localhost:3100/es --only-categories=performance,accessibility`
+con Chrome instalado. Repetilo para `/en`; las metas son 85 en rendimiento
+y 95 en accesibilidad. Para comparar rendimiento, hacé tres corridas por
+ruta sin otras pruebas en paralelo y anotá la mediana. Cerrá el servidor con
+`Ctrl+C` al terminar. La última mediana de `/en` fue 82; el detalle de las
+corridas y lo que falta investigar están en [design.md](design.md#revisión-de-rendimiento).
+
+Para validar en dispositivos físicos, recorré las cuatro paradas en iOS y
+Android, en vertical y horizontal, y cambiá de pestaña durante el paseo.
+Medí la fluidez del scroll en un Android de gama media. Con VoiceOver
+(Safari) y NVDA (Firefox o Chrome), probá este recorrido:
+
+- Activá «Saltar al contenido» y recorré los capítulos con teclado o gestos
+  del lector de pantalla.
+- En la escena, abrí cada diálogo: debe anunciarse su título y al cerrar
+  el foco debe volver al control que lo abrió.
+- En modo lectura, usá la lista de encabezados y activá un capítulo desde
+  el HUD: el foco debe ir a su título. Probá también el enlace directo a un
+  logro y verificá que se conserve al cambiar de idioma.
+- Desde la escena, reproducí la pista y cambiá de pestaña o abrí un diálogo.
+  Al volver o cerrarlo, la música debe seguir pausada. Repetilo al entrar
+  en modo lectura.
+
+Registrá dispositivo, sistema, navegador, lector de pantalla y resultado.
+Para Android, adjuntá la traza de un recorrido completo y compará el
+ritmo de los frames con la meta de 60 fps (unos 16,7 ms por frame).
 
 ## Contenido y recursos
 
-- Los diccionarios, el About y los enlaces están en [`src/content/portfolio.ts`](src/content/portfolio.ts). Los logros de Santander en ambos idiomas están en [`src/content/santander.ts`](src/content/santander.ts).
-- [`handoff-autocine-final/HANDOFF.md`](handoff-autocine-final/HANDOFF.md) documenta el diseño aprobado.
-- Para reemplazar la música, cambiá [`public/media/loop-crepusculo.wav`](public/media/loop-crepusculo.wav) por un loop propio o autorizado. Si cambia el nombre o el formato, actualizá la ruta en `screening.tsx`.
-- En producción, configurá `SITE_URL` con el origen canónico. Las previews de Vercel pueden usar su URL automática.
+- Los diccionarios, el About y los enlaces están en [`src/content/portfolio.ts`](src/content/portfolio.ts).
+  Los logros de Santander en ambos idiomas están en [`src/content/santander.ts`](src/content/santander.ts).
+- El manifiesto de la escena —paradas y ritmo del paseo—
+  está en [`src/content/scene.ts`](src/content/scene.ts). El cálculo de progreso vive en
+  [`src/lib/alley-engine.ts`](src/lib/alley-engine.ts).
+- [`alley.tsx`](src/components/alley.tsx) coordina la navegación y el modo lectura.
+  [`stage.tsx`](src/components/scene/stage.tsx) mide y mueve las tres bandas.
+  [`chapter-panels.tsx`](src/components/chapter-panels.tsx) renderiza el contenido de lectura.
+- Las [fachadas SVG](src/components/scene/facades) se componen en el servidor en
+  [`storefronts.tsx`](src/components/scene/storefronts.tsx). Los glifos japoneses
+  provienen de Noto Sans JP ([licencia OFL](src/content/NotoSansJP-OFL.txt)); no se descarga la fuente.
+- La pista [`gentle-pathways.mp3`](public/media/gentle-pathways.mp3) y su
+  título se configuran en [`soundtrack.ts`](src/content/soundtrack.ts).
+  Confirmá los permisos y créditos aplicables antes de publicarla.
+  El [loop del autocine](public/media/loop-crepusculo.wav) no se usa.
+- Con el servidor local activo, `node scripts/capture-social.mjs` regenera
+  la [imagen para compartir](public/media/alley-social.png) a 1200 × 630.
+- En producción, configurá `SITE_URL` con el origen canónico. Las previews de Vercel
+  pueden usar su URL automática.
