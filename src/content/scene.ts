@@ -31,7 +31,7 @@ export const stops = [
     id: "entrance",
     hash: "#entrance",
     kanji: "アリアス",
-    label: { en: "Home", es: "Portada" },
+    label: { en: "Home", es: "Inicio" },
     neon: "amber",
   },
   {

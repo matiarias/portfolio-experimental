@@ -31,9 +31,6 @@ export default function Tower() {
           <path d="M-8 101h116v6H-8Z" fill="#768798" />
         </g>
       )))}
-      <path d="M474 249h220v133H474Z" fill="#283647" stroke="#597180" strokeWidth="2" />
-      <path d="M495 269h177m-177 94h177" stroke="#728a91" strokeWidth="1" opacity=".45" />
-      <path d="M484 259v114m201-114v114" stroke="#101b2a" strokeWidth="2" opacity=".45" />
       <path d="M711 235v142h35" fill="none" stroke="#121c2b" strokeWidth="8" />
       <path d="M54 365h83v31H54Z" fill="#677481" stroke="#252b39" strokeWidth="2" />
       <circle cx="76" cy="380" r="11" fill="#344050" stroke="#99a4a5" strokeWidth="2" />

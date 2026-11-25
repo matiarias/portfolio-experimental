@@ -127,20 +127,6 @@ a {
   pointer-events: auto;
 }
 
-.hud-brand {
-  margin: 0;
-  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.hud-brand a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  text-decoration: none;
-}
-
 .hud-nav {
   display: flex;
   align-items: center;
@@ -499,136 +485,13 @@ a {
   left: 39%;
 }
 
+[data-stop="experience"] .facade-plaque {
+  top: 54%;
+  left: 50%;
+}
+
 .facade-plaque:is(:hover, :focus-visible) {
   background: #272433;
-}
-
-.tower-instruction {
-  position: absolute;
-  inset: 13% 9% auto;
-  margin: 0;
-  color: #e2edf5;
-  font: 600 clamp(0.65rem, 0.55rem + 0.4vw, 0.85rem)/1.1 var(--mono);
-}
-
-.tower-window,
-.tower-timeline {
-  position: absolute;
-  top: var(--hit-y);
-  left: var(--hit-x);
-  width: var(--hit-w);
-}
-
-.tower-window {
-  display: grid;
-  align-items: end;
-  min-width: 44px;
-  min-height: 44px;
-  height: var(--hit-h);
-  padding: 0.25rem;
-  border: 1px solid transparent;
-  color: #f4fbff;
-  text-align: left;
-}
-
-.tower-window > span:first-child {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.15rem;
-  padding: 0.18rem 0.25rem;
-  background: rgb(8 19 30 / 88%);
-  font: 600 clamp(0.64rem, 0.57rem + 0.38vw, 0.95rem)/1 var(--mono);
-}
-
-.tower-window:is(:hover, :focus-visible),
-.scene-hotspots:has(.timeline-stop[data-floor="0"]:is(:hover, :focus)) .tower-window[data-floor="0"],
-.scene-hotspots:has(.timeline-stop[data-floor="1"]:is(:hover, :focus)) .tower-window[data-floor="1"] {
-  border-color: var(--neon);
-  background: rgb(117 238 255 / 22%);
-  box-shadow: inset 0 0 12px rgb(196 255 255 / 28%);
-}
-
-.tower-window:is(:hover, :focus-visible) {
-  z-index: 2;
-}
-
-.window-caption {
-  position: absolute;
-  inset: auto auto calc(100% + 3px) 0;
-  width: max-content;
-  max-width: min(15rem, 40vw);
-  padding: 0.35rem 0.5rem;
-  border: 1px solid #65b7c9;
-  background: #0e1c2b;
-  color: #f4fbff;
-  font-size: 0.75rem;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.tower-window:is([data-project="0-3"], [data-project="0-4"]) .window-caption {
-  inset-inline: auto 0;
-}
-
-.tower-window:is(:hover, :focus-visible) .window-caption {
-  opacity: 1;
-}
-
-.tower-timeline {
-  min-width: 6rem;
-  padding: 0.2rem 0.38rem;
-  border: 1px solid #658090;
-  background: #182735;
-  color: #e0f7ff;
-  font: 600 clamp(0.58rem, 0.52rem + 0.28vw, 0.83rem)/1.2 var(--mono);
-}
-
-.tower-timeline > p {
-  margin: 0.15rem 0 0.05rem 0.5rem;
-  color: var(--neon);
-}
-
-.tower-timeline ol {
-  margin: 0;
-  margin-inline-start: 0.19rem;
-  padding: 0;
-  border-inline-start: 1px solid #547689;
-}
-
-.timeline-stop {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.18rem;
-  width: 100%;
-  min-width: 44px;
-  min-height: 44px;
-  padding-inline: 0.38rem 0.1rem;
-  text-align: left;
-}
-
-.timeline-stop::before {
-  position: absolute;
-  inset-inline-start: -3px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--neon);
-  content: "";
-}
-
-.timeline-stop:is(:hover, :focus-visible) {
-  color: #fff;
-  background: #284256;
-}
-
-.timeline-stop svg,
-.tower-window svg {
-  width: 0.75rem;
-  height: 0.75rem;
-  flex: none;
 }
 
 /* Top-layer chapter panels */
@@ -724,19 +587,6 @@ a {
   font-weight: 650;
   line-height: 1.1;
   text-wrap: balance;
-}
-
-.chapter-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin-bottom: 1rem;
-  color: #b8c9d9;
-  font: 500 0.76rem/1.55 var(--mono);
-}
-
-.chapter-meta span {
-  color: var(--chapter-accent);
 }
 
 .chapter-project-copy,
@@ -1247,6 +1097,10 @@ a {
   margin-top: 1.8rem;
 }
 
+.chapter-body .experience-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .experience-role {
   border-top: 1px solid color-mix(in srgb, var(--neon-cyan) 35%, transparent);
   padding-top: 1rem;
@@ -1421,17 +1275,13 @@ a {
   }
 
   .alley-hud {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-end;
     row-gap: 0.1rem;
   }
 
-  .hud-brand {
-    font-size: 0.95rem;
-  }
-
   .hud-nav {
-    order: 3;
-    width: 100%;
+    max-inline-size: 100%;
     margin-inline-start: 0;
     overflow-x: auto;
     scrollbar-width: none;
@@ -1444,10 +1294,8 @@ a {
   .hud-nav a {
     font-size: 0.64rem;
     letter-spacing: 0.1em;
-  }
-
-  .hud-tools {
-    margin-inline-start: auto;
+    padding-inline: 0.45rem;
+    white-space: nowrap;
   }
 
   .hud-reading span {

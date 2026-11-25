@@ -9,9 +9,11 @@ describe("alley fragments", () => {
     }
   });
 
-  it("recognizes the bio, contact and stable project fragments", () => {
+  it("recognizes the chapter detail links and legacy experience anchors", () => {
     expect(panelFromLocation("#about/details")).toBe("#about/details");
     expect(panelFromLocation("#contact/details")).toBe("#contact/details");
+    expect(panelFromLocation("#experience/details")).toBe("#experience/details");
+    expect(stopFromHash("#experience/details")).toBe("experience");
     expect(stopFromHash("#about/details")).toBe("about");
     expect(stopFromHash("#contact/details")).toBe("contact");
     expect(panelFromLocation(projectHash("0-2"))).toBe("#experience/0-2");

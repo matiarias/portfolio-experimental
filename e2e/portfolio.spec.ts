@@ -81,19 +81,37 @@ test("navigates stops with the keyboard", async ({ page }) => {
   await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
 });
 
+test("returns to the entrance through Home or Inicio without a duplicate brand link", async ({ page }) => {
+  for (const [locale, label] of [["en", "Home"], ["es", "Inicio"]]) {
+    await page.goto(`/${locale}#contact`);
+    const nav = page.locator(".hud-nav");
+    const home = nav.getByRole("link").first();
+    await expect(home).toHaveAccessibleName(label);
+    await expect(page.locator(".alley-hud")).not.toContainText("Matias Arias");
+
+    await home.focus();
+    await home.press("Enter");
+    await expect(page).toHaveURL(new RegExp(`/${locale}$`));
+    await expect(home).toHaveAttribute("aria-current", "location");
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  }
+});
+
 test("lands on a deep link without walking", async ({ page }) => {
   await page.goto("/es#about");
   await expect(page.locator("main")).toHaveAttribute("data-active-stop", "about");
   await expect(page.locator("main")).toHaveAttribute("data-mode", "scene");
 });
 
-test("renders four independent SVG facades with eight accessible project controls", async ({ page }) => {
+test("renders four independent SVG facades and one experience control", async ({ page }) => {
   await page.goto("/es#experience");
   await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
   await expect(page.locator(".storefront-art")).toHaveCount(4);
   await expect(page.locator('.neon-sign[lang="ja"][aria-hidden="true"] svg path')).toHaveCount(4);
   await expect(page.locator('.storefront[data-stop="experience"] [data-window]')).toHaveCount(8);
-  await expect(page.getByRole("button").and(page.locator(".tower-window"))).toHaveCount(8);
+  const tower = page.locator('.storefront[data-stop="experience"]');
+  await expect(tower.getByRole("button")).toHaveCount(1);
+  await expect(tower.getByRole("button", { name: "Ver experiencia" })).toBeEnabled();
   const svgBytes = await page.locator(".storefront svg").evaluateAll((nodes) =>
     nodes.reduce((bytes, node) => bytes + new TextEncoder().encode(node.outerHTML).length, 0),
   );
@@ -120,10 +138,24 @@ test.describe("mobile", () => {
     await expect(nav).toBeVisible();
 
     const contact = nav.getByRole("link", { name: "Contact", exact: true });
-    const box = await contact.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    const { offsetWidth, offsetHeight } = await contact.evaluate((element: HTMLAnchorElement) => ({
+      offsetWidth: element.offsetWidth,
+      offsetHeight: element.offsetHeight,
+    }));
+    expect(offsetWidth).toBeGreaterThanOrEqual(44);
+    expect(offsetHeight).toBeGreaterThanOrEqual(44);
 
     await contact.tap();
     await expect(page.locator("main")).toHaveAttribute("data-active-stop", "contact");
+  });
+
+  test("fits all Spanish navigation links at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 750 });
+    await page.goto("/es");
+    const nav = page.getByRole("navigation", { name: "Capítulos" });
+    await expect(nav.getByRole("link")).toHaveCount(4);
+    expect(await nav.evaluate((element) => element.scrollWidth)).toBeLessThanOrEqual(
+      await nav.evaluate((element) => element.clientWidth),
+    );
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { createContext, useContext, useLayoutEffect, useRef, type ReactNode } from "react";
 import type { StopId } from "@/content/scene";
 import type { PanelHash } from "@/lib/alley-location";
 
@@ -52,26 +52,20 @@ export function SceneHotspots({ stop, children }: { stop: StopId; children: Reac
   return <div className="scene-hotspots" hidden={!active} ref={groupRef}>{children}</div>;
 }
 
-export function SceneButton({ hash, children, className, style, label, floor, project }: {
+export function SceneButton({ hash, children, className, label }: {
   hash: PanelHash;
   children: ReactNode;
   className: string;
-  style?: CSSProperties;
   label: string;
-  floor?: number;
-  project?: string;
 }) {
   const actions = useContext(SceneActions);
   return (
     <button
       type="button"
       className={className}
-      style={style}
       aria-label={label}
       aria-haspopup="dialog"
       aria-hidden="true"
-      data-floor={floor}
-      data-project={project}
       onClick={(event) => actions?.open(hash, event.currentTarget)}
     >
       {children}

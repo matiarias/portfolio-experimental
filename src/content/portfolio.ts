@@ -28,8 +28,7 @@ const en = {
   scene: {
     aboutAction: "Read the bio",
     contactAction: "Get in touch",
-    experienceHint: "Choose a window to read a project.",
-    timeline: "Timeline",
+    experienceAction: "View experience",
     close: "Close",
   },
   labels: { about: "About", experience: "Experience", contact: "Contact" },
@@ -61,8 +60,7 @@ export const dictionaries = {
     scene: {
       aboutAction: "Leer la bio",
       contactAction: "Contactarme",
-      experienceHint: "Elegí una ventana para leer un proyecto.",
-      timeline: "Trayectoria",
+      experienceAction: "Ver experiencia",
       close: "Cerrar",
     },
     labels: { about: "Sobre mí", experience: "Experiencia", contact: "Contacto" },

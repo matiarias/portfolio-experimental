@@ -28,12 +28,21 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   camina, corre y cambia de dirección según la calle, se sienta al parar y se
   duerme por inactividad. El puntero cercano activa la mirada; acariciarlo
   funciona con clic, toque o teclado, todavía sin audio.
-- **Fase 4 — implementada para revisión local.** Ocho ventanas de Santander
-  en dos períodos (cinco y tres), mural vertical, paneles de bio, proyectos y
-  contacto, y enlaces directos a cada proyecto. El modo lectura reutiliza el
-  mismo contenido.
+- **Fase 4 — implementada para revisión local.** Paneles de bio, experiencia
+  y contacto. La experiencia de Santander se comparte con el modo lectura
+  y conserva enlaces directos a cada logro.
 
-No integrar a `main` hasta que el proyecto esté terminado y el usuario dé el visto bueno.
+- **Fase 5 — pendiente.** Optimizar el recorte y los efectos en móvil,
+  pausar el trabajo de la escena en pestañas ocultas y revisar accesibilidad
+  con NVDA y VoiceOver. Validar con Playwright en Chromium, Firefox y WebKit.
+  Metas: 60 fps en un Android de gama media y Lighthouse móvil ≥ 85 en
+  rendimiento y ≥ 95 en accesibilidad.
+- **Fase 6 — pendiente.** Añadir audio silenciado por defecto, activado por
+  gesto y con preferencia persistente; pulir halos, reflejos e interacciones
+  del gato; actualizar la imagen para compartir y preparar un PR con capturas
+  de escritorio y móvil y un resumen de verificaciones.
+
+Nunca hacer merge a `main` sin un pedido explícito del usuario.
 
 ## Composición
 
@@ -51,9 +60,12 @@ No integrar a `main` hasta que el proyecto esté terminado y el usuario dé el v
 | `experience` | edificio de oficinas | experiencia |
 | `contact` | cabina telefónica y expendedora | contacto |
 
-- La torre de experiencia tiene ocho ventanas en dos pisos (cinco y tres).
-  Cada ventana abre un proyecto; la pared lateral lleva el timeline 2023 → 2026.
-  El SVG sigue siendo decorativo; los controles HTML se alinean a su geometría.
+- La torre conserva sus ocho ventanas decorativas y el patrón de luces. Un
+  único botón central abre la experiencia en una columna, del período más
+  reciente al más antiguo.
+- El HUD se agrupa a la derecha, en dos filas cuando se ve en móvil.
+  Home/Inicio es el primer enlace; los idiomas y el modo lectura forman
+  un grupo aparte. Solo el cartel de portada muestra el nombre en la escena.
 - El gato queda anclado al 38% del ancho de pantalla. La calle se mueve debajo de él.
 - La entrada se compone con margen fluido y se queda en `x = 0` durante toda
   la primera pausa: no se recentra al arrancar GSAP. Las otras paradas se ajustan
@@ -116,9 +128,9 @@ profundo para que el color sea información, no decoración.
   [`useHash`](src/lib/use-hash.ts). La navegación explícita actualiza el
   historial y salta al destino; el scroll reemplaza el hash al asentarse o
   después de un salto grande. Se mantienen `#about`, `#experience` y `#contact`
-  en ambos idiomas. `#experience/<id>` abre detalles, preserva el proyecto al
-  cambiar de idioma y tiene ancla en lectura/sin JS. Bio y Contacto usan
-  `#about/details` y `#contact/details`.
+  en ambos idiomas. Los tres paneles usan `#<sección>/details`. Los enlaces
+  anteriores `#experience/<id>` abren el mismo modal y llevan al logro
+  correspondiente; también funcionan al cambiar de idioma y en lectura/sin JS.
 - Los carteles se construyen como tubos de neón sobre una placa de metal
   oscuro: el brillo sale de los glifos, con un halo que sigue sus formas y
   un derrame breve fuera de la placa. El encendido sigue al gato, tenue en
@@ -131,6 +143,8 @@ profundo para que el color sea información, no decoración.
   pasos mientras la calle está quieta o en un salto directo de cámara.
   [La lógica de zancada](src/lib/cat-motion.ts) es pura. En modo lectura,
   con movimiento reducido o sin JavaScript se conserva el contenido sin el rig.
+- Los ojos, las pupilas y el trazo de los párpados comparten la alineación
+  sobre el hocico para que la expresión se mantenga al dormir.
 
 - Paneles con `<dialog>` nativo y expansión con GSAP Flip. Sin disparador
   visible, se usa una entrada breve por escala y opacidad.
@@ -149,9 +163,7 @@ responde al movimiento y se puede acariciar.
 | --- | --- |
 | Scroll | La calle se desplaza, el gato camina y los carteles se encienden al llegar |
 | Clic, toque o teclado en el ramen o la cabina | Se abre el panel de bio o contacto |
-| Foco o cursor sobre una ventana | La ventana se ilumina y aparece el título del proyecto |
-| Clic, toque o teclado en una ventana | Se abre el detalle del proyecto |
-| Foco o hover en el timeline | Se iluminan las ventanas del período; activarlo abre su primer proyecto |
+| Clic, toque o teclado en «Ver experiencia» | Se abre toda la trayectoria, con scroll dentro del modal |
 | Cursor cerca del gato | Las pupilas lo siguen |
 | Clic, toque o teclado sobre el gato | Se acurruca; el ronroneo queda para la fase de audio |
 | Pausa en la calle | Se sienta y, tras unos 10 segundos de inactividad, se duerme |
@@ -182,9 +194,9 @@ Las imágenes de referencia son mood board, no assets de producción. Aportan
 paleta, densidad de carteles, asfalto mojado, halation y vocabulario de props
 (bicicletas, expendedoras, plantas, aires acondicionados, cortinas noren).
 
-No se usan como placa por tres razones: están en perspectiva de un punto y el
-paneo lateral la rompe; una pintura única no se puede parallaxear; y las ventanas
-necesitan ser nodos del DOM para poder iluminarse de a una.
+No se usan como placa: el paneo lateral rompe su perspectiva de un punto,
+una pintura única no se puede separar en capas de parallax y se perdería
+el control del patrón de luces de la fachada.
 
 ## Fuera de alcance
 

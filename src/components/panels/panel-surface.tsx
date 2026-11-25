@@ -82,10 +82,18 @@ export default function PanelSurface({
       }
       return;
     }
-    if (dialog.open) return;
-    dialog.showModal();
-    bodyRef.current?.scrollTo(0, 0);
-    closeRef.current?.focus({ preventScroll: true });
+    const wasOpen = dialog.open;
+    if (!wasOpen) dialog.showModal();
+    const body = bodyRef.current;
+    const target = Array.from(body?.querySelectorAll<HTMLElement>("[data-panel-anchor]") ?? [])
+      .find((item) => item.dataset.panelAnchor === hash.slice(1));
+    body?.scrollTo(0, 0);
+    if (body && target) {
+      // Only scroll the dialog body; the alley stays at its current position.
+      body.scrollTop = target.getBoundingClientRect().top - body.getBoundingClientRect().top - 12;
+    }
+    (target ?? closeRef.current)?.focus({ preventScroll: true });
+    if (wasOpen) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const origin = originRef.current;

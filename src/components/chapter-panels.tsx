@@ -36,6 +36,37 @@ export function ContactLinks({ variant = "reading" }: { variant?: "reading" | "b
   );
 }
 
+export function ExperienceDetails({ copy, inDialog = false }: { copy: Dictionary; inDialog?: boolean }) {
+  return (
+    <>
+      {!inDialog && <p className="eyebrow">{copy.labels.experience} · 2023–2026</p>}
+      <h2 id={inDialog ? undefined : "experience/details"} tabIndex={inDialog ? undefined : -1}>
+        Santander Tecnología Argentina
+      </h2>
+      <div className="experience-list">
+        {copy.experience.map(({ period, highlights }, periodIndex) => (
+          <article className="experience-role" key={period}>
+            <div className="role-heading">
+              <h3>Software Engineer</h3>
+              <p>{period}</p>
+            </div>
+            <ul role="list">
+              {highlights.map(({ title, body }, index) => {
+                const anchor = `experience/${periodIndex}-${index}`;
+                return (
+                  <li id={inDialog ? undefined : anchor} data-panel-anchor={inDialog ? anchor : undefined} key={title} tabIndex={-1}>
+                    <strong>{title}</strong><p>{body}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export default function ChapterPanels({ copy }: { copy: Dictionary }) {
   return (
     <>
@@ -44,26 +75,8 @@ export default function ChapterPanels({ copy }: { copy: Dictionary }) {
         <AboutCopy copy={copy} />
       </section>
 
-      <section id="experience" className="reading-section experience-shot" aria-labelledby="experience-heading">
-        <p className="eyebrow">{copy.labels.experience} · 2023–2026</p>
-        <h2 id="experience-heading" tabIndex={-1}>Santander Tecnología Argentina</h2>
-        <div className="experience-list">
-          {copy.experience.map(({ period, highlights }, floor) => (
-            <article className="experience-role" key={period}>
-              <div className="role-heading">
-                <h3>Software Engineer</h3>
-                <p>{period}</p>
-              </div>
-              <ul role="list">
-                {highlights.map(({ title, body }, index) => (
-                  <li id={`experience/${floor}-${index}`} key={title} tabIndex={-1}>
-                    <strong>{title}</strong><p>{body}</p>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
+      <section id="experience" className="reading-section experience-shot" aria-labelledby="experience/details">
+        <ExperienceDetails copy={copy} />
       </section>
 
       <section id="contact" className="reading-section end-shot" aria-labelledby="contact/details">

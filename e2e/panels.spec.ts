@@ -1,18 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-test("opens a project with the keyboard, confines focus and restores the window on Escape", async ({ page }) => {
+test("opens the complete experience with the keyboard and restores focus on Escape", async ({ page }) => {
   await page.goto("/en#experience");
-  const trigger = page.getByRole("button", { name: "Market & Tenders" });
+  const trigger = page.getByRole("button", { name: "View experience" });
   await expect(trigger).toBeVisible();
   await trigger.focus();
   await page.keyboard.press("Enter");
-  const dialog = page.getByRole("dialog", { name: "Market & Tenders" });
+  const dialog = page.getByRole("dialog", { name: "Experience" });
   await expect(dialog).toBeVisible();
-  await expect(page).toHaveURL(/#experience\/0-2$/);
+  await expect(page).toHaveURL(/#experience\/details$/);
   await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
-  await expect(dialog.getByText(/scalable microfrontends/)).toBeVisible();
+  await expect(dialog.locator(".role-heading p")).toHaveText(["Sep 2023 – Jun 2026", "Mar 2023 – Sep 2023"]);
+  await expect(dialog.getByRole("listitem")).toHaveCount(8);
   // WebKit may skip links during Tab navigation with its default keyboard settings.
-  await page.locator('button[data-project="0-2"]').evaluate((element) => element.focus());
+  await trigger.evaluate((element) => element.focus());
   await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
@@ -20,43 +21,40 @@ test("opens a project with the keyboard, confines focus and restores the window 
   await expect(trigger).toBeFocused();
 });
 
-test("reopens details with history and preserves the project across locales", async ({ page }) => {
+test("reopens experience with history and preserves the details link across locales", async ({ page }) => {
   await page.goto("/en#experience");
-  await page.getByRole("button", { name: "Market & Tenders" }).click();
+  await page.getByRole("button", { name: "View experience" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.goBack();
   await expect(page.getByRole("dialog")).toBeHidden();
   await page.goForward();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("heading", { name: "Market & Tenders" })).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Experience", exact: true })).toBeVisible();
   await dialog.getByRole("link", { name: "Español" }).click();
-  await expect(page).toHaveURL(/\/es#experience\/0-2$/);
-  await expect(dialog.getByRole("heading", { name: "Mercados y Licitaciones" })).toBeVisible();
+  await expect(page).toHaveURL(/\/es#experience\/details$/);
+  await expect(dialog.getByRole("heading", { name: "Experiencia", exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Cerrar" }).click();
   await expect(page).toHaveURL(/\/es#experience$/);
   await expect(dialog).toBeHidden();
 });
 
-test("opens a direct project and does not open a dialog for an unknown project", async ({ page }) => {
-  await page.goto("/es#experience/1-1");
-  await expect(page.getByRole("dialog", { name: "Accesibilidad" })).toBeVisible();
-  await page.goto("/en#experience/1-9");
-  await expect(page.getByRole("button", { name: "Accessibility", exact: true })).toBeVisible();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+test("legacy experience links land on their highlight across locales", async ({ page }) => {
+  await page.goto("/en#experience/1-1");
+  const dialog = page.getByRole("dialog");
+  const highlight = dialog.locator('[data-panel-anchor="experience/1-1"]');
+  await expect(highlight).toBeFocused();
+  await expect(highlight).toBeInViewport();
+  await dialog.getByRole("link", { name: "Español" }).click();
+  await expect(page).toHaveURL(/\/es#experience\/1-1$/);
+  await expect(highlight).toContainText("Accesibilidad");
+  await expect(highlight).toBeFocused();
+  await expect(highlight).toBeInViewport();
 });
 
-test("timeline focus lights the corresponding floor and opens its first project", async ({ page }) => {
-  await page.goto("/en#experience");
-  const period = page.getByRole("button", { name: /Mar 2023 – Sep 2023:/ });
-  const project = page.getByRole("button", { name: "Accessibility", exact: true });
-  await expect(period).toBeVisible();
-  await expect(project).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await period.focus();
-  await expect(period).toBeFocused();
-  await expect(project).toHaveCSS("background-color", "rgba(117, 238, 255, 0.22)");
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("dialog", { name: "Dólar MEP on web" })).toBeVisible();
-  await expect(page).toHaveURL(/#experience\/1-0$/);
+test("unknown experience links do not open a dialog", async ({ page }) => {
+  await page.goto("/en#experience/1-9");
+  await expect(page.getByRole("button", { name: "View experience" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
 test("only exposes the current facade's controls and opens bio and contact", async ({ page }) => {
@@ -141,36 +139,35 @@ test("keeps the contact palette in reading mode without the booth plaques", asyn
 test.describe("mobile", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
-  test("fits eight tap targets and opens a project by touch", async ({ page }) => {
+  test("opens the single-column experience by touch", async ({ page }) => {
     await page.goto("/es#experience");
-    const windows = page.getByRole("button").and(page.locator(".tower-window"));
-    await expect(windows).toHaveCount(8);
-    for (const window of await windows.all()) {
-      const box = await window.boundingBox();
-      expect(box?.width).toBeGreaterThanOrEqual(44);
-      expect(box?.height).toBeGreaterThanOrEqual(44);
-      expect(box?.x).toBeGreaterThanOrEqual(0);
-      expect((box?.x ?? 390) + (box?.width ?? 0)).toBeLessThanOrEqual(390);
-    }
-    await windows.first().tap();
-    await expect(page.getByRole("dialog", { name: "Dólar MEP en móvil" })).toBeVisible();
+    const trigger = page.getByRole("button", { name: "Ver experiencia" });
+    await expect(trigger).toBeInViewport({ ratio: 0.99 });
+    await trigger.tap();
+    const dialog = page.getByRole("dialog", { name: "Experiencia" });
+    await expect(dialog.locator(".chapter-surface")).toHaveCSS("transform", "none");
+    const roles = dialog.locator(".experience-role");
+    const first = await roles.first().boundingBox();
+    const last = await roles.last().boundingBox();
+    if (!first || !last) throw new Error("Both experience periods should have a layout");
+    expect(last.y).toBeGreaterThan(first.y);
+    expect(last.x).toBeCloseTo(first.x, 0);
+    await expect(dialog.getByRole("button", { name: "Cerrar" })).toBeInViewport();
   });
 
-  test("does not expose clipped windows during approach", async ({ page }) => {
+  test("does not expose the tower button before it is fully visible", async ({ page }) => {
     await page.goto("/es#about");
     await page.getByRole("button", { name: "Leer la bio" }).waitFor();
     await page.evaluate(() => {
       const stage = document.querySelector<HTMLElement>("#alley-stage")!;
       window.scrollTo(0, (stage.offsetHeight - window.innerHeight) * 0.485);
     });
-    const first = page.locator('[data-project="0-0"]');
-    const last = page.locator('[data-project="0-4"]');
-    await expect(first).toBeEnabled();
-    await expect(first).toBeInViewport({ ratio: 0.99 });
-    await expect(last).toBeDisabled();
+    await expect(page.locator("#alley-stage")).toHaveAttribute("data-lit-facade", "experience");
+    const trigger = page.getByRole("button", { name: "Ver experiencia" });
+    await expect(trigger).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Leer la bio" })).toHaveCount(0);
     await page.getByRole("link", { name: "Experiencia", exact: true }).tap();
-    await expect(last).toBeEnabled();
+    await expect(trigger).toBeEnabled();
   });
 });
 

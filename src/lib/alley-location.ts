@@ -14,7 +14,7 @@ export function projectHash(id: string): `#experience/${string}` {
 }
 
 export function panelFromLocation(hash: string): PanelHash | null {
-  if (hash === "#about/details" || hash === "#contact/details") return hash;
+  if (hash === "#about/details" || hash === "#contact/details" || hash === "#experience/details") return hash;
   const prefix = "#experience/";
   if (!hash.startsWith(prefix)) return null;
   const project = projectById("en", hash.slice(prefix.length));

@@ -9,17 +9,18 @@ La dirección visual está documentada en [design.md](design.md). El approach an
 
 ## Estado de la rama
 
-La Fase 4 está lista para revisión local en `feat/alley-scene`. Al llegar a
-Experiencia, elegí una de las ocho ventanas de la torre o recorré los períodos
-en el mural. El ramen abre la bio y la cabina abre los enlaces de contacto.
+La Fase 4 está implementada en `feat/alley-scene`. En la torre,
+«Ver experiencia» abre la trayectoria completa. El ramen abre la bio y la
+cabina abre los enlaces de contacto.
 El callejón conserva el parallax y el gato animado, todavía sin audio.
 
-**Modo lectura** ofrece el mismo contenido sin animación. Los enlaces directos
-a proyectos funcionan tanto en escena como en lectura.
+**Home / Inicio** vuelve a la entrada del callejón. **Modo lectura** ofrece
+el mismo contenido sin animación. Los enlaces directos
+a logros de experiencia funcionan tanto en escena como en lectura.
 
-El alcance y los pasos siguientes están en [design.md](design.md); las reglas
-para continuar el trabajo están en [AGENTS.md](AGENTS.md). No se integra a
-`main` hasta terminar el proyecto y recibir el visto bueno.
+Las fases 5 y 6 siguen pendientes. Su alcance está en [design.md](design.md);
+las reglas del proyecto están en [AGENTS.md](AGENTS.md). No se integra a
+`main` sin autorización explícita.
 
 ## Desarrollo local
 
@@ -33,7 +34,8 @@ npm run dev
 Abrí [localhost:3000](http://localhost:3000). La portada redirige a `/en` y la versión
 en español vive en [`/es`](http://localhost:3000/es). Para probar una parada
 directamente, abrí por ejemplo [`/es#experience`](http://localhost:3000/es#experience).
-Para abrir un proyecto específico, probá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
+Para abrir la trayectoria, probá [`/es#experience/details`](http://localhost:3000/es#experience/details).
+Para ir directo a un logro, usá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
 El modo lectura se guarda en el navegador y también se activa con movimiento
 reducido o al navegar sin JavaScript.
 
@@ -51,8 +53,8 @@ npx playwright install chromium firefox webkit
 npm run test:e2e
 ```
 
-`npm run test:watch` mantiene Vitest abierto. Detené `npm run dev` antes del build
-local (comparten `.next`). Playwright sirve el build en el puerto 3100 y ejecuta
+`npm run test:watch` mantiene Vitest abierto. Playwright sirve el build
+en el puerto 3100 y ejecuta
 los flujos en Chromium, Firefox y WebKit. También acepta `PLAYWRIGHT_BASE_URL`
 para probar una preview.
 
@@ -60,7 +62,7 @@ para probar una preview.
 
 - Los diccionarios, el About y los enlaces están en [`src/content/portfolio.ts`](src/content/portfolio.ts).
   Los logros de Santander en ambos idiomas están en [`src/content/santander.ts`](src/content/santander.ts).
-- El manifiesto de la escena —paradas, ritmo del paseo y ventanas de experiencia—
+- El manifiesto de la escena —paradas y ritmo del paseo—
   está en [`src/content/scene.ts`](src/content/scene.ts). El cálculo de progreso vive en
   [`src/lib/alley-engine.ts`](src/lib/alley-engine.ts).
 - [`alley.tsx`](src/components/alley.tsx) coordina la navegación y el modo lectura.

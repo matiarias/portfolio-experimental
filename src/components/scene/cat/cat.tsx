@@ -65,14 +65,14 @@ export default function Cat({ rootRef, petLabel, petFeedback, onPet }: Props) {
               <ellipse className="cat-muzzle" cx="104" cy="49" rx="8" ry="6" />
               <path className="cat-nose" d="M105 45l3 2-3 2-3-2z" />
               <g data-cat-part="open-eyes">
-                <ellipse className="cat-eye" cx="92.2" cy="41" rx="3.5" ry="4.2" />
-                <ellipse className="cat-eye" cx="101" cy="40.7" rx="3.05" ry="4" />
+                <ellipse className="cat-eye" cx="96.2" cy="41" rx="3.5" ry="4.2" />
+                <ellipse className="cat-eye" cx="105" cy="40.7" rx="3.05" ry="4" />
                 <g data-cat-part="pupils">
-                  <ellipse className="cat-pupil" cx="92.9" cy="41" rx="1.05" ry="2.5" />
-                  <ellipse className="cat-pupil" cx="101.65" cy="40.7" rx="1" ry="2.4" />
+                  <ellipse className="cat-pupil" cx="96.9" cy="41" rx="1.05" ry="2.5" />
+                  <ellipse className="cat-pupil" cx="105.65" cy="40.7" rx="1" ry="2.4" />
                 </g>
               </g>
-              <path data-cat-part="closed-eyes" opacity="0" d="M89.2 41q3 4 6 0m3.2-.3q2.6 3.6 5.2 0" fill="none" stroke="#364252" strokeWidth="1.5" strokeLinecap="round" />
+              <path data-cat-part="closed-eyes" opacity="0" d="M93.2 41q3 4 6 0m3.2-.3q2.6 3.6 5.2 0" fill="none" stroke="#364252" strokeWidth="1.5" strokeLinecap="round" />
               <path className="cat-whisker" d="M108 47l12-3M108 50l12 1M108 53l11 5" />
             </g>
           </g>

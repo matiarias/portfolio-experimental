@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import type { Dictionary, Locale } from "@/content/portfolio";
-import { projectById, type StopId } from "@/content/scene";
+import { name, type Dictionary, type Locale } from "@/content/portfolio";
+import type { StopId } from "@/content/scene";
 import { progressForStop } from "@/lib/alley-engine";
 import { panelFromLocation, stopFromHash, type PanelHash } from "@/lib/alley-location";
 import { isRegularClick } from "@/lib/is-regular-click";
@@ -10,7 +10,7 @@ import { notifyHashChange, useHash } from "@/lib/use-hash";
 import { useReadingMode } from "@/lib/use-reading-mode";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import Hud from "./hud";
-import { AboutDetails, ContactLinks } from "./chapter-panels";
+import { AboutDetails, ContactLinks, ExperienceDetails } from "./chapter-panels";
 import LocaleLinks from "./locale-links";
 import PanelSurface, { type PanelOrigin } from "./panels/panel-surface";
 import ReadingMode from "./reading-mode";
@@ -32,8 +32,7 @@ export default function Alley({ locale, copy, children }: {
   const activeStop = stopFromHash(hash) ?? "entrance";
   const panelHash = panelFromLocation(hash);
   const suffix = panelHash ?? (activeStop === "entrance" ? "" : `#${activeStop}`);
-  const project = panelHash?.startsWith("#experience/") ? projectById(locale, panelHash.slice("#experience/".length)) : undefined;
-  const panelTone = project ? "experience" : panelHash === "#contact/details" ? "contact" : "about";
+  const panelTone = panelHash?.startsWith("#experience/") ? "experience" : panelHash === "#contact/details" ? "contact" : "about";
   const [facadeStop, setFacadeStop] = useState<StopId | null>("entrance");
   const panelOrigin = useRef<PanelOrigin | null>(null);
   const previousPanel = useRef<PanelHash | null>(null);
@@ -221,6 +220,7 @@ export default function Alley({ locale, copy, children }: {
       />
 
       <main id="content" data-active-stop={activeStop} data-mode={reading ? "reading" : "scene"}>
+        <h1 className="sr-only">{name}</h1>
         {reading ? (
           <ReadingMode copy={copy} />
         ) : (
@@ -244,18 +244,15 @@ export default function Alley({ locale, copy, children }: {
             </div>
             <PanelSurface
               hash={panelHash}
-              title={project?.title ?? (panelTone === "contact" ? copy.labels.contact : copy.headline)}
+              title={panelTone === "about" ? copy.headline : copy.labels[panelTone]}
               tone={panelTone}
               close={copy.scene.close}
               languageLinks={<LocaleLinks locale={locale} suffix={suffix} label={copy.language} />}
               originRef={panelOrigin}
               onDismiss={dismissPanel}
             >
-              {panelHash && (project ? (
-                <>
-                  <p className="chapter-meta">Santander Tecnología Argentina <span>{project.period}</span></p>
-                  <p className="chapter-project-copy">{project.body}</p>
-                </>
+              {panelHash && (panelTone === "experience" ? (
+                <ExperienceDetails copy={copy} inDialog />
               ) : panelTone === "contact" ? (
                 <><p className="chapter-project-copy">{copy.contactIntro}</p><ContactLinks variant="booth" /></>
               ) : <AboutDetails copy={copy} />)}
