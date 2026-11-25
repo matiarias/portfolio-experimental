@@ -43,9 +43,10 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   reflejos y detalles del gato ajustados e imagen social renovada. La entrega
   incluye capturas de escritorio y móvil y un borrador del PR. Abrir el PR
   y desplegar requieren autorización.
-  Pasaron 135 pruebas de Playwright en Chromium, Firefox y WebKit. Lighthouse
-  móvil midió rendimiento de 82 en `/en` y 88 en `/es`, con accesibilidad de
-  100 en ambas rutas y sin solicitudes al MP3 antes de interactuar.
+  Pasan 30 pruebas de Vitest y 141 de Playwright en Chromium, Firefox y
+  WebKit. Lighthouse móvil midió rendimiento de 82 en `/en` y 88 en `/es`,
+  con accesibilidad de 100 en ambas rutas y sin solicitudes al MP3 antes de
+  interactuar.
 - **Revisión final.** Probar en iOS y Android físicos, medir 60 fps en un
   Android de gama media y revisar accesibilidad con VoiceOver y NVDA.
   Volver a medir el rendimiento de `/en` frente a la meta de 85.
@@ -87,6 +88,8 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
   en la segunda fila en móvil. El título aparece al sonar en escritorio.
   No hay descarga ni reproducción antes de pulsarlo. Se pausa al ocultar la pestaña,
   al abrir un diálogo o al salir de la escena y no se reanuda sola.
+  El ícono y el título siguen la reproducción real: un intento de `play()`
+  reemplazado por un toque posterior no puede confirmar el estado.
 - El gato queda anclado al 38% del ancho de pantalla. La calle se mueve debajo de él.
 - La entrada se compone con margen fluido y se queda en `x = 0` durante toda
   la primera pausa: no se recentra al arrancar GSAP. El perfil móvil entra
@@ -179,7 +182,9 @@ tarjetas de Contacto y el modal de Experiencia mantiene su cian.
 
 - Paneles con `<dialog>` nativo y expansión con GSAP desde la geometría del
   disparador, sin cargar Flip. Sin disparador visible, se usa una entrada
-  breve por escala y opacidad.
+  breve por escala y opacidad. La entrada se acota a 400 ms de tiempo real:
+  si el hilo principal se frena, el panel termina de entrar en lugar de
+  arrastrarse por el *lag smoothing* de GSAP.
 - Los paneles se mantienen centrados. Si el contenido no cabe, solo se
   desplaza su cuerpo; los controles de idioma y cierre quedan a la vista.
 

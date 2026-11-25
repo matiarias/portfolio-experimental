@@ -11,6 +11,7 @@ export default function SoundtrackControl({ track, labels, suspended }: {
   suspended: boolean;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const attemptRef = useRef(0);
   const [requested, setRequested] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -47,21 +48,36 @@ export default function SoundtrackControl({ track, labels, suspended }: {
     setFailed(true);
   }
 
+  function confirmPlaying(audio: HTMLAudioElement) {
+    if (audio.paused) return;
+    setRequested(true);
+    setPlaying(true);
+  }
+
   function toggle() {
     const audio = audioRef.current;
     if (!audio || suspended || document.hidden) return;
+    const attempt = ++attemptRef.current;
     if (!audio.paused) {
       audio.pause();
+      onPause();
       return;
     }
     setFailed(false);
     setRequested(true);
     // Set the URL and call play inside the gesture, including on iOS.
     if (!audio.hasAttribute("src") || audio.error) audio.src = track.src;
-    void audio.play().catch((error: unknown) => {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      if (audioRef.current === audio && audio.paused) onError();
-    });
+    const isCurrent = () => audioRef.current === audio && attemptRef.current === attempt;
+    void audio.play().then(
+      () => {
+        if (isCurrent()) confirmPlaying(audio);
+      },
+      (error: unknown) => {
+        if (!isCurrent() || !audio.paused) return;
+        if (error instanceof DOMException && error.name === "AbortError") onPause();
+        else onError();
+      },
+    );
   }
 
   const Icon = requested ? FiPause : FiPlay;
@@ -71,8 +87,10 @@ export default function SoundtrackControl({ track, labels, suspended }: {
         ref={audioRef}
         preload="none"
         loop
-        onPlaying={() => setPlaying(true)}
-        onPause={onPause}
+        onPlaying={(event) => confirmPlaying(event.currentTarget)}
+        onPause={(event) => {
+          if (event.currentTarget.paused) onPause();
+        }}
         onError={onError}
       />
       <button

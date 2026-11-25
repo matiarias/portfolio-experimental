@@ -30,6 +30,7 @@
 - Compartí `data-lit-facade` entre el neón del cartel y los reflejos de la acera; no uses `data-active-stop` para encenderlos.
 - En pestañas ocultas, pausá la lluvia y quitá solo el callback del ticker de la escena, no el ticker global de GSAP. Al reanudar, sincronizá con el scroll real sin simular un paseo.
 - Animá solo `transform` y `opacity`. No uses `filter: blur()` sobre superficies grandes: el glow se pre-hornea o se resuelve con gradientes.
+- Acotá en tiempo real las animaciones cortas de UI, como la entrada de un diálogo: el *lag smoothing* de GSAP estira esos tweens cuando el hilo principal se frena.
 - La lógica de layout y progreso en `src/lib` debe ser pura y testeable, sin acceso al DOM dentro de la función.
 
 ## Escena y accesibilidad

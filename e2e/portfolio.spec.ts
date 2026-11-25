@@ -109,11 +109,11 @@ test("navigates stops with the keyboard", async ({ page }) => {
 test("moves focus to the destination heading when navigating in reading mode", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
+  await expect(page.getByRole("main")).toHaveAttribute("data-mode", "reading");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Matias Arias");
   const nav = page.getByRole("navigation", { name: "Chapters" });
   const experience = nav.getByRole("link", { name: "Experience" });
-  await experience.focus();
-  await page.keyboard.press("Enter");
+  await experience.press("Enter");
   await expect(page.getByRole("heading", { name: "Santander Tecnología Argentina" })).toBeFocused();
   await page.goto("/en#experience/1-2");
   await experience.click();

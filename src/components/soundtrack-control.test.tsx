@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { dictionaries } from "@/content/portfolio";
 import type { Soundtrack } from "@/content/soundtrack";
@@ -21,7 +21,7 @@ function setup() {
     paused = true;
     fireEvent.pause(audio);
   });
-  return { ...view, audio, play, pause };
+  return { ...view, audio, play, pause, setPaused: (value: boolean) => { paused = value; } };
 }
 
 afterEach(() => vi.restoreAllMocks());
@@ -60,6 +60,35 @@ describe("soundtrack", () => {
     expect(pause).toHaveBeenCalledTimes(2);
     expect(play).toHaveBeenCalledTimes(2);
     expect(screen.getByRole("button", { name: labels.play })).toBeInTheDocument();
+  });
+
+  it("shows the title when native play resolves without a playing event", async () => {
+    const { play, setPaused } = setup();
+    play.mockImplementationOnce(async () => setPaused(false));
+    fireEvent.click(screen.getByRole("button", { name: labels.play }));
+    expect(await screen.findByText(track.title)).toBeInTheDocument();
+  });
+
+  it("ignores a superseded play result while a new attempt is pending", async () => {
+    const { play, audio, setPaused } = setup();
+    const first = Promise.withResolvers<void>();
+    const second = Promise.withResolvers<void>();
+    for (const attempt of [first, second]) {
+      play.mockImplementationOnce(() => {
+        setPaused(false);
+        return attempt.promise;
+      });
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: labels.play }));
+    fireEvent.click(screen.getByRole("button", { name: labels.pause }));
+    fireEvent.click(screen.getByRole("button", { name: labels.play }));
+    fireEvent.pause(audio); // A queued event from the previous pause must not reset the new attempt.
+    await act(async () => first.resolve());
+    expect(screen.getByRole("button", { name: labels.pause })).toBeInTheDocument();
+    expect(screen.queryByText(track.title)).not.toBeInTheDocument();
+    await act(async () => second.resolve());
+    expect(screen.getByText(track.title)).toBeInTheDocument();
   });
 
   it("announces a failed start and offers another attempt", async () => {

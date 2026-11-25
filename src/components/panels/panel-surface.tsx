@@ -110,7 +110,14 @@ export default function PanelSurface({
         };
       }
     }
-    gsap.from(surface, { ...from, opacity: 0, duration: 0.34, ease: "power2.out", clearProps: "transform,opacity" });
+    const tween = gsap.from(surface, { ...from, opacity: 0, duration: 0.34, ease: "power2.out", clearProps: "transform,opacity" });
+    // GSAP's lag smoothing stretches short tweens when frames stall, which can turn this
+    // entrance into a multi-second crawl on a busy main thread. Cap it on wall-clock time.
+    const settle = window.setTimeout(() => {
+      if (tween.isActive()) tween.progress(1);
+    }, 400);
+    tween.eventCallback("onComplete", () => window.clearTimeout(settle));
+    return () => window.clearTimeout(settle);
   }, { dependencies: [hash], revertOnUpdate: true });
 
   return (

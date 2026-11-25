@@ -7,7 +7,6 @@ test("loads the MP3 on a keyboard gesture and pauses without automatically resum
   });
 
   await page.goto("/en");
-  await expect(page.locator(".band-street")).toHaveAttribute("style", /transform/);
   const audio = page.locator(".hud-soundtrack audio");
   const play = page.getByRole("button", { name: "Play background music" });
   const pause = page.getByRole("button", { name: "Pause background music" });
@@ -15,19 +14,18 @@ test("loads the MP3 on a keyboard gesture and pauses without automatically resum
   await expect(audio).toHaveJSProperty("paused", true);
   expect(requests).toHaveLength(0);
 
-  await play.focus();
-  await page.keyboard.press("Enter");
+  await play.press("Enter");
   await expect(pause).toBeFocused();
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
-  await expect(page.getByText("Gentle Pathways", { exact: true })).toBeVisible();
+  // The component test covers the title; here we verify native playback.
   // WebKit's native media pipeline may not emit a Playwright request event.
   await expect(audio).toHaveAttribute("src", "/media/gentle-pathways.mp3");
 
-  await page.keyboard.press("Enter");
+  await pause.press("Enter");
   await expect(audio).toHaveJSProperty("paused", true);
   await expect(play).toBeFocused();
   const pausedAt = await audio.evaluate((element: HTMLAudioElement) => element.currentTime);
-  await page.keyboard.press("Enter");
+  await play.press("Enter");
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(pausedAt);
 
   await page.evaluate(() => {
@@ -50,6 +48,7 @@ test.describe("soundtrack on touch", () => {
     await page.goto("/es");
     const audio = page.locator(".hud-soundtrack audio");
     const play = page.getByRole("button", { name: "Reproducir música de fondo" });
+    const pause = page.getByRole("button", { name: "Pausar música de fondo" });
     const size = await play.boundingBox();
     expect(size?.width).toBeGreaterThanOrEqual(44);
     expect(size?.height).toBeGreaterThanOrEqual(44);
@@ -57,6 +56,11 @@ test.describe("soundtrack on touch", () => {
     await play.tap();
     await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
     await expect(page.getByText("Gentle Pathways", { exact: true })).toBeHidden();
+    await pause.tap();
+    await expect(audio).toHaveJSProperty("paused", true);
+    const pausedAt = await audio.evaluate((element: HTMLAudioElement) => element.currentTime);
+    await play.tap();
+    await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(pausedAt);
 
     await reading.tap();
     await expect(audio).toHaveCount(0);

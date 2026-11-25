@@ -57,15 +57,21 @@ test("unknown experience links do not open a dialog", async ({ page }) => {
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("only exposes the current facade's controls and opens bio and contact", async ({ page }) => {
+test("only exposes the current facade's controls and opens Bio", async ({ page }) => {
   await page.goto("/en");
   await expect(page.getByRole("button", { name: "Read the bio" })).toHaveCount(0);
   await page.getByRole("link", { name: "About", exact: true }).click();
   await page.getByRole("button", { name: "Read the bio" }).click();
   const dialog = page.getByRole("dialog", { name: "Software Engineer · Frontend Specialist" });
   await expect(dialog.getByText("Fintech & Banking")).toBeVisible();
-  await dialog.getByRole("button", { name: "Close" }).click();
+  await dialog.getByRole("button", { name: "Close" }).press("Enter");
+  await expect(dialog).toBeHidden();
   await expect(page).toHaveURL(/#about$/);
+});
+
+test("opens Contact from its facade and shows its links", async ({ page }) => {
+  await page.goto("/en");
+  await expect(page.getByRole("button", { name: "Get in touch" })).toHaveCount(0);
   await page.getByRole("link", { name: "Contact", exact: true }).click();
   await page.getByRole("button", { name: "Get in touch" }).click();
   const contact = page.getByRole("dialog", { name: "Contact" });
@@ -73,6 +79,13 @@ test("only exposes the current facade's controls and opens bio and contact", asy
   await expect(github).toHaveAttribute("href", "https://github.com/matiarias");
   await expect(contact.getByRole("link", { name: /Email/ })).toHaveAttribute("href", /^mailto:/);
   await expect(contact.locator('.credits[data-variant="booth"]')).toBeVisible();
+});
+
+test("lights the Contact links on hover after the dialog settles", async ({ page }) => {
+  await page.goto("/en#contact/details");
+  const contact = page.getByRole("dialog", { name: "Contact" });
+  await expect(contact.locator(".chapter-surface")).toHaveCSS("transform", "none");
+  const github = contact.getByRole("link", { name: /GitHub/ });
   await github.hover();
   await expect(github).toHaveCSS("border-top-color", "rgb(131, 237, 195)");
 });
