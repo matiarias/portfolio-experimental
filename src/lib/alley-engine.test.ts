@@ -3,6 +3,7 @@ import { stopIds } from "@/content/scene";
 import {
   anchorXFor,
   clampX,
+  facadeAtAnchor,
   maxTravel,
   progressForStop,
   progressToX,
@@ -22,6 +23,19 @@ const layout: Layout = {
 const anchored = (stop: (typeof stopIds)[number]) => layout.stopCenter[stop] + xForStop(stop, layout);
 
 describe("alley engine", () => {
+  it("exposes a facade from its near edge to its far edge, not just its center", () => {
+    const facades = [
+      { stop: "entrance", left: 40, right: 740 },
+      { stop: "about", left: 800, right: 1500 },
+    ] as const;
+    expect(facadeAtAnchor(380, -359, facades)).toBe("entrance");
+    expect(facadeAtAnchor(380, -360, facades)).toBeNull();
+    expect(facadeAtAnchor(380, -420, facades)).toBe("about");
+    expect(facadeAtAnchor(380, -760, facades)).toBe("about");
+    expect(facadeAtAnchor(380, -1119, facades)).toBe("about");
+    expect(facadeAtAnchor(380, -1120, facades)).toBeNull();
+  });
+
   it("anchors the later storefronts on the cat", () => {
     for (const stop of stopIds) {
       if (stop === "entrance") continue;

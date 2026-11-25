@@ -1,22 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Dictionary, Locale } from "@/content/portfolio";
-import { stops, type StopId } from "@/content/scene";
+import { projectById, type StopId } from "@/content/scene";
 import { progressForStop } from "@/lib/alley-engine";
+import { panelFromLocation, stopFromHash, type PanelHash } from "@/lib/alley-location";
 import { isRegularClick } from "@/lib/is-regular-click";
 import { notifyHashChange, useHash } from "@/lib/use-hash";
 import { useReadingMode } from "@/lib/use-reading-mode";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import Hud from "./hud";
+import { AboutDetails, ContactLinks } from "./chapter-panels";
+import LocaleLinks from "./locale-links";
+import PanelSurface, { type PanelOrigin } from "./panels/panel-surface";
 import ReadingMode from "./reading-mode";
+import { focusStopLink, SceneActions } from "./scene/scene-actions";
 import Stage from "./scene/stage";
-
-function stopFromHash(hash: string): StopId | null {
-  if (hash.startsWith("#experience/")) return "experience";
-  const stop = stops.find((entry) => entry.hash === hash);
-  return stop?.id ?? null;
-}
 
 export default function Alley({ locale, copy, children }: {
   locale: Locale;
@@ -31,6 +30,14 @@ export default function Alley({ locale, copy, children }: {
   // scroll, el HUD y el cambio de idioma, y mantiene el deep link hidratado.
   const hash = useHash();
   const activeStop = stopFromHash(hash) ?? "entrance";
+  const panelHash = panelFromLocation(hash);
+  const suffix = panelHash ?? (activeStop === "entrance" ? "" : `#${activeStop}`);
+  const project = panelHash?.startsWith("#experience/") ? projectById(locale, panelHash.slice("#experience/".length)) : undefined;
+  const panelTone = project ? "experience" : panelHash === "#contact/details" ? "contact" : "about";
+  const [facadeStop, setFacadeStop] = useState<StopId | null>("entrance");
+  const panelOrigin = useRef<PanelOrigin | null>(null);
+  const previousPanel = useRef<PanelHash | null>(null);
+  const panelEntry = `${locale}:${useId()}`;
 
   const barRef = useRef<HTMLDivElement>(null);
   const activeStopRef = useRef(activeStop);
@@ -53,7 +60,9 @@ export default function Alley({ locale, copy, children }: {
           window.scrollTo({ top: 0, behavior: "auto" });
           return;
         }
-        document.getElementById(stop)?.scrollIntoView({ behavior: "auto", block: "start" });
+        const detail = panelFromLocation(window.location.hash);
+        const id = detail && stopFromHash(detail) === stop ? detail.slice(1) : stop;
+        document.getElementById(id)?.scrollIntoView({ behavior: "auto", block: "start" });
         return;
       }
 
@@ -91,10 +100,18 @@ export default function Alley({ locale, copy, children }: {
 
   const handleStopChange = useCallback(
     (stop: StopId) => {
+      if (panelFromLocation(window.location.hash)) return;
       writeHash(stop, "replace");
     },
     [writeHash],
   );
+
+  const handleFacadeChange = useCallback((next: StopId | null) => {
+    const previous = document.activeElement?.closest(".scene-hotspots")?.closest<HTMLElement>("[data-stop]");
+    const stop = previous ? stopFromHash(`#${previous.dataset.stop}`) : null;
+    if (stop && stop !== next) focusStopLink(stop);
+    setFacadeStop(next);
+  }, []);
 
   useEffect(() => {
     const hashStop = stopFromHash(window.location.hash);
@@ -124,6 +141,49 @@ export default function Alley({ locale, copy, children }: {
     };
   }, [scrollToStop]);
 
+  useEffect(() => {
+    const closed = previousPanel.current;
+    previousPanel.current = panelHash;
+    if (!closed || panelHash || reading) return;
+    // Fragment history traversal can clear the focus restored by the native dialog.
+    const frame = window.requestAnimationFrame(() => {
+      if (document.activeElement !== document.body) return;
+      const origin = panelOrigin.current;
+      if (origin?.hash === closed && origin.trigger.isConnected && !origin.trigger.matches(":disabled") && origin.trigger.getClientRects().length) {
+        origin.trigger.focus({ preventScroll: true });
+      } else {
+        focusStopLink(activeStop);
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeStop, panelHash, reading]);
+
+  const openPanel = useCallback((next: PanelHash, trigger: HTMLElement, jumpToStop = false) => {
+    const stop = stopFromHash(next);
+    if (!stop || reading || window.location.hash === next) return;
+    if (document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+    panelOrigin.current = { hash: next, trigger };
+    const previousStop = stopFromHash(window.location.hash);
+    // An early click belongs to the visible facade even if the HUD hash hasn't caught up.
+    if (!jumpToStop && stop !== previousStop) window.history.replaceState(null, "", `#${stop}`);
+    window.history.pushState({ alleyPanel: panelEntry }, "", next);
+    if (jumpToStop) scrollToStop(stop);
+    notifyHashChange();
+  }, [panelEntry, reading, scrollToStop]);
+
+  function dismissPanel(dismissed: PanelHash) {
+    // `close` also fires after Back or a manual hash change; don't undo them.
+    if (window.location.hash !== dismissed) return;
+    const stop = stopFromHash(dismissed);
+    if (!stop) return;
+    if (window.history.state?.alleyPanel === panelEntry) {
+      window.history.back();
+    } else {
+      window.history.replaceState(null, "", `#${stop}`);
+      notifyHashChange();
+    }
+  }
+
   const toggleReading = useCallback(() => {
     if (reduced) return;
     setPreference(reading ? "scene" : "reading");
@@ -137,7 +197,12 @@ export default function Alley({ locale, copy, children }: {
         onClick={(event) => {
           if (!isRegularClick(event)) return;
           event.preventDefault();
-          navigate("about");
+          if (!reading) {
+            openPanel("#about/details", event.currentTarget, true);
+          } else {
+            navigate("about");
+            document.getElementById("about/details")?.focus({ preventScroll: true });
+          }
         }}
       >
         {copy.skipToContent}
@@ -147,6 +212,7 @@ export default function Alley({ locale, copy, children }: {
         locale={locale}
         copy={copy}
         activeStop={activeStop}
+        suffix={suffix}
         reading={reading}
         reduced={reduced}
         barRef={barRef}
@@ -159,19 +225,40 @@ export default function Alley({ locale, copy, children }: {
           <ReadingMode copy={copy} />
         ) : (
           <>
-            <Stage
-              scrollHint={copy.scrollHint}
-              petLabel={copy.petCat}
-              petFeedback={copy.catFeedback}
-              activeStop={activeStop}
-              barRef={barRef}
-              onStopChange={handleStopChange}
-            >
-              {children}
-            </Stage>
+            <SceneActions.Provider value={{ availableStop: facadeStop, open: openPanel }}>
+              <Stage
+                scrollHint={copy.scrollHint}
+                petLabel={copy.petCat}
+                petFeedback={copy.catFeedback}
+                activeStop={activeStop}
+                barRef={barRef}
+                onStopChange={handleStopChange}
+                onFacadeChange={handleFacadeChange}
+              >
+                {children}
+              </Stage>
+            </SceneActions.Provider>
             <div className="reading-fallback">
               <ReadingMode copy={copy} />
             </div>
+            <PanelSurface
+              hash={panelHash}
+              title={project?.title ?? (panelTone === "contact" ? copy.labels.contact : copy.headline)}
+              tone={panelTone}
+              close={copy.scene.close}
+              languageLinks={<LocaleLinks locale={locale} suffix={suffix} label={copy.language} />}
+              originRef={panelOrigin}
+              onDismiss={dismissPanel}
+            >
+              {panelHash && (project ? (
+                <>
+                  <p className="chapter-meta">Santander Tecnología Argentina <span>{project.period}</span></p>
+                  <p className="chapter-project-copy">{project.body}</p>
+                </>
+              ) : panelTone === "contact" ? (
+                <><p className="chapter-project-copy">{copy.contactIntro}</p><ContactLinks variant="booth" /></>
+              ) : <AboutDetails copy={copy} />)}
+            </PanelSurface>
           </>
         )}
       </main>

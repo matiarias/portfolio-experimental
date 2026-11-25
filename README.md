@@ -9,13 +9,13 @@ La dirección visual está documentada en [design.md](design.md). El approach an
 
 ## Estado de la rama
 
-La Fase 3 está lista para revisión local en `feat/alley-scene`: el gato camina
-con el scroll, se sienta al parar y se duerme si no hay actividad. Acercá el
-puntero para que mire hacia arriba o tocá el gato para acariciarlo; el mismo
-control funciona con teclado. El callejón conserva sus cuatro fachadas SVG,
-el parallax y los carteles de neón.
-Para leer el contenido completo o usar los enlaces de contacto, activá **Modo lectura**.
-Las ventanas todavía no abren proyectos y la escena no reproduce audio.
+La Fase 4 está lista para revisión local en `feat/alley-scene`. Al llegar a
+Experiencia, elegí una de las ocho ventanas de la torre o recorré los períodos
+en el mural. El ramen abre la bio y la cabina abre los enlaces de contacto.
+El callejón conserva el parallax y el gato animado, todavía sin audio.
+
+**Modo lectura** ofrece el mismo contenido sin animación. Los enlaces directos
+a proyectos funcionan tanto en escena como en lectura.
 
 El alcance y los pasos siguientes están en [design.md](design.md); las reglas
 para continuar el trabajo están en [AGENTS.md](AGENTS.md). No se integra a
@@ -33,6 +33,7 @@ npm run dev
 Abrí [localhost:3000](http://localhost:3000). La portada redirige a `/en` y la versión
 en español vive en [`/es`](http://localhost:3000/es). Para probar una parada
 directamente, abrí por ejemplo [`/es#experience`](http://localhost:3000/es#experience).
+Para abrir un proyecto específico, probá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
 El modo lectura se guarda en el navegador y también se activa con movimiento
 reducido o al navegar sin JavaScript.
 

@@ -23,15 +23,15 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
 - **Fase 2 — implementada para revisión local en `feat/alley-scene`.** Cuatro
   fachadas SVG independientes, rótulos japoneses vectoriales, halo por
   parada, cables, lluvia, grano y reflejos en el asfalto. La portada conserva
-  su margen al hidratar; las ventanas siguen siendo decorativas.
+  su margen al hidratar.
 - **Fase 3 — implementada para revisión local.** Rig SVG del gato con GSAP:
   camina, corre y cambia de dirección según la calle, se sienta al parar y se
   duerme por inactividad. El puntero cercano activa la mirada; acariciarlo
   funciona con clic, toque o teclado, todavía sin audio.
-- **Fase 4 — pendiente.** Ventanas como interacción principal de Experiencia,
-  paneles de detalle, timeline vertical en la pared y deep links de proyectos.
-  La base de datos ya está en el manifiesto: ocho logros de Santander en dos
-  períodos (cinco y tres), sin duplicar el contenido.
+- **Fase 4 — implementada para revisión local.** Ocho ventanas de Santander
+  en dos períodos (cinco y tres), mural vertical, paneles de bio, proyectos y
+  contacto, y enlaces directos a cada proyecto. El modo lectura reutiliza el
+  mismo contenido.
 
 No integrar a `main` hasta que el proyecto esté terminado y el usuario dé el visto bueno.
 
@@ -51,9 +51,9 @@ No integrar a `main` hasta que el proyecto esté terminado y el usuario dé el v
 | `experience` | edificio de oficinas | experiencia |
 | `contact` | cabina telefónica y expendedora | contacto |
 
-- La torre de experiencia muestra ocho ventanas decorativas en dos pisos (cinco y tres).
-  En el diseño final, cada ventana iluminada representa un proyecto; la pared
-  lateral lleva el timeline 2023 → 2026.
+- La torre de experiencia tiene ocho ventanas en dos pisos (cinco y tres).
+  Cada ventana abre un proyecto; la pared lateral lleva el timeline 2023 → 2026.
+  El SVG sigue siendo decorativo; los controles HTML se alinean a su geometría.
 - El gato queda anclado al 38% del ancho de pantalla. La calle se mueve debajo de él.
 - La entrada se compone con margen fluido y se queda en `x = 0` durante toda
   la primera pausa: no se recentra al arrancar GSAP. Las otras paradas se ajustan
@@ -116,7 +116,9 @@ profundo para que el color sea información, no decoración.
   [`useHash`](src/lib/use-hash.ts). La navegación explícita actualiza el
   historial y salta al destino; el scroll reemplaza el hash al asentarse o
   después de un salto grande. Se mantienen `#about`, `#experience` y `#contact`
-  en ambos idiomas. `#experience/<id>` todavía no abre detalles.
+  en ambos idiomas. `#experience/<id>` abre detalles, preserva el proyecto al
+  cambiar de idioma y tiene ancla en lectura/sin JS. Bio y Contacto usan
+  `#about/details` y `#contact/details`.
 - El neón acentúa la parada activa mediante una transición de opacidad del
   halo; los glifos siguen legibles. No hay parpadeos ni animación de trazo.
 - El gato usa el desplazamiento horizontal real entre frames: el rig no da
@@ -124,31 +126,34 @@ profundo para que el color sea información, no decoración.
   [La lógica de zancada](src/lib/cat-motion.ts) es pura. En modo lectura,
   con movimiento reducido o sin JavaScript se conserva el contenido sin el rig.
 
-### Pendiente
-
-- Paneles con `<dialog>` nativo y expansión con GSAP Flip.
+- Paneles con `<dialog>` nativo y expansión con GSAP Flip. Sin disparador
+  visible, se usa una entrada breve por escala y opacidad.
 
 ## Interacción
 
-El callejón se recorre por scroll o desde el HUD; el contenido completo se
-consulta en modo lectura. El gato ya responde al movimiento y se puede
-acariciar. Los paneles, ventanas y timeline de la tabla siguen pendientes.
+El callejón se recorre por scroll o desde el HUD; el contenido completo también
+se consulta en modo lectura. Los controles aparecen cuando el gato entra en la
+fachada y siguen disponibles hasta que sale. Los botones recortados por el
+viewport quedan fuera de la interacción y del orden de teclado. El gato
+responde al movimiento y se puede acariciar.
 
 | Momento | Respuesta |
 | --- | --- |
 | Scroll | La calle se desplaza, el gato camina y los carteles se encienden al llegar |
-| Cursor sobre un cartel | Flicker breve e intensificación del halo |
-| Click en un cartel | El panel se expande desde el elemento clickeado |
-| Cursor sobre una ventana | La ventana se ilumina y aparece el título del proyecto |
-| Click en una ventana | Panel con el detalle del proyecto |
-| Hover en el timeline | Se iluminan las ventanas del período |
+| Clic, toque o teclado en el ramen o la cabina | Se abre el panel de bio o contacto |
+| Foco o cursor sobre una ventana | La ventana se ilumina y aparece el título del proyecto |
+| Clic, toque o teclado en una ventana | Se abre el detalle del proyecto |
+| Foco o hover en el timeline | Se iluminan las ventanas del período; activarlo abre su primer proyecto |
 | Cursor cerca del gato | Las pupilas lo siguen |
 | Clic, toque o teclado sobre el gato | Se acurruca; el ronroneo queda para la fase de audio |
-| Pausa en la calle | Se sienta y, tras unos 12 segundos de inactividad, se duerme |
+| Pausa en la calle | Se sienta y, tras unos 10 segundos de inactividad, se duerme |
 
 En móvil no hay hover: cada interacción se resuelve con tap y los targets tienen
 al menos 44×44 px. El gesto vertical sigue desplazando la página; no se secuestra
 el scroll horizontal.
+
+Los enlaces de Contacto usan jade sobre azul petróleo. En el panel se ven como
+placas retroiluminadas de la cabina; en lectura mantienen su formato de tarjetas.
 
 ## Accesibilidad
 
@@ -157,10 +162,11 @@ el scroll horizontal.
 - Con movimiento reducido: sin pin, sin parallax, sin caminata y sin audio; las
   paradas se apilan como secciones normales.
 - El modo lectura contiene el contenido en HTML semántico. Las capas visuales
-  quedan fuera del árbol de accesibilidad; el HUD y el botón del gato sí están
-  disponibles con foco visible y nombre traducido.
-- Fase 4: botones reales para carteles y ventanas interactivos, con foco visible.
-  ESC cierra los paneles y devuelve el foco al disparador.
+  quedan fuera del árbol de accesibilidad; el HUD, el gato y los controles de
+  la parada tienen foco visible y nombre traducido.
+- Escape o el botón Cerrar cierran los paneles. Se restaura el foco al
+  disparador después de actualizar el historial; sin disparador, al enlace de
+  la parada en el HUD.
 
 ## Referencias
 

@@ -1,17 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import type { RefObject } from "react";
 import { FiBookOpen } from "react-icons/fi";
-import { chapters, locales, type Dictionary, type Locale } from "@/content/portfolio";
+import { chapters, type Dictionary, type Locale } from "@/content/portfolio";
 import { stops, type StopId } from "@/content/scene";
 import { progressForStop } from "@/lib/alley-engine";
 import { isRegularClick } from "@/lib/is-regular-click";
+import LocaleLinks from "./locale-links";
 
 type Props = {
   locale: Locale;
   copy: Dictionary;
   activeStop: StopId;
+  suffix: string;
   reading: boolean;
   reduced: boolean;
   barRef: RefObject<HTMLDivElement | null>;
@@ -23,14 +24,13 @@ export default function Hud({
   locale,
   copy,
   activeStop,
+  suffix,
   reading,
   reduced,
   barRef,
   onNavigate,
   onToggleReading,
 }: Props) {
-  const suffix = activeStop === "entrance" ? "" : `#${activeStop}`;
-
   return (
     <>
       <header className="alley-hud">
@@ -69,22 +69,7 @@ export default function Hud({
         </nav>
 
         <div className="hud-tools">
-          <div className="hud-locale" aria-label={copy.language}>
-            {locales.map((language) => (
-              <Link
-                key={language}
-                href={`/${language}${suffix}`}
-                prefetch={false}
-                scroll={false}
-                lang={language}
-                hrefLang={language}
-                aria-label={language === "en" ? "English" : "Español"}
-                aria-current={language === locale ? "page" : undefined}
-              >
-                {language.toUpperCase()}
-              </Link>
-            ))}
-          </div>
+          <LocaleLinks locale={locale} suffix={suffix} label={copy.language} />
 
           <button
             type="button"

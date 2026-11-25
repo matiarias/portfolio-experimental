@@ -1,7 +1,4 @@
-const rows = [
-  { y: 90, windows: [70, 197, 324, 451, 578] },
-  { y: 246, windows: [70, 197, 324] },
-] as const;
+import { towerRows } from "./tower-layout";
 
 export default function Tower() {
   return (
@@ -24,7 +21,7 @@ export default function Tower() {
       <path d="M44 28h699v372H44Z" fill="url(#tower-panel)" />
       <path d="M33 19h722v27H33Zm12 195h700v20H45Z" fill="#1b2634" />
       <path d="M45 45h700m-700 168h700m-700 21h700" stroke="#6b9ca8" strokeWidth="2" opacity=".64" />
-      {rows.map(({ y, windows }) => windows.map((x, i) => (
+      {towerRows.map(({ y, windows }) => windows.map((x, i) => (
         <g key={`${x}-${y}`} transform={`translate(${x} ${y})`} data-window="">
           <rect x="-4" y="-5" width="108" height="111" fill="#131d2c" />
           <rect width="100" height="101" fill={i === 1 || i === 4 ? "url(#tower-warm)" : "url(#tower-glass)"} />

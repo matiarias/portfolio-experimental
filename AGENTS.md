@@ -15,6 +15,7 @@
 - [`alley.tsx`](src/components/alley.tsx) conecta navegación, historial y modo lectura; [`hud.tsx`](src/components/hud.tsx) renderiza la navegación, el selector de idioma y el progreso.
 - [`stage.tsx`](src/components/scene/stage.tsx) contiene las bandas y la atmósfera. La ruta renderiza [`storefronts.tsx`](src/components/scene/storefronts.tsx) en el servidor y pasa las fachadas a la escena como `children`. El [rig SVG del gato](src/components/scene/cat/cat.tsx) se anima desde el mismo ticker de la escena mediante [`animate-cat.ts`](src/components/scene/cat/animate-cat.ts).
 - [`reading-mode.tsx`](src/components/reading-mode.tsx) y [`chapter-panels.tsx`](src/components/chapter-panels.tsx) componen la vista semántica con el contenido completo.
+- [`panel-surface.tsx`](src/components/panels/panel-surface.tsx) administra el diálogo nativo. [`alley-location.ts`](src/lib/alley-location.ts) concentra el contrato de fragmentos; `#experience/<id>` debe abrir el mismo proyecto en ambos idiomas y apuntar al contenido en lectura/sin JS.
 - Las pruebas de componentes viven junto al código y los flujos del sitio compilado están en [e2e](e2e).
 
 ## Convenciones de código
@@ -49,7 +50,7 @@
 
 ## Commits, PRs y despliegue
 
-- Estado del trabajo: Fase 3 implementada para revisión local en `feat/alley-scene`. Consultá [design.md](design.md) para el alcance de cada fase. No integres a `main` hasta que el proyecto esté terminado y el usuario dé su visto bueno.
+- Estado del trabajo: Fase 4 implementada para revisión local en `feat/alley-scene`. Consultá [design.md](design.md) para el alcance de cada fase. No integres a `main` hasta que el proyecto esté terminado y el usuario dé su visto bueno.
 - Cuando el usuario pida explícitamente hacer commit y push, delegá ambas operaciones a `git-publisher`, definido en [`.codex/agents/git-publisher.toml`](.codex/agents/git-publisher.toml). Pasale los archivos autorizados, el destino conocido y las verificaciones hechas. Esperá su resultado y comunicá el hash, la rama y el resultado del push.
 - Si la herramienta de delegación solo permite elegir modelo y esfuerzo, usá los valores `model` y `model_reasoning_effort` del TOML e incluí sus instrucciones en el encargo.
 - Escribí mensajes de commit breves, en inglés y en imperativo. En un PR, incluí un resumen, las verificaciones realizadas y capturas de escritorio y móvil si cambia la UI.

@@ -17,6 +17,14 @@ export type Layout = {
   stopCenter: Record<StopId, number>;
 };
 
+export type FacadeBounds = { stop: StopId; left: number; right: number };
+
+/** The cat's viewport anchor expressed in the street's own coordinates. */
+export function facadeAtAnchor(anchorX: number, streetX: number, facades: readonly FacadeBounds[]): StopId | null {
+  const streetPoint = anchorX - streetX;
+  return facades.find(({ left, right }) => streetPoint >= left && streetPoint < right)?.stop ?? null;
+}
+
 /** El gato se ancla al 38% del ancho de pantalla. */
 export const ANCHOR_RATIO = 0.38;
 

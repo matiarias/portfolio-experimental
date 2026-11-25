@@ -106,7 +106,7 @@ export function projectsFor(locale: Locale): Project[] {
   );
 }
 
-/** Busca un proyecto por id. Acepta el fragmento `#experience/<id>`. */
+/** Busca un proyecto por el id usado en `#experience/<id>`. */
 export function projectById(locale: Locale, id: string): Project | undefined {
   return projectsFor(locale).find((project) => project.id === id);
 }

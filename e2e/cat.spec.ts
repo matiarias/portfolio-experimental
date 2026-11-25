@@ -61,14 +61,14 @@ test("looks up toward a nearby mouse pointer", async ({ page }) => {
   await expect(pupils).toHaveAttribute("transform", /^matrix\(1,0,0,1,[^,]+,-[^)]+\)$/);
 });
 
-test("falls asleep after an extended stop", async ({ page }) => {
+test("falls asleep after ten seconds at rest", async ({ page }) => {
   await page.clock.install();
   await page.goto("/en");
   await expect(page.locator(".band-street")).toHaveAttribute("style", /transform/);
   const cat = page.locator(".alley-cat");
   await page.clock.fastForward(1_400);
   await expect(cat).toHaveAttribute("data-cat-state", "sit");
-  await page.clock.fastForward(11_000);
+  await page.clock.fastForward(9_000);
   await expect(cat).toHaveAttribute("data-cat-state", "sleep");
   await expect(cat.locator('[data-cat-part="closed-eyes"]')).toHaveCSS("opacity", "1");
 });

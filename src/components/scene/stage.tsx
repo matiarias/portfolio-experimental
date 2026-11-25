@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { stops, type StopId } from "@/content/scene";
-import { anchorXFor, progressToX, stopAt, type Layout } from "@/lib/alley-engine";
+import { anchorXFor, facadeAtAnchor, progressToX, stopAt, type FacadeBounds, type Layout } from "@/lib/alley-engine";
 import { animateCat } from "./cat/animate-cat";
 import Cat from "./cat/cat";
 
@@ -22,6 +22,7 @@ type Props = {
   activeStop: StopId;
   barRef: RefObject<HTMLDivElement | null>;
   onStopChange: (stop: StopId) => void;
+  onFacadeChange: (stop: StopId | null) => void;
   children: ReactNode;
 };
 
@@ -31,14 +32,13 @@ type Props = {
  * El pin se resuelve con `position: sticky`; ScrollTrigger solo lee el progreso
  * y un único ticker escribe `transform` sobre las tres bandas.
  */
-export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, barRef, onStopChange, children }: Props) {
+export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, barRef, onStopChange, onFacadeChange, children }: Props) {
   const stageRef = useRef<HTMLElement>(null);
   const streetRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const foregroundRef = useRef<HTMLDivElement>(null);
   const catRef = useRef<HTMLDivElement>(null);
   const petRef = useRef<(() => void) | null>(null);
-  const layoutRef = useRef<Layout | null>(null);
   const stopRef = useRef<StopId>("entrance");
   const onStopChangeRef = useRef(onStopChange);
 
@@ -62,27 +62,28 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, b
       const bar = barRef.current;
       const setBar = bar ? gsap.quickSetter(bar, "scaleX") : null;
 
-      const measure = (): Layout => {
+      const measure = (): { layout: Layout; facades: FacadeBounds[] } => {
         const stopCenter = {} as Record<StopId, number>;
         const streetLeft = street.getBoundingClientRect().left;
-        street.querySelectorAll<HTMLElement>("[data-stop]").forEach((element) => {
-          const id = element.dataset.stop as StopId;
+        const facades = Array.from(street.querySelectorAll<HTMLElement>("[data-stop]"), (element) => {
+          const stop = element.dataset.stop as StopId;
           const rect = element.getBoundingClientRect();
-          stopCenter[id] = rect.left - streetLeft + rect.width / 2;
+          const left = rect.left - streetLeft;
+          stopCenter[stop] = left + rect.width / 2;
+          return { stop, left, right: left + rect.width };
         });
         const viewportW = stage.clientWidth;
         return {
-          viewportW,
-          streetW: street.scrollWidth,
-          anchorX: anchorXFor(viewportW),
-          stopCenter,
+          layout: { viewportW, streetW: street.scrollWidth, anchorX: anchorXFor(viewportW), stopCenter },
+          facades,
         };
       };
 
+      let geometry = measure();
       let streetX = 0;
+      let facade: StopId | null = "entrance";
       const apply = (value: number) => {
-        const layout = layoutRef.current;
-        if (!layout) return 0;
+        const { layout, facades } = geometry;
         const x = progressToX(value, layout);
         const travel = (streetX - x) / Math.max(layout.viewportW, 1);
         streetX = x;
@@ -90,6 +91,11 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, b
         setStreet(x);
         setForeground(x * FOREGROUND_DEPTH);
         setBar?.(value);
+        const nextFacade = facadeAtAnchor(layout.anchorX, x, facades);
+        if (nextFacade !== facade) {
+          facade = nextFacade;
+          onFacadeChange(facade);
+        }
         return travel;
       };
 
@@ -102,8 +108,6 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, b
           onStopChangeRef.current(next);
         }
       };
-
-      layoutRef.current = measure();
 
       const state = { target: 0, current: 0 };
       let ticking = false;
@@ -160,7 +164,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, b
           ensureTicker();
         },
         onRefresh: () => {
-          layoutRef.current = measure();
+          geometry = measure();
           state.current = state.target;
           apply(state.current);
           cat?.remeasure();
@@ -205,7 +209,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, b
           </svg>
         </div>
 
-        <div ref={streetRef} className="band band-street" aria-hidden="true">
+        <div ref={streetRef} className="band band-street">
           {children}
         </div>
 

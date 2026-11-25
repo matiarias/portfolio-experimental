@@ -2,7 +2,7 @@ export const CAT_MOTION = {
   walkSpeed: 0.045,
   runSpeed: 1.45,
   sitDelay: 1_150,
-  sleepDelay: 12_000,
+  sleepDelay: 10_000,
   petDuration: 1_300,
 } as const;
 
