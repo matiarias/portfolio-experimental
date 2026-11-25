@@ -1,9 +1,39 @@
 import { expect, test } from "@playwright/test";
+import { soundtrack } from "../src/content/soundtrack";
+
+if (!soundtrack) throw new Error("The soundtrack tests require a configured track");
+const { src: soundtrackPath } = soundtrack;
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    const events: unknown[] = [];
+    Object.defineProperty(window, "__soundtrackEvents", { value: events });
+    const record = (event: Event) => {
+      const audio = event.target instanceof HTMLAudioElement
+        ? event.target
+        : document.querySelector("audio");
+      if (audio) events.push({
+        event: event.type, hidden: document.hidden, paused: audio.paused,
+        time: audio.currentTime, readyState: audio.readyState,
+        error: audio.error && { code: audio.error.code, message: audio.error.message },
+      });
+    };
+    for (const event of ["play", "playing", "pause", "error", "emptied", "waiting", "visibilitychange", "pagehide"]) {
+      window.addEventListener(event, record, true);
+    }
+  });
+});
+
+test.afterEach(async ({ page }, info) => {
+  if (info.status === info.expectedStatus || page.isClosed()) return;
+  const events = await page.evaluate(() => Reflect.get(window, "__soundtrackEvents")).catch(() => undefined);
+  if (events) await info.attach("native-audio-events", { body: JSON.stringify(events, null, 2), contentType: "application/json" });
+});
 
 test("loads the MP3 on a keyboard gesture and pauses without automatically resuming", async ({ page }) => {
   const requests: string[] = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname === "/media/gentle-pathways.mp3") requests.push(request.url());
+    if (new URL(request.url()).pathname === soundtrackPath) requests.push(request.url());
   });
 
   await page.goto("/en");
@@ -19,8 +49,9 @@ test("loads the MP3 on a keyboard gesture and pauses without automatically resum
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
   // The component test covers the title; here we verify native playback.
   // WebKit's native media pipeline may not emit a Playwright request event.
-  await expect(audio).toHaveAttribute("src", "/media/gentle-pathways.mp3");
+  await expect(audio).toHaveAttribute("src", soundtrackPath);
 
+  await expect(pause, "Playback should still expose Pause after the media clock advances").toBeFocused();
   await pause.press("Enter");
   await expect(audio).toHaveJSProperty("paused", true);
   await expect(play).toBeFocused();
@@ -55,7 +86,10 @@ test.describe("soundtrack on touch", () => {
     const reading = page.getByRole("button", { name: "Modo lectura" });
     await play.tap();
     await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0);
-    await expect(page.getByText("Gentle Pathways", { exact: true })).toBeHidden();
+    await expect(pause, "Playback should still expose Pause after the media clock advances").toBeVisible();
+    const title = page.locator(".hud-soundtrack-title");
+    await expect(title).toHaveCount(1);
+    await expect(title).toBeHidden();
     await pause.tap();
     await expect(audio).toHaveJSProperty("paused", true);
     const pausedAt = await audio.evaluate((element: HTMLAudioElement) => element.currentTime);

@@ -43,8 +43,8 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   reflejos y detalles del gato ajustados e imagen social renovada. La entrega
   incluye capturas de escritorio y móvil y un borrador del PR. Abrir el PR
   y desplegar requieren autorización.
-  Pasan 30 pruebas de Vitest y 141 de Playwright en Chromium, Firefox y
-  WebKit. Lighthouse móvil midió rendimiento de 82 en `/en` y 88 en `/es`,
+  La suite cubre Chromium, Firefox y WebKit. Lighthouse móvil midió
+  rendimiento de 82 en `/en` y 88 en `/es`,
   con accesibilidad de 100 en ambas rutas y sin solicitudes al MP3 antes de
   interactuar.
 - **Revisión final.** Probar en iOS y Android físicos, medir 60 fps en un

@@ -7,9 +7,8 @@ test("animates the gait on physical travel and sits when the street stops", asyn
   const leg = cat.locator('[data-cat-part="front-near"]');
   const standing = await leg.getAttribute("transform");
   await page.evaluate(() => {
-    const stage = document.getElementById("alley-stage");
-    const cat = stage?.querySelector<HTMLElement>(".alley-cat");
-    if (!stage || !cat) return;
+    const cat = document.querySelector<HTMLElement>(".alley-cat");
+    if (!cat) throw new Error("The scene has no cat");
     const observe = new MutationObserver((records) => {
       const hasGait = records.some(({ oldValue }) => /^(walk|run)$/.test(oldValue ?? ""));
       if (hasGait || /^(walk|run)$/.test(cat.dataset.catState ?? "")) {
@@ -18,8 +17,14 @@ test("animates the gait on physical travel and sits when the street stops", asyn
       }
     });
     observe.observe(cat, { attributes: true, attributeFilter: ["data-cat-state"], attributeOldValue: true });
-    window.scrollTo(0, (stage.offsetHeight - window.innerHeight) * 0.17);
   });
+  await page.mouse.move(400, 400);
+  // Separate wheel gestures exercise travel even if a startup refresh absorbs one scroll update.
+  for (let step = 0; step < 4; step++) {
+    const before = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, 120);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before);
+  }
   await expect(cat).toHaveAttribute("data-observed-gait", "true");
   await expect.poll(async () => leg.getAttribute("transform")).not.toBe(standing);
   await expect(cat).toHaveAttribute("data-cat-state", "sit");

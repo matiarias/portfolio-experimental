@@ -51,6 +51,7 @@
 - Mantené [design.md](design.md) y este archivo al día con las decisiones de diseño y las convenciones que cambien. Revisá también el [README](README.md) cuando cambien los flujos de uso, enlaces o comandos. Hacé la revisión antes de cada commit y push.
 - Durante las iteraciones, verificá según el impacto. Para documentación, texto o estilos menores, revisá `git diff --check`, los enlaces afectados y la vista local cuando corresponda. No corras la suite completa por un ajuste menor.
 - Si cambia la lógica, los componentes o la navegación, corré las pruebas y los checks que cubran el cambio. Para scroll, hidratación o layout responsive, priorizá los flujos afectados en Chromium, Firefox y WebKit; usá el build si la verificación depende del comportamiento de producción.
+- Probá el audio con reproducción nativa en Playwright; en CI de Ubuntu usá una salida virtual. Los fallos de audio adjuntan eventos del elemento multimedia y de visibilidad.
 - Reservá la suite completa (`npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`) para antes de publicar o cerrar una fase, o cuando el usuario la pida. No la ates a un hook de cada commit local. [GitHub Actions](.github/workflows/ci.yml) la sigue ejecutando en cada push y PR. Informá qué verificaste y qué quedó pendiente.
 
 ## Commits, PRs y despliegue
