@@ -32,15 +32,23 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   y contacto. La experiencia de Santander se comparte con el modo lectura
   y conserva enlaces directos a cada logro.
 
-- **Fase 5 — pendiente.** Optimizar el recorte y los efectos en móvil,
-  pausar el trabajo de la escena en pestañas ocultas y revisar accesibilidad
-  con NVDA y VoiceOver. Validar con Playwright en Chromium, Firefox y WebKit.
-  Metas: 60 fps en un Android de gama media y Lighthouse móvil ≥ 85 en
-  rendimiento y ≥ 95 en accesibilidad.
-- **Fase 6 — pendiente.** Añadir audio silenciado por defecto, activado por
-  gesto y con preferencia persistente; pulir halos, reflejos e interacciones
-  del gato; actualizar la imagen para compartir y preparar un PR con capturas
-  de escritorio y móvil y un resumen de verificaciones.
+- **Fase 5 — cerrada con verificación automatizada.** Encuadre
+  móvil de una fachada por parada, menos capas, pausa en pestañas ocultas
+  y foco en el destino al navegar en lectura. Pasaron 126 pruebas de
+  Playwright en Chromium, Firefox y WebKit, más los recorridos táctiles
+  en iPhone 13 y Pixel 7 emulados en ambas orientaciones. El build local
+  de producción alcanzó 87 en rendimiento para `/en` y 88 para `/es`, con
+  100 en accesibilidad en ambas rutas (Lighthouse móvil; metas: 85 y 95).
+- **Fase 6 — lista para la revisión final.** Reproductor de *Gentle Pathways*,
+  reflejos y detalles del gato ajustados e imagen social renovada. La entrega
+  incluye capturas de escritorio y móvil y un borrador del PR. Abrir el PR
+  y desplegar requieren autorización.
+  Pasaron 135 pruebas de Playwright en Chromium, Firefox y WebKit. Lighthouse
+  móvil midió rendimiento de 82 en `/en` y 88 en `/es`, con accesibilidad de
+  100 en ambas rutas y sin solicitudes al MP3 antes de interactuar.
+- **Revisión final.** Probar en iOS y Android físicos, medir 60 fps en un
+  Android de gama media y revisar accesibilidad con VoiceOver y NVDA.
+  Volver a medir el rendimiento de `/en` frente a la meta de 85.
 
 Nunca hacer merge a `main` sin un pedido explícito del usuario.
 
@@ -49,6 +57,15 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
 - Escena fija a pantalla completa con `position: sticky`, sobre una tira de
   fachadas de unos cuatro viewports de ancho.
 - Tres bandas de profundidad. La profundidad la dan las bandas, no un punto de fuga.
+- En pantallas angostas y teléfonos apaisados, la fachada se centra
+  independientemente del gato, que sigue al 38%. En cada parada queda una
+  sola fachada completa; durante el desplazamiento pueden verse dos.
+- El perfil móvil usa un fondo quieto, lluvia estática tenue y un solo
+  reflejo. No dibuja la banda frontal, los cables, el grano ni el halo
+  ambiental de los carteles; conserva el neón que sigue la forma de los glifos.
+- Al ocultar la pestaña se pausa la animación CSS y se desconecta el ticker
+  de la escena. Al volver, el motor lee el scroll real sin reproducir el
+  desplazamiento que pudo ocurrir mientras estaba oculta.
 - Fachadas frontales, sin perspectiva: la referencia de composición es un local
   visto de frente, no un corredor.
 - Paradas, de izquierda a derecha:
@@ -63,14 +80,17 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
 - La torre conserva sus ocho ventanas decorativas y el patrón de luces. Un
   único botón central abre la experiencia en una columna, del período más
   reciente al más antiguo.
-- El HUD se agrupa a la derecha, en dos filas cuando se ve en móvil.
+- El HUD se agrupa a la derecha, en dos filas hasta 720 px.
   Home/Inicio es el primer enlace; los idiomas y el modo lectura forman
   un grupo aparte. Solo el cartel de portada muestra el nombre en la escena.
+- *Gentle Pathways* usa un botón de reproducir/pausar junto a Modo lectura,
+  en la segunda fila en móvil. El título aparece al sonar en escritorio.
+  No hay descarga ni reproducción antes de pulsarlo. Se pausa al ocultar la pestaña,
+  al abrir un diálogo o al salir de la escena y no se reanuda sola.
 - El gato queda anclado al 38% del ancho de pantalla. La calle se mueve debajo de él.
 - La entrada se compone con margen fluido y se queda en `x = 0` durante toda
-  la primera pausa: no se recentra al arrancar GSAP. Las otras paradas se ajustan
-  al ancla del gato. En móvil (hasta 720 px) los carteles de esas paradas tienen
-  un margen interior que compensa el posible recorte de la fachada.
+  la primera pausa: no se recentra al arrancar GSAP. El perfil móvil entra
+  hasta 720 px y se extiende hasta 950 px con puntero táctil.
 - Las [fachadas](src/components/scene/facades) y los carteles se renderizan en el
   servidor. El cliente mueve sus contenedores, no vuelve a construir el arte.
 
@@ -94,6 +114,14 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
 Cada fachada tiene un neón dominante asignado en
 [scene.ts](src/content/scene.ts). El resto de la escena se mantiene en índigo
 profundo para que el color sea información, no decoración.
+El reflejo de la acera toma el color del cartel con `data-lit-facade` apenas
+el gato cruza el borde de la fachada, sin esperar al capítulo del HUD. Entre
+fachadas no hay reflejo del neón.
+
+En modo lectura, los títulos y los nombres de los logros quedan en marfil.
+El ámbar suave (`--reading-accent`, `#e8ba83`) destaca el subtítulo y las
+fechas, viñetas y divisores de Experiencia. El jade se conserva en las
+tarjetas de Contacto y el modal de Experiencia mantiene su cian.
 
 ## Tipografía
 
@@ -145,9 +173,13 @@ profundo para que el color sea información, no decoración.
   con movimiento reducido o sin JavaScript se conserva el contenido sin el rig.
 - Los ojos, las pupilas y el trazo de los párpados comparten la alineación
   sobre el hocico para que la expresión se mantenga al dormir.
+- El gato tiene pelaje gris pizarra, iris verde hoja claro y dos grupos de
+  bigotes que acompañan el giro de la cabeza. Los del lado lejano son más
+  tenues para mantener el perfil.
 
-- Paneles con `<dialog>` nativo y expansión con GSAP Flip. Sin disparador
-  visible, se usa una entrada breve por escala y opacidad.
+- Paneles con `<dialog>` nativo y expansión con GSAP desde la geometría del
+  disparador, sin cargar Flip. Sin disparador visible, se usa una entrada
+  breve por escala y opacidad.
 - Los paneles se mantienen centrados. Si el contenido no cabe, solo se
   desplaza su cuerpo; los controles de idioma y cierre quedan a la vista.
 

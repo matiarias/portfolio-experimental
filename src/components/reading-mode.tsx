@@ -9,7 +9,7 @@ export default function ReadingMode({ copy }: { copy: Dictionary }) {
   return (
     <div className="reading-shell">
       <header className="reading-hero">
-        <p className="reading-name">{name}</p>
+        <h1 className="reading-name" tabIndex={-1}>{name}</h1>
         <p className="reading-role">{copy.headline}</p>
         <p className="reading-stack">{aboutStack}</p>
         <p className="about-sector">{copy.aboutSector}</p>

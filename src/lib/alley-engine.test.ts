@@ -43,6 +43,14 @@ describe("alley engine", () => {
     }
   });
 
+  it("can center a mobile facade without moving the cat's interaction anchor", () => {
+    const mobile: Layout = { ...layout, facadeX: 500 };
+    const x = xForStop("about", mobile);
+    expect(mobile.stopCenter.about + x).toBe(500);
+    expect(facadeAtAnchor(mobile.anchorX, x, [{ stop: "about", left: 1200, right: 1800 }])).toBe("about");
+    expect(xForStop("entrance", mobile)).toBe(0);
+  });
+
   it("keeps the entrance at the CSS origin even if its center differs from the anchor", () => {
     expect(progressToX(0, layout)).toBe(0);
     expect(progressToX(0.1, layout)).toBe(0);

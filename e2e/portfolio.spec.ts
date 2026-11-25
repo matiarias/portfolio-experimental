@@ -1,5 +1,17 @@
 import { expect, test } from "@playwright/test";
 
+test("shares the alley artwork in both languages", async ({ page, request }) => {
+  for (const [locale, alt] of [["en", /a cat in a Tokyo alley/], ["es", /un gato en un callejón/]] as const) {
+    await page.goto(`/${locale}`);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/media\/alley-social\.png$/);
+    await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute("content", alt);
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", /\/media\/alley-social\.png$/);
+  }
+  const image = await request.get("/media/alley-social.png");
+  expect(image.ok()).toBe(true);
+  expect(image.headers()["content-type"]).toContain("image/png");
+});
+
 test("redirects the root to English", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/en$/);
@@ -27,6 +39,10 @@ test("renders the portfolio without JavaScript", async ({ browser, baseURL }) =>
     await expect(page.locator("#experience")).toBeVisible();
     await expect(page.locator("#contact")).toBeVisible();
     await expect(page.getByText("Fintech & Banking", { exact: true })).toBeVisible();
+    const skip = page.getByRole("link", { name: "Skip to content" });
+    await skip.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("main")).toBeFocused();
   } finally {
     await context.close();
   }
@@ -35,6 +51,7 @@ test("renders the portfolio without JavaScript", async ({ browser, baseURL }) =>
 test("switches between the alley and reading mode", async ({ page }) => {
   await page.goto("/en");
   await expect(page.locator("main")).toHaveAttribute("data-mode", "scene");
+  await expect(page.locator(".reading-shell")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Reading mode" }).click();
   await expect(page.locator("main")).toHaveAttribute("data-mode", "reading");
@@ -55,20 +72,28 @@ test("walks the alley as the page scrolls", async ({ page }) => {
   });
 });
 
-test("brightens the neon at the facade edge and dims it again in the gap", async ({ page }) => {
+test("lights the neon and street together at the facade edge and dims both in the gap", async ({ page }) => {
   await page.goto("/en");
   const stage = page.locator("#alley-stage");
   await expect(page.locator(".band-street")).toHaveAttribute("style", /transform/);
   const sign = stage.locator('[data-stop="about"] .storefront-sign-plate');
   const halo = () => sign.evaluate((element) => Number(getComputedStyle(element, "::before").opacity));
+  const reflection = stage.locator(".street-reflection");
+  await expect(reflection).toHaveCSS("--street-light", "#ffb347");
 
   await stage.evaluate((element) => window.scrollTo(0, (element.getBoundingClientRect().height - window.innerHeight) * 0.22));
   await expect(stage).toHaveAttribute("data-lit-facade", "about");
+  await expect(reflection).toHaveCSS("--street-light", "#ff2e88");
+  const facade = await stage.locator('.storefront[data-stop="about"]').boundingBox();
+  const cat = await stage.locator(".alley-cat").boundingBox();
+  if (!facade || !cat) throw new Error("Expected the cat and facade to have layout");
+  expect(cat.x + cat.width / 2).toBeLessThan(facade.x + facade.width / 2);
   await expect.poll(halo).toBeGreaterThan(0.9);
 
   // Midway between the centers of About and Experience is the physical gap.
   await stage.evaluate((element) => window.scrollTo(0, (element.getBoundingClientRect().height - window.innerHeight) * 0.48));
   await expect(stage).not.toHaveAttribute("data-lit-facade");
+  await expect(reflection).toHaveCSS("--street-light", "transparent");
   await expect.poll(halo).toBeLessThan(0.5);
 });
 
@@ -79,6 +104,24 @@ test("navigates stops with the keyboard", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#experience$/);
   await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
+});
+
+test("moves focus to the destination heading when navigating in reading mode", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Matias Arias");
+  const nav = page.getByRole("navigation", { name: "Chapters" });
+  const experience = nav.getByRole("link", { name: "Experience" });
+  await experience.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: "Santander Tecnología Argentina" })).toBeFocused();
+  await page.goto("/en#experience/1-2");
+  await experience.click();
+  const highlight = page.locator('[id="experience/1-2"]');
+  await expect(highlight).toBeFocused();
+  await expect(highlight).toBeInViewport();
+  await nav.getByRole("link", { name: "Home" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
 });
 
 test("returns to the entrance through Home or Inicio without a duplicate brand link", async ({ page }) => {

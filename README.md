@@ -9,17 +9,21 @@ La dirección visual está documentada en [design.md](design.md). El approach an
 
 ## Estado de la rama
 
-La Fase 4 está implementada en `feat/alley-scene`. En la torre,
-«Ver experiencia» abre la trayectoria completa. El ramen abre la bio y la
-cabina abre los enlaces de contacto.
-El callejón conserva el parallax y el gato animado, todavía sin audio.
+En `feat/alley-scene`, «Ver experiencia» abre la trayectoria completa desde
+la torre. El ramen abre la bio y la cabina abre los enlaces de contacto.
+El callejón conserva el parallax y el gato animado. Los reflejos de la
+acera toman el color del cartel apenas el gato entra en su fachada.
 
 **Home / Inicio** vuelve a la entrada del callejón. **Modo lectura** ofrece
 el mismo contenido sin animación. Los enlaces directos
 a logros de experiencia funcionan tanto en escena como en lectura.
 
-Las fases 5 y 6 siguen pendientes. Su alcance está en [design.md](design.md);
-las reglas del proyecto están en [AGENTS.md](AGENTS.md). No se integra a
+La Fase 5 centra una fachada por parada en móvil, aligera los efectos y
+pausa la escena en pestañas ocultas. La Fase 6 incluye el reproductor de
+*Gentle Pathways*, disponible desde el HUD de la escena. La pista no se
+descarga ni suena hasta pulsar Reproducir. Los dispositivos físicos y
+lectores de pantalla quedan para la revisión final. El alcance está en
+[design.md](design.md) y las reglas en [AGENTS.md](AGENTS.md). No se integra a
 `main` sin autorización explícita.
 
 ## Desarrollo local
@@ -58,6 +62,22 @@ en el puerto 3100 y ejecuta
 los flujos en Chromium, Firefox y WebKit. También acepta `PLAYWRIGHT_BASE_URL`
 para probar una preview.
 
+Para repetir Lighthouse móvil, serví el build con `npm run start -- --port 3100`
+y ejecutá `npx --yes lighthouse@13.6.0 http://localhost:3100/es --only-categories=performance,accessibility`
+con Chrome instalado. Repetilo para `/en`; las metas son 85 en rendimiento
+y 95 en accesibilidad.
+
+Para validar en dispositivos físicos, recorré las cuatro paradas en iOS y
+Android, en vertical y horizontal, y cambiá de pestaña durante el paseo.
+Medí la fluidez del scroll en un Android de gama media. Con VoiceOver
+(Safari) y NVDA (Firefox o Chrome), probá este recorrido:
+
+- Activá «Saltar al contenido» y recorré los capítulos con teclado.
+- En la escena, abrí cada diálogo: debe anunciarse su título y al cerrar
+  el foco debe volver al control que lo abrió.
+- En modo lectura, usá la lista de encabezados y activá un capítulo desde
+  el HUD: el foco debe ir a su título. Probá también el enlace a un logro.
+
 ## Contenido y recursos
 
 - Los diccionarios, el About y los enlaces están en [`src/content/portfolio.ts`](src/content/portfolio.ts).
@@ -71,7 +91,11 @@ para probar una preview.
 - Las [fachadas SVG](src/components/scene/facades) se componen en el servidor en
   [`storefronts.tsx`](src/components/scene/storefronts.tsx). Los glifos japoneses
   provienen de Noto Sans JP ([licencia OFL](src/content/NotoSansJP-OFL.txt)); no se descarga la fuente.
-- El [loop del autocine](public/media/loop-crepusculo.wav) se conserva, pero
-  todavía no se usa en el callejón.
+- La pista [`gentle-pathways.mp3`](public/media/gentle-pathways.mp3) y su
+  título se configuran en [`soundtrack.ts`](src/content/soundtrack.ts).
+  Confirmá los permisos y créditos aplicables antes de publicarla.
+  El [loop del autocine](public/media/loop-crepusculo.wav) no se usa.
+- Con el servidor local activo, `node scripts/capture-social.mjs` regenera
+  la [imagen para compartir](public/media/alley-social.png) a 1200 × 630.
 - En producción, configurá `SITE_URL` con el origen canónico. Las previews de Vercel
   pueden usar su URL automática.

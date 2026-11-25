@@ -3,7 +3,6 @@
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
-import { Flip } from "gsap/Flip";
 import type { PanelHash } from "@/lib/alley-location";
 
 export type PanelOrigin = { hash: PanelHash; trigger: HTMLElement };
@@ -98,13 +97,17 @@ export default function PanelSurface({
 
     const origin = originRef.current;
     let from: gsap.TweenVars = { scale: 0.965 };
-    if (origin?.hash === hash && origin.trigger.isConnected && origin.trigger.getClientRects().length) {
-      gsap.registerPlugin(Flip);
-      const fit = Flip.fit(surface, origin.trigger, { scale: true, getVars: true }) as
-        { x?: number; y?: number; scaleX?: number; scaleY?: number } | null;
-      if (fit && Number.isFinite(fit.x) && Number.isFinite(fit.y) &&
-          Number.isFinite(fit.scaleX) && Number.isFinite(fit.scaleY)) {
-        from = { x: fit.x, y: fit.y, scaleX: fit.scaleX, scaleY: fit.scaleY };
+    if (origin?.hash === hash && origin.trigger.isConnected) {
+      const trigger = origin.trigger.getBoundingClientRect();
+      const panel = surface.getBoundingClientRect();
+      if (trigger.width && trigger.height && panel.width && panel.height) {
+        // The surface's transform origin is its top-left corner.
+        from = {
+          x: trigger.left - panel.left,
+          y: trigger.top - panel.top,
+          scaleX: trigger.width / panel.width,
+          scaleY: trigger.height / panel.height,
+        };
       }
     }
     gsap.from(surface, { ...from, opacity: 0, duration: 0.34, ease: "power2.out", clearProps: "transform,opacity" });

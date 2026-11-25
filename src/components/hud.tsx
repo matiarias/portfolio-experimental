@@ -3,10 +3,12 @@
 import type { RefObject } from "react";
 import { FiBookOpen } from "react-icons/fi";
 import type { Dictionary, Locale } from "@/content/portfolio";
+import { soundtrack } from "@/content/soundtrack";
 import { stops, type StopId } from "@/content/scene";
 import { progressForStop } from "@/lib/alley-engine";
 import { isRegularClick } from "@/lib/is-regular-click";
 import LocaleLinks from "./locale-links";
+import SoundtrackControl from "./soundtrack-control";
 
 type Props = {
   locale: Locale;
@@ -15,6 +17,7 @@ type Props = {
   suffix: string;
   reading: boolean;
   reduced: boolean;
+  panelOpen: boolean;
   barRef: RefObject<HTMLDivElement | null>;
   onNavigate: (stop: StopId) => void;
   onToggleReading: () => void;
@@ -27,6 +30,7 @@ export default function Hud({
   suffix,
   reading,
   reduced,
+  panelOpen,
   barRef,
   onNavigate,
   onToggleReading,
@@ -65,6 +69,9 @@ export default function Hud({
             <FiBookOpen aria-hidden="true" />
             <span>{copy.reading}</span>
           </button>
+          {!reading && soundtrack && (
+            <SoundtrackControl track={soundtrack} labels={copy.soundtrack} suspended={panelOpen} />
+          )}
         </div>
       </header>
 

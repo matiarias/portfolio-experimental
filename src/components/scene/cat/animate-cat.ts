@@ -105,13 +105,13 @@ export function animateCat(root: HTMLDivElement, wake: () => void) {
 
   const remeasure = () => { bounds = undefined; };
 
-  function visibility() {
+  function setVisible(visible: boolean) {
     window.clearTimeout(timer);
     aimX = 0;
     aimY = 0;
     if (rest === "pet" || rest === "lookUp") rest = "idle";
     if (feedback) feedback.textContent = "";
-    if (!document.hidden) {
+    if (visible) {
       remeasure();
       scheduleRest();
       wake();
@@ -120,12 +120,12 @@ export function animateCat(root: HTMLDivElement, wake: () => void) {
 
   viewport?.addEventListener("pointermove", point, { passive: true });
   viewport?.addEventListener("pointerleave", leave);
-  document.addEventListener("visibilitychange", visibility);
   scheduleRest();
 
   return {
     pet,
     remeasure,
+    setVisible,
     advance(dt: number, travel: number) {
       if (document.hidden) return false;
       gait = advanceGait(gait, travel, dt);
@@ -187,7 +187,6 @@ export function animateCat(root: HTMLDivElement, wake: () => void) {
       window.clearTimeout(timer);
       viewport?.removeEventListener("pointermove", point);
       viewport?.removeEventListener("pointerleave", leave);
-      document.removeEventListener("visibilitychange", visibility);
     },
   };
 }

@@ -11,8 +11,10 @@ export type Layout = {
   viewportW: number;
   /** Ancho total de la tira de fachadas en px. */
   streetW: number;
-  /** Punto de pantalla donde se ancla la fachada activa. */
+  /** Ancla física del gato. */
   anchorX: number;
+  /** Centro visual de la fachada cuando difiere del ancla del gato. */
+  facadeX?: number;
   /** Centro de cada fachada, en coordenadas de la tira. */
   stopCenter: Record<StopId, number>;
 };
@@ -44,12 +46,12 @@ export function maxTravel(layout: Layout): number {
 
 /**
  * La entrada usa la posición de reposo de CSS antes y después de hidratar.
- * Las demás fachadas se alinean con `anchorX`.
+ * Las demás fachadas se alinean con `facadeX` o con el ancla del gato.
  * Una fachada con centro `c` aparece en pantalla en `c + x`.
  */
 export function xForStop(stop: StopId, layout: Layout): number {
   if (stop === "entrance") return 0;
-  return layout.anchorX - layout.stopCenter[stop];
+  return (layout.facadeX ?? layout.anchorX) - layout.stopCenter[stop];
 }
 
 export function clampX(x: number, layout: Layout): number {

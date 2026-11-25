@@ -18,9 +18,15 @@ export function panelFromHash(hash: string): Panel {
 const en = {
   description:
     "Matias Arias, Software Engineer from Argentina with a focus on frontend. Walk a neon Tokyo alley at night to explore his work in banking and investment products.",
+  shareImageAlt: "Matias Arias, Software Engineer: an amber neon sign and a cat in a Tokyo alley at night.",
   language: "Language",
   navigation: "Chapters",
   reading: "Reading mode",
+  soundtrack: {
+    play: "Play background music",
+    pause: "Pause background music",
+    error: "Couldn't play the music. Try again.",
+  },
   skipToContent: "Skip to content",
   scrollHint: "Scroll to walk",
   petCat: "Pet the cat",
@@ -50,9 +56,15 @@ export const dictionaries = {
   es: {
     description:
       "Matias Arias, Software Engineer de Argentina con foco en frontend. Recorré un callejón nocturno de neón en Tokio para conocer mi trabajo en productos bancarios y de inversión.",
+    shareImageAlt: "Matias Arias, Software Engineer: un cartel de neón ámbar y un gato en un callejón nocturno de Tokio.",
     language: "Idioma",
     navigation: "Capítulos",
     reading: "Modo lectura",
+    soundtrack: {
+      play: "Reproducir música de fondo",
+      pause: "Pausar música de fondo",
+      error: "No se pudo reproducir la música. Probá de nuevo.",
+    },
     skipToContent: "Saltar al contenido",
     scrollHint: "Scrolleá para caminar",
     petCat: "Acariciar al gato",

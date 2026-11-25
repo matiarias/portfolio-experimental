@@ -63,7 +63,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
       const bar = barRef.current;
       const setBar = bar ? gsap.quickSetter(bar, "scaleX") : null;
 
-      const measure = (): { layout: Layout; facades: FacadeBounds[] } => {
+      const measure = (): { layout: Layout; facades: FacadeBounds[]; parallax: boolean } => {
         const stopCenter = {} as Record<StopId, number>;
         const streetLeft = street.getBoundingClientRect().left;
         const facades = Array.from(street.querySelectorAll<HTMLElement>("[data-stop]"), (element) => {
@@ -74,9 +74,14 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
           return { stop, left, right: left + rect.width };
         });
         const viewportW = stage.clientWidth;
+        const facadeRatio = Number.parseFloat(getComputedStyle(stage).getPropertyValue("--facade-center"));
         return {
-          layout: { viewportW, streetW: street.scrollWidth, anchorX: anchorXFor(viewportW), stopCenter },
+          layout: {
+            viewportW, streetW: street.scrollWidth, anchorX: anchorXFor(viewportW), stopCenter,
+            facadeX: Number.isFinite(facadeRatio) ? viewportW * facadeRatio : undefined,
+          },
           facades,
+          parallax: getComputedStyle(foreground).display !== "none",
         };
       };
 
@@ -84,13 +89,15 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
       let streetX = 0;
       let facade: StopId | null = "entrance";
       const apply = (value: number) => {
-        const { layout, facades } = geometry;
+        const { layout, facades, parallax } = geometry;
         const x = progressToX(value, layout);
         const travel = (streetX - x) / Math.max(layout.viewportW, 1);
         streetX = x;
-        setBackdrop(x * BACKDROP_DEPTH);
+        if (parallax) {
+          setBackdrop(x * BACKDROP_DEPTH);
+          setForeground(x * FOREGROUND_DEPTH);
+        }
         setStreet(x);
-        setForeground(x * FOREGROUND_DEPTH);
         setBar?.(value);
         const nextFacade = facadeAtAnchor(layout.anchorX, x, facades);
         if (nextFacade !== facade) {
@@ -111,6 +118,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
       };
 
       const state = { target: 0, current: 0 };
+      let visible = !document.hidden;
       let ticking = false;
       let previousFrame = 0;
 
@@ -118,6 +126,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
       petRef.current = cat?.pet ?? null;
 
       function tick() {
+        if (!visible) return;
         // Time from the browser clock, not GSAP's lag-smoothed timeline clock.
         const now = performance.now();
         const elapsed = gsap.utils.clamp(1, 1_000, now - previousFrame);
@@ -133,14 +142,17 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
         }
         if (!drifting) report(state.current);
         const catMoving = cat?.advance(elapsed / 1_000, travel);
-        if (!drifting && !catMoving) {
-          gsap.ticker.remove(tick);
-          ticking = false;
-        }
+        if (!drifting && !catMoving) stopTicker();
+      }
+
+      function stopTicker() {
+        if (!ticking) return;
+        gsap.ticker.remove(tick);
+        ticking = false;
       }
 
       function ensureTicker() {
-        if (ticking) return;
+        if (ticking || !visible) return;
         ticking = true;
         previousFrame = performance.now() - FRAME_MS;
         gsap.ticker.add(tick);
@@ -151,6 +163,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
         start: "top top",
         end: "bottom bottom",
         onUpdate: (self) => {
+          if (!visible) return;
           const next = self.progress;
           // Un salto grande (deep link, tecla End) se aplica de una: no pasa
           // por paradas intermedias ni deja el hash del HUD en un valor transitorio.
@@ -164,9 +177,12 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
           state.target = next;
           ensureTicker();
         },
-        onRefresh: () => {
-          geometry = measure();
-          state.current = state.target;
+        onRefresh: (self) => {
+          if (!visible) return;
+          const nextGeometry = measure();
+          if (geometry.parallax && !nextGeometry.parallax) setBackdrop(0);
+          geometry = nextGeometry;
+          state.current = state.target = self.progress;
           apply(state.current);
           cat?.remeasure();
         },
@@ -174,14 +190,31 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
 
       state.target = trigger.progress;
       state.current = trigger.progress;
-      apply(state.current);
+      if (visible) apply(state.current);
       // Con hash manda el deep link; sin hash respetamos el scroll restaurado.
-      if (!window.location.hash) report(state.current);
+      if (visible && !window.location.hash) report(state.current);
+
+      function syncVisibility() {
+        visible = !document.hidden;
+        stage?.toggleAttribute("data-scene-hidden", !visible);
+        cat?.setVisible(visible);
+        if (!visible) {
+          stopTicker();
+          return;
+        }
+        // Reconcile with the actual scroll position without replaying the hidden travel.
+        trigger.refresh();
+        report(state.current);
+      }
+
+      document.addEventListener("visibilitychange", syncVisibility);
+      stage.toggleAttribute("data-scene-hidden", !visible);
 
       return () => {
+        document.removeEventListener("visibilitychange", syncVisibility);
         petRef.current = null;
         cat?.destroy();
-        gsap.ticker.remove(tick);
+        stopTicker();
         trigger.kill();
       };
     },

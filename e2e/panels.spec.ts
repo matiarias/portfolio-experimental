@@ -160,7 +160,7 @@ test.describe("mobile", () => {
     await page.getByRole("button", { name: "Leer la bio" }).waitFor();
     await page.evaluate(() => {
       const stage = document.querySelector<HTMLElement>("#alley-stage")!;
-      window.scrollTo(0, (stage.offsetHeight - window.innerHeight) * 0.485);
+      window.scrollTo(0, (stage.offsetHeight - window.innerHeight) * 0.49);
     });
     await expect(page.locator("#alley-stage")).toHaveAttribute("data-lit-facade", "experience");
     const trigger = page.getByRole("button", { name: "Ver experiencia" });

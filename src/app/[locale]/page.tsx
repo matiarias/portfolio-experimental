@@ -9,9 +9,10 @@ type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const { description } = dictionaries[locale];
+  const { description, shareImageAlt } = dictionaries[locale];
   const title = `${name} · ${role}`;
   const host = process.env.SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const image = { url: "/media/alley-social.png", alt: shareImageAlt, width: 1200, height: 630 };
 
   return {
     metadataBase: new URL(host),
@@ -25,9 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `/${locale}`,
       locale: locale === "es" ? "es_AR" : "en_US",
       type: "website",
-      images: [{ url: "/media/social.png", alt: title, width: 1200, height: 630 }],
+      images: [image],
     },
-    twitter: { card: "summary_large_image", title, description, images: ["/media/social.png"] },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
 

@@ -33,8 +33,13 @@ export default function Cat({ rootRef, petLabel, petFeedback, onPet }: Props) {
             <stop offset="0" stopColor="var(--cat-fur-light)" />
             <stop offset="1" stopColor="var(--cat-fur-dark)" />
           </linearGradient>
+          <linearGradient id="cat-iris" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--cat-iris-light)" />
+            <stop offset="1" stopColor="var(--cat-iris-dark)" />
+          </linearGradient>
         </defs>
         <ellipse className="cat-shadow" cx="64" cy="89" rx="40" ry="5" />
+        <ellipse className="cat-contact-shadow" cx="64" cy="89" rx="26" ry="2.4" />
         <g data-cat-part="facing">
           <g data-cat-part="hind-legs">
             <Leg name="back-far" />
@@ -70,10 +75,13 @@ export default function Cat({ rootRef, petLabel, petFeedback, onPet }: Props) {
                 <g data-cat-part="pupils">
                   <ellipse className="cat-pupil" cx="96.9" cy="41" rx="1.05" ry="2.5" />
                   <ellipse className="cat-pupil" cx="105.65" cy="40.7" rx="1" ry="2.4" />
+                  <circle className="cat-eye-glint" cx="96.5" cy="39.4" r=".65" />
+                  <circle className="cat-eye-glint" cx="105.25" cy="39.2" r=".6" />
                 </g>
               </g>
               <path data-cat-part="closed-eyes" opacity="0" d="M93.2 41q3 4 6 0m3.2-.3q2.6 3.6 5.2 0" fill="none" stroke="#364252" strokeWidth="1.5" strokeLinecap="round" />
-              <path className="cat-whisker" d="M108 47l12-3M108 50l12 1M108 53l11 5" />
+              <path className="cat-whisker cat-whisker-far" d="M108 47q6-3 12-3M108 50q7-1 13 1M108 53q6 1 11 5" />
+              <path className="cat-whisker" d="M100 47q-8-3-16-2M99 50q-9 0-17 3M100 52q-7 2-14 7" />
             </g>
           </g>
           <Leg name="front-near" />

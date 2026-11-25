@@ -53,15 +53,19 @@ export default function Alley({ locale, copy, children }: {
    * y ensuciaría el hash activo.
    */
   const scrollToStop = useCallback(
-    (stop: StopId) => {
+    (stop: StopId, moveFocus = false) => {
       if (reading) {
         if (stop === "entrance") {
           window.scrollTo({ top: 0, behavior: "auto" });
+          if (moveFocus) document.querySelector<HTMLElement>(".reading-name")?.focus({ preventScroll: true });
           return;
         }
         const detail = panelFromLocation(window.location.hash);
-        const id = detail && stopFromHash(detail) === stop ? detail.slice(1) : stop;
-        document.getElementById(id)?.scrollIntoView({ behavior: "auto", block: "start" });
+        const detailId = detail && stopFromHash(detail) === stop ? detail.slice(1) : undefined;
+        const target = detailId ?? (moveFocus ? `${stop}/details` : stop);
+        const element = document.getElementById(target);
+        element?.scrollIntoView({ behavior: "auto", block: "start" });
+        if (moveFocus) element?.focus({ preventScroll: true });
         return;
       }
 
@@ -92,7 +96,7 @@ export default function Alley({ locale, copy, children }: {
   const navigate = useCallback(
     (stop: StopId) => {
       writeHash(stop, "push");
-      scrollToStop(stop);
+      scrollToStop(stop, true);
     },
     [scrollToStop, writeHash],
   );
@@ -192,7 +196,7 @@ export default function Alley({ locale, copy, children }: {
     <>
       <a
         className="skip-link"
-        href="#about"
+        href="#content"
         onClick={(event) => {
           if (!isRegularClick(event)) return;
           event.preventDefault();
@@ -200,7 +204,6 @@ export default function Alley({ locale, copy, children }: {
             openPanel("#about/details", event.currentTarget, true);
           } else {
             navigate("about");
-            document.getElementById("about/details")?.focus({ preventScroll: true });
           }
         }}
       >
@@ -214,17 +217,18 @@ export default function Alley({ locale, copy, children }: {
         suffix={suffix}
         reading={reading}
         reduced={reduced}
+        panelOpen={panelHash !== null}
         barRef={barRef}
         onNavigate={navigate}
         onToggleReading={toggleReading}
       />
 
-      <main id="content" data-active-stop={activeStop} data-mode={reading ? "reading" : "scene"}>
-        <h1 className="sr-only">{name}</h1>
+      <main id="content" tabIndex={-1} data-active-stop={activeStop} data-mode={reading ? "reading" : "scene"}>
         {reading ? (
           <ReadingMode copy={copy} />
         ) : (
           <>
+            <h1 className="scene-heading sr-only">{name}</h1>
             <SceneActions.Provider value={{ availableStop: facadeStop, open: openPanel }}>
               <Stage
                 scrollHint={copy.scrollHint}
@@ -239,9 +243,9 @@ export default function Alley({ locale, copy, children }: {
                 {children}
               </Stage>
             </SceneActions.Provider>
-            <div className="reading-fallback">
+            <noscript className="reading-fallback">
               <ReadingMode copy={copy} />
-            </div>
+            </noscript>
             <PanelSurface
               hash={panelHash}
               title={panelTone === "about" ? copy.headline : copy.labels[panelTone]}

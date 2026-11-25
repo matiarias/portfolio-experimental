@@ -136,7 +136,8 @@ a {
 
 .hud-nav a,
 .hud-locale a,
-.hud-reading {
+.hud-reading,
+.hud-soundtrack-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -196,6 +197,52 @@ a {
   height: 1rem;
 }
 
+.hud-soundtrack {
+  position: relative;
+}
+
+.hud-soundtrack-toggle {
+  border-color: color-mix(in srgb, var(--paper) 24%, transparent);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hud-soundtrack-toggle:is([data-playing="true"], :hover, :focus-visible) {
+  border-color: var(--neon-amber);
+  color: var(--neon-amber);
+}
+
+.hud-soundtrack-toggle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.hud-soundtrack-error,
+.hud-soundtrack-title {
+  position: absolute;
+  inset-block-start: calc(100% + 0.4rem);
+  inset-inline-end: 0;
+  width: max-content;
+  max-width: min(18rem, 80vw);
+  padding: 0.4rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--paper) 24%, transparent);
+  background: var(--ink);
+  color: var(--paper);
+  font: 0.75rem/1.4 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.hud-soundtrack-title {
+  display: none;
+  pointer-events: none;
+}
+
+@media (min-width: 951px) and (pointer: fine) {
+  .hud-soundtrack-title {
+    display: block;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Progress
    --------------------------------------------------------------------------- */
@@ -247,12 +294,13 @@ a {
   overflow: clip;
   isolation: isolate;
   background: var(--ink);
-  --street-light: var(--neon-amber);
+  --street-light: transparent;
 }
 
-[data-active-stop="about"] .alley-stage-viewport { --street-light: var(--neon-magenta); }
-[data-active-stop="experience"] .alley-stage-viewport { --street-light: var(--neon-cyan); }
-[data-active-stop="contact"] .alley-stage-viewport { --street-light: var(--neon-jade); }
+[data-lit-facade="entrance"] .alley-stage-viewport { --street-light: var(--neon-amber); }
+[data-lit-facade="about"] .alley-stage-viewport { --street-light: var(--neon-magenta); }
+[data-lit-facade="experience"] .alley-stage-viewport { --street-light: var(--neon-cyan); }
+[data-lit-facade="contact"] .alley-stage-viewport { --street-light: var(--neon-jade); }
 
 .overhead-wires {
   position: absolute;
@@ -370,10 +418,10 @@ a {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 29% 20%, color-mix(in srgb, var(--street-light) 35%, transparent), transparent 69%) 27% 14% / 55% 36% no-repeat,
-    radial-gradient(ellipse, color-mix(in srgb, var(--street-light) 20%, transparent), transparent 68%) 69% 51% / 35% 25% no-repeat,
-    radial-gradient(ellipse, rgb(147 164 235 / 17%), transparent 72%) 11% 79% / 47% 15% no-repeat;
-  mask-image: repeating-linear-gradient(3deg, #000 0 1px, #0006 1px 4px, #000 4px 6px);
+    radial-gradient(ellipse at 38% 0%, color-mix(in srgb, var(--street-light) 30%, transparent), transparent 68%) center top / 100% 72% no-repeat,
+    radial-gradient(ellipse at 49% 42%, color-mix(in srgb, var(--street-light) 16%, transparent), transparent 70%) 58% 54% / 44% 45% no-repeat,
+    radial-gradient(ellipse, rgb(147 164 235 / 12%), transparent 72%) 11% 79% / 47% 15% no-repeat;
+  mask-image: repeating-linear-gradient(3deg, #000 0 1px, #0005 1px 4px, #0009 4px 7px, #000 7px 9px);
 }
 
 /* Foreground -------------------------------------------------------------- */
@@ -414,6 +462,10 @@ a {
   .alley-rain {
     animation: alley-rainfall 2.4s linear infinite;
   }
+}
+
+[data-scene-hidden] :is(.alley-rain, .scroll-paws span) {
+  animation-play-state: paused;
 }
 
 @keyframes alley-rainfall {
@@ -819,9 +871,10 @@ a {
    --------------------------------------------------------------------------- */
 
 .alley-cat {
-  --cat-fur-light: #d9e0ed;
-  --cat-fur-dark: #aab5c8;
-  --cat-emerald: #21c694;
+  --cat-fur-light: #b6c0ce;
+  --cat-fur-dark: #7e8b9e;
+  --cat-iris-light: #bed589;
+  --cat-iris-dark: #83a35d;
   position: absolute;
   bottom: calc(var(--ground-h) - 0.5rem);
   left: var(--anchor);
@@ -900,7 +953,7 @@ a {
 }
 
 .cat-eye {
-  fill: var(--cat-emerald);
+  fill: url(#cat-iris);
 }
 
 .cat-pupil {
@@ -913,10 +966,13 @@ a {
 
 .cat-whisker {
   fill: none;
-  stroke: #f4f7fc;
-  stroke-width: 0.8;
+  stroke: #f3efe5;
+  stroke-width: 0.9;
   stroke-linecap: round;
-  opacity: 0.75;
+}
+
+.cat-whisker-far {
+  opacity: 0.7;
 }
 
 /* ---------------------------------------------------------------------------
@@ -985,6 +1041,8 @@ a {
 }
 
 .reading-shell {
+  --reading-accent: #e8ba83;
+  --experience-accent: var(--reading-accent);
   width: min(100%, 68rem);
   margin-inline: auto;
   padding: calc(var(--hud-h) + 2rem) clamp(1.1rem, 4vw, 2.5rem) 6rem;
@@ -1003,11 +1061,12 @@ a {
   font-weight: 600;
   line-height: 0.95;
   letter-spacing: -0.05em;
+  scroll-margin-top: calc(var(--hud-h) + 1rem);
 }
 
 .reading-role {
   margin: 0;
-  color: var(--neon-cyan);
+  color: var(--reading-accent);
   font-size: clamp(1rem, 2vw, 1.35rem);
 }
 
@@ -1097,12 +1156,22 @@ a {
   margin-top: 1.8rem;
 }
 
+.cat-contact-shadow {
+  fill: #000;
+  opacity: 0.52;
+}
+
+.cat-eye-glint {
+  fill: #fff4e6;
+  opacity: 0.85;
+}
+
 .chapter-body .experience-list {
   grid-template-columns: minmax(0, 1fr);
 }
 
 .experience-role {
-  border-top: 1px solid color-mix(in srgb, var(--neon-cyan) 35%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--experience-accent, var(--neon-cyan)) 35%, transparent);
   padding-top: 1rem;
 }
 
@@ -1120,7 +1189,7 @@ a {
 
 .role-heading p {
   margin: 0;
-  color: var(--neon-cyan);
+  color: var(--experience-accent, var(--neon-cyan));
   font-family: var(--mono);
   font-size: 0.72rem;
 }
@@ -1134,7 +1203,7 @@ a {
 }
 
 .experience-role li::marker {
-  color: var(--neon-cyan);
+  color: var(--experience-accent, var(--neon-cyan));
 }
 
 .experience-role strong {
@@ -1270,8 +1339,6 @@ a {
   :root {
     --ground-h: 16svh;
     --hud-h: 6.5rem;
-    --storefront-w: min(92vw, calc(100vw - 2 * var(--scene-gutter)));
-    --storefront-gap: 7vw;
   }
 
   .alley-hud {
@@ -1302,8 +1369,53 @@ a {
     display: none;
   }
 
+  .credits {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px), (max-width: 950px) and (pointer: coarse) {
+  .alley-stage {
+    --facade-center: 0.5;
+    --storefront-w: min(calc(100vw - 2 * var(--scene-gutter)), max(17rem, 126svh));
+    --framing-gutter: calc((100vw - var(--storefront-w)) / 2);
+    --storefront-gap: max(7vw, calc(var(--framing-gutter) + 4px));
+  }
+
+  .band-street {
+    padding-inline: var(--framing-gutter);
+  }
+
+  .band-backdrop {
+    width: 100%;
+    will-change: auto;
+  }
+
+  .band-foreground,
+  .overhead-wires,
+  .ground::before {
+    display: none;
+  }
+
+  .alley-weather,
+  .skyline span {
+    background-image: none;
+  }
+
   .alley-rain {
-    opacity: 0.22;
+    inset: 0;
+    animation: none;
+    opacity: 0.16;
+  }
+
+  .scroll-paws span {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .street-reflection {
+    background: radial-gradient(ellipse at 45% 0%, color-mix(in srgb, var(--street-light) 25%, transparent), transparent 65%);
+    mask-image: none;
   }
 
   .alley-cat {
@@ -1311,15 +1423,23 @@ a {
   }
 
   .moon {
+    top: max(10%, calc(var(--hud-h) + 0.75rem));
     left: 70vw;
+    box-shadow: none;
   }
 
-  .skyline {
-    height: 34svh;
+  .storefront-sign {
+    padding-inline-start: clamp(0.5rem, 1.5vw, 1.5rem);
   }
 
-  .credits {
-    grid-template-columns: 1fr;
+  .storefront-sign-plate::before {
+    display: none;
+  }
+}
+
+@media (max-height: 450px) and (orientation: landscape) and (pointer: coarse) {
+  .storefront .storefront-art {
+    min-height: 0;
   }
 }
 
@@ -1419,8 +1539,10 @@ a {
 /* Sin JavaScript se muestra la vista apilada y se oculta la escena animada. */
 @media (scripting: none) {
   .alley-stage,
+  .scene-heading,
   .alley-progress,
-  .hud-reading {
+  .hud-reading,
+  .hud-soundtrack {
     display: none;
   }
 

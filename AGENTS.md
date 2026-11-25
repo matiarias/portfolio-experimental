@@ -26,7 +26,9 @@
 - Ante un aviso de hidratación, compará el HTML de la respuesta con el DOM y reproducilo en un navegador sin extensiones. Corregí las discrepancias propias en su origen. Reservá `suppressHydrationWarning` en `<html>` para atributos externos comprobados y conservá las pruebas de hidratación en Playwright.
 - El progreso del scroll es una única fuente de verdad. Solo el motor escribe `transform` sobre las bandas; ningún componente anima propiedades que el motor controla.
 - Conservá `position: sticky` con un contenedor alto; ScrollTrigger mide el progreso, no fija la escena. `Alley` deriva la parada activa del hash: la navegación explícita agrega una entrada al historial; el scroll reemplaza la actual al asentarse o tras un salto grande.
-- El ancla horizontal del gato está al 38% del viewport. La entrada usa el origen CSS (`x = 0`) antes y después de hidratar, con un margen seguro; las demás paradas usan el ancla. Si cambiás la geometría, verificá el nombre y el rol de portada antes y después de hidratar en laptop y móvil.
+- El ancla horizontal del gato está al 38% del viewport y controla cuándo se activan las fachadas. La entrada conserva el origen CSS (`x = 0`); las demás fachadas usan el ancla en escritorio y el centro del viewport en móvil. Verificá el nombre y el rol de portada antes y después de hidratar si cambia la geometría.
+- Compartí `data-lit-facade` entre el neón del cartel y los reflejos de la acera; no uses `data-active-stop` para encenderlos.
+- En pestañas ocultas, pausá la lluvia y quitá solo el callback del ticker de la escena, no el ticker global de GSAP. Al reanudar, sincronizá con el scroll real sin simular un paseo.
 - Animá solo `transform` y `opacity`. No uses `filter: blur()` sobre superficies grandes: el glow se pre-hornea o se resuelve con gradientes.
 - La lógica de layout y progreso en `src/lib` debe ser pura y testeable, sin acceso al DOM dentro de la función.
 
@@ -35,10 +37,12 @@
 - La escena es decorativa y progresiva: todo el contenido debe existir en DOM semántico.
 - Los carteles interactivos son botones reales, con nombre accesible traducido y foco visible.
 - Los rótulos japoneses son paths SVG decorativos (`aria-hidden`, `lang="ja"`). No agregues una fuente japonesa al sitio.
-- El modo lectura es obligatorio y es el fallback de `prefers-reduced-motion` y de no-JS.
+- El modo lectura es obligatorio y es el fallback de `prefers-reduced-motion` y de no-JS. Conservá la copia de no-JS en `<noscript>` para no hidratar contenido duplicado cuando la escena está activa.
+- Mantené los acentos propios del modo lectura dentro de `.reading-shell`; el contenido compartido de Experiencia conserva su paleta cian en el diálogo.
 - Con movimiento reducido: sin pin, sin parallax, sin caminata y sin audio; las paradas se apilan como secciones normales.
 - Usá enlaces para navegación y botones para acciones. Conservá el foco visible, el orden de teclado y la lectura móvil. Targets mínimos de 44×44 px.
 - El audio nunca arranca solo: siempre detrás de un gesto del usuario y muteado por defecto.
+- Configurá la pista del reproductor en [`soundtrack.ts`](src/content/soundtrack.ts); no descargues el MP3 antes del gesto ni reanudes la reproducción automáticamente.
 
 ## Flujo de trabajo y verificación
 
@@ -50,7 +54,7 @@
 
 ## Commits, PRs y despliegue
 
-- Estado del trabajo: Fase 4 implementada en `feat/alley-scene`; las fases 5 y 6 siguen pendientes. Consultá [design.md](design.md) para su alcance. Nunca hagas merge a `main` sin un pedido explícito del usuario.
+- Estado del trabajo: Fases 5 y 6 implementadas en `feat/alley-scene`, listas para la revisión final. Los dispositivos físicos, VoiceOver y NVDA quedan para esa revisión. Consultá [design.md](design.md) para el alcance. Nunca hagas merge a `main` sin un pedido explícito del usuario.
 - Cuando el usuario pida explícitamente hacer commit y push, delegá ambas operaciones a `git-publisher`, definido en [`.codex/agents/git-publisher.toml`](.codex/agents/git-publisher.toml). Pasale los archivos autorizados, el destino conocido y las verificaciones hechas. Esperá su resultado y comunicá el hash, la rama y el resultado del push.
 - Si la herramienta de delegación solo permite elegir modelo y esfuerzo, usá los valores `model` y `model_reasoning_effort` del TOML e incluí sus instrucciones en el encargo.
 - Escribí mensajes de commit breves, en inglés y en imperativo. En un PR, incluí un resumen, las verificaciones realizadas y capturas de escritorio y móvil si cambia la UI.
