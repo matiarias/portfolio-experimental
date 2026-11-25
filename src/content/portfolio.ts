@@ -18,7 +18,6 @@ export function panelFromHash(hash: string): Panel {
 const en = {
   description:
     "Matias Arias, Software Engineer from Argentina with a focus on frontend. Walk a neon Tokyo alley at night to explore his work in banking and investment products.",
-  alley: "Night alley",
   language: "Language",
   navigation: "Chapters",
   reading: "Reading mode",
@@ -34,7 +33,7 @@ const en = {
     close: "Close",
   },
   labels: { about: "About", experience: "Experience", contact: "Contact" },
-  headline: "Software Engineer | Frontend",
+  headline: "Software Engineer · Frontend Specialist",
   aboutSector: "Fintech & Banking",
   about: [
     "I’m a Software Engineer from Argentina. I spent over three years on the Investments team at Santander Tecnología Argentina, building banking and investment features for web and mobile, including Dólar MEP trading and Markets and Tenders.",
@@ -52,7 +51,6 @@ export const dictionaries = {
   es: {
     description:
       "Matias Arias, Software Engineer de Argentina con foco en frontend. Recorré un callejón nocturno de neón en Tokio para conocer mi trabajo en productos bancarios y de inversión.",
-    alley: "Callejón de noche",
     language: "Idioma",
     navigation: "Capítulos",
     reading: "Modo lectura",
@@ -68,7 +66,7 @@ export const dictionaries = {
       close: "Cerrar",
     },
     labels: { about: "Sobre mí", experience: "Experiencia", contact: "Contacto" },
-    headline: "Software Engineer | Frontend",
+    headline: "Software Engineer · Especialista en Frontend",
     aboutSector: "Fintech & Banca",
     about: [
       "Soy Software Engineer de Argentina. Trabajé más de tres años en el equipo de Inversiones de Santander Tecnología Argentina, donde desarrollé funcionalidades de banca e inversión para web y móvil, como la compra y venta de Dólar MEP y los flujos de Mercados y Licitaciones.",

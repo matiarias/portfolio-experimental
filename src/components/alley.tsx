@@ -231,6 +231,7 @@ export default function Alley({ locale, copy, children }: {
                 petLabel={copy.petCat}
                 petFeedback={copy.catFeedback}
                 activeStop={activeStop}
+                facadeStop={facadeStop}
                 barRef={barRef}
                 onStopChange={handleStopChange}
                 onFacadeChange={handleFacadeChange}

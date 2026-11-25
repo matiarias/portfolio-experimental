@@ -20,6 +20,7 @@ type Props = {
   petLabel: string;
   petFeedback: string;
   activeStop: StopId;
+  facadeStop: StopId | null;
   barRef: RefObject<HTMLDivElement | null>;
   onStopChange: (stop: StopId) => void;
   onFacadeChange: (stop: StopId | null) => void;
@@ -32,7 +33,7 @@ type Props = {
  * El pin se resuelve con `position: sticky`; ScrollTrigger solo lee el progreso
  * y un único ticker escribe `transform` sobre las tres bandas.
  */
-export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, barRef, onStopChange, onFacadeChange, children }: Props) {
+export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, facadeStop, barRef, onStopChange, onFacadeChange, children }: Props) {
   const stageRef = useRef<HTMLElement>(null);
   const streetRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -192,6 +193,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, b
       ref={stageRef}
       id="alley-stage"
       className="alley-stage"
+      data-lit-facade={facadeStop ?? undefined}
       style={{ height: `${(stops.length + 1) * 100}svh` }}
     >
       <div className="alley-stage-viewport">

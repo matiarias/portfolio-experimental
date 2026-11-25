@@ -1,4 +1,4 @@
-import { aboutStack, name, role, type Dictionary } from "@/content/portfolio";
+import { aboutStack, name, type Dictionary } from "@/content/portfolio";
 import ChapterPanels from "./chapter-panels";
 
 /**
@@ -9,10 +9,10 @@ export default function ReadingMode({ copy }: { copy: Dictionary }) {
   return (
     <div className="reading-shell">
       <header className="reading-hero">
-        <p className="reading-eyebrow">{copy.alley}</p>
         <p className="reading-name">{name}</p>
-        <p className="reading-role">{role}</p>
+        <p className="reading-role">{copy.headline}</p>
         <p className="reading-stack">{aboutStack}</p>
+        <p className="about-sector">{copy.aboutSector}</p>
       </header>
       <ChapterPanels copy={copy} />
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
@@ -23,8 +23,53 @@ export default function PanelSurface({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const surfaceRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const programmaticCloses = useRef(0);
   const titleId = useId();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    const body = bodyRef.current;
+    if (!dialog || !body) return;
+
+    const remaining = (target: EventTarget | null, delta: number) => {
+      if (!(target instanceof Node) || !body.contains(target)) return 0;
+      return delta < 0 ? body.scrollTop : body.scrollHeight - body.clientHeight - body.scrollTop;
+    };
+
+    const wheel = (event: WheelEvent) => {
+      if (!event.cancelable || event.ctrlKey || !event.deltaY) return;
+      const available = remaining(event.target, event.deltaY);
+      if (available <= 1) {
+        event.preventDefault();
+      } else if (event.deltaMode === WheelEvent.DOM_DELTA_PIXEL && Math.abs(event.deltaY) > available) {
+        // WebKit can chain the excess delta to the page at the scroll boundary.
+        body.scrollTop += Math.sign(event.deltaY) * available;
+        event.preventDefault();
+      }
+    };
+
+    let touchY: number | undefined;
+    function touchStart(event: TouchEvent) {
+      touchY = event.touches.length === 1 ? event.touches[0].clientY : undefined;
+    }
+    function touchMove(event: TouchEvent) {
+      if (event.touches.length !== 1 || touchY === undefined) return;
+      const nextY = event.touches[0].clientY;
+      const delta = touchY - nextY;
+      touchY = nextY;
+      if (event.cancelable && delta && remaining(event.target, delta) <= 1) event.preventDefault();
+    }
+
+    dialog.addEventListener("wheel", wheel, { passive: false });
+    dialog.addEventListener("touchstart", touchStart, { passive: true });
+    dialog.addEventListener("touchmove", touchMove, { passive: false });
+    return () => {
+      dialog.removeEventListener("wheel", wheel);
+      dialog.removeEventListener("touchstart", touchStart);
+      dialog.removeEventListener("touchmove", touchMove);
+    };
+  }, []);
 
   useGSAP(() => {
     const dialog = dialogRef.current;
@@ -39,6 +84,7 @@ export default function PanelSurface({
     }
     if (dialog.open) return;
     dialog.showModal();
+    bodyRef.current?.scrollTo(0, 0);
     closeRef.current?.focus({ preventScroll: true });
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -76,8 +122,10 @@ export default function PanelSurface({
           {languageLinks}
           <form method="dialog"><button type="submit" className="chapter-close" ref={closeRef}>{close}</button></form>
         </header>
-        <h1 className="chapter-title" id={titleId}>{title}</h1>
-        {children}
+        <div className="chapter-body" ref={bodyRef} role="region" aria-labelledby={titleId} tabIndex={0}>
+          <h1 className="chapter-title" id={titleId}>{title}</h1>
+          {children}
+        </div>
       </article>
     </dialog>
   );

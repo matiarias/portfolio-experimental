@@ -43,10 +43,9 @@
 ## Flujo de trabajo y verificación
 
 - Elegí las guías en el [índice de skills](.agents/skills/README.md). Antes de cambiar CSS o comportamiento del navegador, consultá `modern-web-guidance` para el patrón específico.
-- Para cambios de documentación, revisá el diff con `git diff --check` y comprobá los enlaces afectados.
-- Para cambios de contenido o componentes, corré `npm run lint`, `npm run typecheck` y las pruebas de Vitest que correspondan con `npm test`.
-- Para cambios en scroll, navegación, hidratación o layout responsive, corré `npm run build` y los flujos relevantes de `npm run test:e2e`. Verificá las interacciones afectadas en Chromium, Firefox y WebKit.
-- [GitHub Actions](.github/workflows/ci.yml) ejecuta la suite completa en cada push y PR. Informá qué verificaciones corriste y cuáles quedaron pendientes.
+- Durante las iteraciones, verificá según el impacto. Para documentación, texto o estilos menores, revisá `git diff --check`, los enlaces afectados y la vista local cuando corresponda. No corras la suite completa por un ajuste menor.
+- Si cambia la lógica, los componentes o la navegación, corré las pruebas y los checks que cubran el cambio. Para scroll, hidratación o layout responsive, priorizá los flujos afectados en Chromium, Firefox y WebKit; usá el build si la verificación depende del comportamiento de producción.
+- Reservá la suite completa (`npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`) para antes de publicar o cerrar una fase, o cuando el usuario la pida. No la ates a un hook de cada commit local. [GitHub Actions](.github/workflows/ci.yml) la sigue ejecutando en cada push y PR. Informá qué verificaste y qué quedó pendiente.
 
 ## Commits, PRs y despliegue
 

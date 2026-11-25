@@ -642,7 +642,7 @@ a {
   max-height: none;
   margin: 0;
   padding: clamp(0.75rem, 4vw, 3rem);
-  overflow: auto;
+  overflow: hidden;
   border: 0;
   background: transparent;
   color: var(--paper);
@@ -671,9 +671,13 @@ a {
 }
 
 .chapter-surface {
+  --chapter-padding: clamp(1.2rem, 4vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
   width: min(100%, 43rem);
+  max-block-size: min(100%, 42rem);
   margin: auto;
-  padding: clamp(1.2rem, 4vw, 2.5rem);
+  overflow: hidden;
   border: 1px solid #345065;
   border-block-start: 4px solid var(--chapter-accent);
   background: linear-gradient(150deg, #1f293a, #111a2a 54%);
@@ -683,10 +687,23 @@ a {
 
 .chapter-toolbar {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: clamp(1rem, 4vw, 2rem);
+  padding: var(--chapter-padding) var(--chapter-padding) clamp(1rem, 4vw, 2rem);
+}
+
+.chapter-body {
+  min-block-size: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--chapter-padding) var(--chapter-padding);
+}
+
+.chapter-body:focus-visible {
+  outline-color: var(--chapter-accent);
+  outline-offset: -4px;
 }
 
 .chapter-close {
@@ -750,6 +767,70 @@ a {
   padding-inline-start: clamp(0.5rem, 1.5vw, 1.5rem);
 }
 
+/* Storefront signs: neon tubes over dark metal, one material per facade */
+.storefront {
+  --sign-plate: #141119;
+  --sign-border: #2a2230;
+  --sign-sheen: rgb(255 255 255 / 7%);
+  --sign-line: rgb(255 255 255 / 3%);
+  --sign-glass: none;
+  --sign-bolt: #8a7a8c;
+  --sign-bolt-opacity: 0.45;
+  --sign-tube-core: color-mix(in oklab, var(--neon) 24%, #fff6ee);
+  --sign-tube-edge: color-mix(in oklab, var(--neon) 92%, #fff);
+  --sign-tube-passive: 0.88;
+  --sign-tube-active: 1;
+  --sign-glow-passive: 0.28;
+  --sign-glow-active: 0.96;
+  --sign-ambient-passive: 0.4;
+  --sign-ambient-active: 0.98;
+  --sign-label-shadow: color-mix(in oklab, var(--neon) 22%, transparent);
+}
+
+.storefront[data-stop="entrance"] {
+  --sign-plate: #17130f;
+  --sign-border: #2e251b;
+  --sign-sheen: rgb(255 179 71 / 5%);
+  --sign-line: rgb(255 255 255 / 2%);
+  --sign-bolt: #6e5b3f;
+  --sign-tube-passive: 0.82;
+  --sign-tube-active: 0.94;
+  --sign-glow-passive: 0.2;
+  --sign-glow-active: 0.78;
+  --sign-ambient-passive: 0.28;
+  --sign-ambient-active: 0.86;
+  --sign-label-shadow: rgb(255 179 71 / 12%);
+}
+
+.storefront[data-stop="experience"] {
+  --sign-plate: #0e171c;
+  --sign-border: #22343c;
+  --sign-sheen: rgb(180 240 255 / 7%);
+  --sign-line: rgb(180 240 255 / 2.5%);
+  --sign-glass: linear-gradient(115deg, rgb(210 250 255 / 8%), transparent 32%, transparent 68%, rgb(210 250 255 / 3%));
+  --sign-bolt: #5d7a85;
+  --sign-bolt-opacity: 0.3;
+  --sign-glow-passive: 0.24;
+  --sign-glow-active: 0.9;
+  --sign-ambient-passive: 0.34;
+  --sign-ambient-active: 0.96;
+  --sign-label-shadow: rgb(34 224 255 / 16%);
+}
+
+.storefront[data-stop="contact"] {
+  --sign-plate: #0f1916;
+  --sign-border: #233a33;
+  --sign-sheen: rgb(190 255 230 / 9%);
+  --sign-line: rgb(190 255 230 / 2.5%);
+  --sign-glass: linear-gradient(118deg, rgb(210 255 235 / 7%), transparent 40%);
+  --sign-bolt: #5f8074;
+  --sign-glow-passive: 0.28;
+  --sign-glow-active: 0.95;
+  --sign-ambient-passive: 0.4;
+  --sign-ambient-active: 0.98;
+  --sign-label-shadow: rgb(131 237 195 / 16%);
+}
+
 .storefront-sign-plate {
   position: relative;
   isolation: isolate;
@@ -759,10 +840,44 @@ a {
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.55rem clamp(0.8rem, 2vw, 1.5rem) 0.7rem;
-  border: 1px solid color-mix(in srgb, var(--neon) 50%, #372e40);
-  border-inline-start: 3px solid var(--neon);
-  background: linear-gradient(155deg, color-mix(in srgb, var(--neon) 11%, #161321), #141520 66%);
-  box-shadow: 0 5px 0 #101019, inset 0 0 0 2px #141221;
+  border: 1px solid var(--sign-border);
+  border-inline-start: 1px solid var(--sign-border);
+  background-color: var(--sign-plate);
+  background-image:
+    var(--sign-glass),
+    linear-gradient(180deg, var(--sign-sheen), transparent 16%, transparent 78%, rgb(0 0 0 / 55%)),
+    repeating-linear-gradient(92deg, var(--sign-line) 0 1px, transparent 1px 3px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 9%),
+    inset 0 -8px 16px rgb(0 0 0 / 55%),
+    0 10px 22px -14px rgb(0 0 0 / 90%);
+}
+
+.storefront-sign-plate::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -1.1rem -1.5rem;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 54% 62% at 46% 46%,
+    color-mix(in oklab, var(--neon) 38%, transparent),
+    transparent 100%
+  );
+  opacity: var(--sign-ambient-passive);
+}
+
+.storefront-sign-plate::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 0 0, var(--sign-bolt) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 100% 0, var(--sign-bolt) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 0 100%, var(--sign-bolt) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 100% 100%, var(--sign-bolt) 0 1px, transparent 1.7px);
+  opacity: var(--sign-bolt-opacity);
 }
 
 .neon-sign {
@@ -777,32 +892,55 @@ a {
   max-width: 100%;
   height: clamp(1.3rem, 1rem + 1.25vw, 2.4rem);
   overflow: visible;
-  fill: color-mix(in srgb, var(--neon) 30%, #fff8ed);
-  stroke: var(--neon);
-  stroke-width: 18;
+  fill: var(--sign-tube-core);
+  stroke: var(--sign-tube-edge);
+  stroke-width: 52;
+  stroke-linejoin: round;
   paint-order: stroke fill;
 }
 
-.storefront-sign-plate::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: -0.85rem;
-  pointer-events: none;
-  background: radial-gradient(ellipse at 31% 44%, color-mix(in srgb, var(--neon) 46%, transparent), transparent 68%);
-  opacity: 0.13;
+.neon-sign .neon-tube {
+  fill: var(--sign-tube-core);
+  stroke: var(--sign-tube-edge);
+  stroke-width: 52;
+  stroke-linejoin: round;
+  opacity: var(--sign-tube-passive);
 }
 
-[data-active-stop="entrance"] [data-stop="entrance"] .storefront-sign-plate::before,
-[data-active-stop="about"] [data-stop="about"] .storefront-sign-plate::before,
-[data-active-stop="experience"] [data-stop="experience"] .storefront-sign-plate::before,
-[data-active-stop="contact"] [data-stop="contact"] .storefront-sign-plate::before {
-  opacity: 0.78;
+.neon-sign .neon-glow {
+  fill: var(--neon);
+  stroke: var(--neon);
+  stroke-width: 40;
+  stroke-linejoin: round;
+  opacity: var(--sign-glow-passive);
+}
+
+[data-lit-facade="entrance"] .storefront[data-stop="entrance"] .storefront-sign-plate::before,
+[data-lit-facade="about"] .storefront[data-stop="about"] .storefront-sign-plate::before,
+[data-lit-facade="experience"] .storefront[data-stop="experience"] .storefront-sign-plate::before,
+[data-lit-facade="contact"] .storefront[data-stop="contact"] .storefront-sign-plate::before {
+  opacity: var(--sign-ambient-active);
+}
+
+[data-lit-facade="entrance"] .storefront[data-stop="entrance"] .neon-tube,
+[data-lit-facade="about"] .storefront[data-stop="about"] .neon-tube,
+[data-lit-facade="experience"] .storefront[data-stop="experience"] .neon-tube,
+[data-lit-facade="contact"] .storefront[data-stop="contact"] .neon-tube {
+  opacity: var(--sign-tube-active);
+}
+
+[data-lit-facade="entrance"] .storefront[data-stop="entrance"] .neon-glow,
+[data-lit-facade="about"] .storefront[data-stop="about"] .neon-glow,
+[data-lit-facade="experience"] .storefront[data-stop="experience"] .neon-glow,
+[data-lit-facade="contact"] .storefront[data-stop="contact"] .neon-glow {
+  opacity: var(--sign-glow-active);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .storefront-sign-plate::before {
-    transition: opacity 440ms var(--ease-soft);
+  .storefront-sign-plate::before,
+  .neon-tube,
+  .neon-glow {
+    transition: opacity 260ms ease-in-out;
   }
 }
 
@@ -811,6 +949,7 @@ a {
   font-weight: 650;
   line-height: 1.05;
   color: var(--paper);
+  text-shadow: 0 0 10px var(--sign-label-shadow);
   text-wrap: balance;
 }
 
@@ -1008,15 +1147,6 @@ a {
   border-bottom: 1px solid color-mix(in srgb, var(--paper) 12%, transparent);
 }
 
-.reading-eyebrow {
-  margin: 0;
-  color: var(--neon-amber);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-}
-
 .reading-name {
   margin: 0;
   font-size: clamp(2.4rem, 7vw, 5.5rem);
@@ -1076,10 +1206,14 @@ a {
   text-transform: uppercase;
 }
 
-.about-header {
+.about-context {
   display: grid;
-  gap: 0.55rem;
-  margin-bottom: 1.6rem;
+  gap: 0.35rem;
+  margin-block-end: clamp(1rem, 3vw, 1.4rem);
+}
+
+.about-shot .about-copy {
+  margin-block-start: clamp(1.1rem, 3vw, 1.6rem);
 }
 
 .about-stack {

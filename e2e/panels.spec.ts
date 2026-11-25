@@ -64,9 +64,10 @@ test("only exposes the current facade's controls and opens bio and contact", asy
   await expect(page.getByRole("button", { name: "Read the bio" })).toHaveCount(0);
   await page.getByRole("link", { name: "About", exact: true }).click();
   await page.getByRole("button", { name: "Read the bio" }).click();
-  const dialog = page.getByRole("dialog", { name: "Software Engineer | Frontend" });
+  const dialog = page.getByRole("dialog", { name: "Software Engineer · Frontend Specialist" });
   await expect(dialog.getByText("Fintech & Banking")).toBeVisible();
   await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(page).toHaveURL(/#about$/);
   await page.getByRole("link", { name: "Contact", exact: true }).click();
   await page.getByRole("button", { name: "Get in touch" }).click();
   const contact = page.getByRole("dialog", { name: "Contact" });
@@ -93,6 +94,38 @@ test("reveals Bio before the center and opens it without jumping the street", as
   await bio.click();
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(await page.evaluate((expected) => Math.abs(window.scrollY - expected), position)).toBeLessThanOrEqual(2);
+});
+
+test("scrolls a long Bio inside its centered panel without moving the alley", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 600 });
+  await page.goto("/es#about/details");
+  const dialog = page.getByRole("dialog");
+  const surface = dialog.locator(".chapter-surface");
+  const body = dialog.getByRole("region");
+  const close = dialog.getByRole("button", { name: "Cerrar" });
+  await expect(surface).toHaveCSS("transform", "none");
+  await expect(close).toBeInViewport();
+  const before = await surface.boundingBox();
+  const scrollY = await page.evaluate(() => window.scrollY);
+  if (!before) throw new Error("The Bio panel is not visible");
+  expect(before.y + before.height / 2).toBeCloseTo(300, 0);
+
+  await body.focus();
+  await page.keyboard.press("PageDown");
+  await expect.poll(() => body.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  await body.hover();
+  await page.mouse.wheel(0, 2_000);
+  await expect.poll(() => body.evaluate((element) =>
+    element.scrollHeight - element.clientHeight - element.scrollTop)).toBeLessThanOrEqual(2);
+  await page.mouse.wheel(0, 500);
+  await page.mouse.move(2, 300);
+  await page.mouse.wheel(0, 500);
+  await expect(close).toBeInViewport();
+  expect(await surface.boundingBox()).toEqual(before);
+  expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
+  expect(await dialog.evaluate((element) => element.scrollTop)).toBe(0);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
 });
 
 test("keeps the contact palette in reading mode without the booth plaques", async ({ page }) => {

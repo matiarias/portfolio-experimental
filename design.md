@@ -119,8 +119,14 @@ profundo para que el color sea información, no decoración.
   en ambos idiomas. `#experience/<id>` abre detalles, preserva el proyecto al
   cambiar de idioma y tiene ancla en lectura/sin JS. Bio y Contacto usan
   `#about/details` y `#contact/details`.
-- El neón acentúa la parada activa mediante una transición de opacidad del
-  halo; los glifos siguen legibles. No hay parpadeos ni animación de trazo.
+- Los carteles se construyen como tubos de neón sobre una placa de metal
+  oscuro: el brillo sale de los glifos, con un halo que sigue sus formas y
+  un derrame breve fuera de la placa. El encendido sigue al gato, tenue en
+  reposo y pleno al entrar en la fachada, independientemente del hash. La
+  transición usa `ease-in-out` y no hay parpadeos.
+- El material cambia por fachada: ámbar sobrio en la portada, rosa cálido
+  en el ramen, cian tras vidrio ahumado en la torre y jade sobre acrílico
+  en la cabina. Todos comparten la misma geometría y transición.
 - El gato usa el desplazamiento horizontal real entre frames: el rig no da
   pasos mientras la calle está quieta o en un salto directo de cámara.
   [La lógica de zancada](src/lib/cat-motion.ts) es pura. En modo lectura,
@@ -128,6 +134,8 @@ profundo para que el color sea información, no decoración.
 
 - Paneles con `<dialog>` nativo y expansión con GSAP Flip. Sin disparador
   visible, se usa una entrada breve por escala y opacidad.
+- Los paneles se mantienen centrados. Si el contenido no cabe, solo se
+  desplaza su cuerpo; los controles de idioma y cierre quedan a la vista.
 
 ## Interacción
 

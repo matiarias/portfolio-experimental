@@ -3,12 +3,18 @@ import { aboutStack, contacts, type Dictionary } from "@/content/portfolio";
 
 const contactIcons = { GitHub: FiGithub, LinkedIn: FiLinkedin, Email: FiMail };
 
+function AboutCopy({ copy }: { copy: Dictionary }) {
+  return <div className="about-copy">{copy.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>;
+}
+
 export function AboutDetails({ copy }: { copy: Dictionary }) {
   return (
     <>
-      <p className="about-stack">{aboutStack}</p>
-      <p className="about-sector">{copy.aboutSector}</p>
-      <div className="about-copy">{copy.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+      <div className="about-context">
+        <p className="about-stack">{aboutStack}</p>
+        <p className="about-sector">{copy.aboutSector}</p>
+      </div>
+      <AboutCopy copy={copy} />
     </>
   );
 }
@@ -34,11 +40,8 @@ export default function ChapterPanels({ copy }: { copy: Dictionary }) {
   return (
     <>
       <section id="about" className="reading-section about-shot" aria-labelledby="about/details">
-        <header className="about-header">
-          <p className="eyebrow">{copy.labels.about}</p>
-          <h2 id="about/details" tabIndex={-1}>{copy.headline}</h2>
-        </header>
-        <AboutDetails copy={copy} />
+        <h2 id="about/details" tabIndex={-1}>{copy.labels.about}</h2>
+        <AboutCopy copy={copy} />
       </section>
 
       <section id="experience" className="reading-section experience-shot" aria-labelledby="experience-heading">

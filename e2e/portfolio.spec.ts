@@ -55,6 +55,23 @@ test("walks the alley as the page scrolls", async ({ page }) => {
   });
 });
 
+test("brightens the neon at the facade edge and dims it again in the gap", async ({ page }) => {
+  await page.goto("/en");
+  const stage = page.locator("#alley-stage");
+  await expect(page.locator(".band-street")).toHaveAttribute("style", /transform/);
+  const sign = stage.locator('[data-stop="about"] .storefront-sign-plate');
+  const halo = () => sign.evaluate((element) => Number(getComputedStyle(element, "::before").opacity));
+
+  await stage.evaluate((element) => window.scrollTo(0, (element.getBoundingClientRect().height - window.innerHeight) * 0.22));
+  await expect(stage).toHaveAttribute("data-lit-facade", "about");
+  await expect.poll(halo).toBeGreaterThan(0.9);
+
+  // Midway between the centers of About and Experience is the physical gap.
+  await stage.evaluate((element) => window.scrollTo(0, (element.getBoundingClientRect().height - window.innerHeight) * 0.48));
+  await expect(stage).not.toHaveAttribute("data-lit-facade");
+  await expect.poll(halo).toBeLessThan(0.5);
+});
+
 test("navigates stops with the keyboard", async ({ page }) => {
   await page.goto("/en");
   const experience = page.getByRole("link", { name: "Experience", exact: true });

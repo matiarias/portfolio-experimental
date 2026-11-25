@@ -39,6 +39,9 @@ reducido o al navegar sin JavaScript.
 
 ## Verificación
 
+Durante una iteración, elegí los checks que cubran el cambio. Corré la suite
+completa antes de publicar o cerrar una fase, no en cada ajuste menor.
+
 ```sh
 npm run lint
 npm run typecheck
