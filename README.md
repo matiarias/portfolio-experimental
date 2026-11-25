@@ -21,10 +21,10 @@ a logros de experiencia funcionan tanto en escena como en lectura.
 La Fase 5 centra una fachada por parada en móvil, aligera los efectos y
 pausa la escena en pestañas ocultas. La Fase 6 incluye el reproductor de
 *Gentle Pathways*, disponible desde el HUD de la escena. La pista no se
-descarga ni suena hasta pulsar Reproducir. Los dispositivos físicos y
-lectores de pantalla quedan para la revisión final. El alcance está en
-[design.md](design.md) y las reglas en [AGENTS.md](AGENTS.md). No se integra a
-`main` sin autorización explícita.
+descarga ni suena hasta pulsar Reproducir. El [CI de Fase 6](https://github.com/matiarias/portfolio-experimental/actions/runs/45721819440)
+pasó en Ubuntu para `176baf3`. El alcance y el estado de la revisión final
+están en [design.md](design.md); las reglas, en [AGENTS.md](AGENTS.md).
+No se integra a `main` sin autorización explícita.
 
 ## Desarrollo local
 
@@ -57,26 +57,40 @@ npx playwright install chromium firefox webkit
 npm run test:e2e
 ```
 
-`npm run test:watch` mantiene Vitest abierto. Playwright sirve el build
-en el puerto 3100 y ejecuta
-los flujos en Chromium, Firefox y WebKit. También acepta `PLAYWRIGHT_BASE_URL`
-para probar una preview.
+`npm run test:watch` mantiene Vitest abierto. Playwright sirve el build existente
+en el puerto 3100 y ejecuta los flujos en Chromium, Firefox y WebKit; volvé a
+correr `npm run build` si cambió el código. También acepta `PLAYWRIGHT_BASE_URL`
+para probar una preview. En Ubuntu, CI usa una salida virtual para probar el
+MP3 real. Si la prueba de audio falla, el artefacto `playwright-results`
+incluye los eventos del medio y los cambios de visibilidad.
 
 Para repetir Lighthouse móvil, serví el build con `npm run start -- --port 3100`
 y ejecutá `npx --yes lighthouse@13.6.0 http://localhost:3100/es --only-categories=performance,accessibility`
 con Chrome instalado. Repetilo para `/en`; las metas son 85 en rendimiento
-y 95 en accesibilidad.
+y 95 en accesibilidad. Para comparar rendimiento, hacé tres corridas por
+ruta sin otras pruebas en paralelo y anotá la mediana. Cerrá el servidor con
+`Ctrl+C` al terminar. La última mediana de `/en` fue 82; el detalle de las
+corridas y lo que falta investigar están en [design.md](design.md#revisión-de-rendimiento).
 
 Para validar en dispositivos físicos, recorré las cuatro paradas en iOS y
 Android, en vertical y horizontal, y cambiá de pestaña durante el paseo.
 Medí la fluidez del scroll en un Android de gama media. Con VoiceOver
 (Safari) y NVDA (Firefox o Chrome), probá este recorrido:
 
-- Activá «Saltar al contenido» y recorré los capítulos con teclado.
+- Activá «Saltar al contenido» y recorré los capítulos con teclado o gestos
+  del lector de pantalla.
 - En la escena, abrí cada diálogo: debe anunciarse su título y al cerrar
   el foco debe volver al control que lo abrió.
 - En modo lectura, usá la lista de encabezados y activá un capítulo desde
-  el HUD: el foco debe ir a su título. Probá también el enlace a un logro.
+  el HUD: el foco debe ir a su título. Probá también el enlace directo a un
+  logro y verificá que se conserve al cambiar de idioma.
+- Desde la escena, reproducí la pista y cambiá de pestaña o abrí un diálogo.
+  Al volver o cerrarlo, la música debe seguir pausada. Repetilo al entrar
+  en modo lectura.
+
+Registrá dispositivo, sistema, navegador, lector de pantalla y resultado.
+Para Android, adjuntá la traza de un recorrido completo y compará el
+ritmo de los frames con la meta de 60 fps (unos 16,7 ms por frame).
 
 ## Contenido y recursos
 

@@ -3,6 +3,9 @@
 Dirección visual vigente del portfolio. El approach anterior —el autocine— queda
 en stand by; su documentación sigue en [handoff-autocine-final](handoff-autocine-final/HANDOFF.md)
 y sus bocetos en [design](design) como historial de exploración.
+El material del autocine se conserva por ahora. El callejón no monta `SceneBackdrop`
+ni usa el loop de esa maqueta. Si se limpia el directorio público, hacelo por
+separado y revisá los enlaces a los recursos archivados antes de moverlos.
 
 ## Idea
 
@@ -39,17 +42,31 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   en iPhone 13 y Pixel 7 emulados en ambas orientaciones. El build local
   de producción alcanzó 87 en rendimiento para `/en` y 88 para `/es`, con
   100 en accesibilidad en ambas rutas (Lighthouse móvil; metas: 85 y 95).
-- **Fase 6 — lista para la revisión final.** Reproductor de *Gentle Pathways*,
+- **Fase 6 — implementada y verificada en CI.** Reproductor de *Gentle Pathways*,
   reflejos y detalles del gato ajustados e imagen social renovada. La entrega
   incluye capturas de escritorio y móvil y un borrador del PR. Abrir el PR
   y desplegar requieren autorización.
-  La suite cubre Chromium, Firefox y WebKit. Lighthouse móvil midió
-  rendimiento de 82 en `/en` y 88 en `/es`,
-  con accesibilidad de 100 en ambas rutas y sin solicitudes al MP3 antes de
-  interactuar.
-- **Revisión final.** Probar en iOS y Android físicos, medir 60 fps en un
-  Android de gama media y revisar accesibilidad con VoiceOver y NVDA.
-  Volver a medir el rendimiento de `/en` frente a la meta de 85.
+  [GitHub Actions](https://github.com/matiarias/portfolio-experimental/actions/runs/45721819440)
+  pasó para `176baf3`: lint, tipos, build, Vitest y Playwright en Chromium,
+  Firefox y WebKit. En Windows pasaron 30 unitarias y 141 E2E.
+- **Revisión final.** Las pruebas en iOS y Android físicos, la medición de
+  60 fps en un Android de gama media y los recorridos con VoiceOver y NVDA
+  siguen pendientes. Los pasos para registrarlos están en el [README](README.md).
+  Los permisos y créditos de la pista también requieren confirmación antes
+  de publicar.
+
+### Revisión de rendimiento
+
+- La primera medición de Fase 6 dio 82 en `/en` y 88 en `/es`.
+- El 25 de noviembre de 2026, Lighthouse 13.6.0 en perfil móvil sobre el build
+  de producción local dio 77, 82 y 89 en `/en`: **mediana 82**, debajo de la
+  meta de 85. `/es` dio 79 en una corrida de control, no una mediana.
+- Accesibilidad automatizada: 100 en las cuatro corridas. No hubo solicitudes
+  al MP3 antes de interactuar.
+- En `/en`, el LCP se mantuvo cerca de 1 s; el bloqueo total del hilo principal
+  varió entre 438 y 1075 ms. El siguiente paso es perfilar las tareas largas
+  del arranque, antes de ajustar la escena. Esta medición no sustituye la
+  prueba de fluidez en un teléfono real.
 
 Nunca hacer merge a `main` sin un pedido explícito del usuario.
 
@@ -240,5 +257,5 @@ el control del patrón de luces de la fachada.
 - Un quinto local o una sección nueva.
 - 3D real, WebGL o three.js.
 - Tema claro.
-- Reemplazar la música: se reutiliza el loop existente.
-- Borrar el material del autocine mientras el approach nuevo no esté aprobado.
+- Cambiar la pista del callejón, *Gentle Pathways*.
+- Retirar o mover el material histórico del autocine como parte de la Fase 6.

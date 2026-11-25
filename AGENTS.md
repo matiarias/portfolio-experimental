@@ -56,7 +56,8 @@
 
 ## Commits, PRs y despliegue
 
-- Estado del trabajo: Fases 5 y 6 implementadas en `feat/alley-scene`, listas para la revisión final. Los dispositivos físicos, VoiceOver y NVDA quedan para esa revisión. Consultá [design.md](design.md) para el alcance. Nunca hagas merge a `main` sin un pedido explícito del usuario.
+- Estado del trabajo: Fases 5 y 6 implementadas en `feat/alley-scene`; CI validado en Ubuntu para `176baf3`. Usá [design.md](design.md) como registro de la revisión final y el [README](README.md) para repetirla. No des por validados los dispositivos físicos, los lectores de pantalla ni los permisos de audio con pruebas automatizadas. Nunca hagas merge a `main` sin un pedido explícito del usuario.
+- Para cerrar la meta de rendimiento móvil, compará la mediana de tres corridas de Lighthouse sobre el build de producción; no tomes el mejor puntaje como resultado. La última mediana de `/en` fue 82 (meta: 85).
 - Cuando el usuario pida explícitamente hacer commit y push, delegá ambas operaciones a `git-publisher`, definido en [`.codex/agents/git-publisher.toml`](.codex/agents/git-publisher.toml). Pasale los archivos autorizados, el destino conocido y las verificaciones hechas. Esperá su resultado y comunicá el hash, la rama y el resultado del push.
 - Si la herramienta de delegación solo permite elegir modelo y esfuerzo, usá los valores `model` y `model_reasoning_effort` del TOML e incluí sus instrucciones en el encargo.
 - Escribí mensajes de commit breves, en inglés y en imperativo. En un PR, incluí un resumen, las verificaciones realizadas y capturas de escritorio y móvil si cambia la UI.
