@@ -62,7 +62,7 @@ export default async function PortfolioPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify(profile).replace(/</g, "\\u003c"),
       }} />
-      <Alley key={locale} locale={locale} copy={copy}>
+      <Alley key={locale} locale={locale} copy={copy} year={new Date().getUTCFullYear()}>
         <Storefronts locale={locale} />
       </Alley>
     </>

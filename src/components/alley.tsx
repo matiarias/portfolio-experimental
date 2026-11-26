@@ -17,9 +17,10 @@ import ReadingMode from "./reading-mode";
 import { focusStopLink, SceneActions } from "./scene/scene-actions";
 import Stage from "./scene/stage";
 
-export default function Alley({ locale, copy, children }: {
+export default function Alley({ locale, copy, year, children }: {
   locale: Locale;
   copy: Dictionary;
+  year: number;
   children: ReactNode;
 }) {
   const reduced = useReducedMotion();
@@ -264,6 +265,9 @@ export default function Alley({ locale, copy, children }: {
           </>
         )}
       </main>
+      <footer className="portfolio-footer">
+        {name} · <time dateTime={String(year)}>{year}</time>
+      </footer>
     </>
   );
 }

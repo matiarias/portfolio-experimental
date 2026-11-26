@@ -40,6 +40,7 @@
 - Los carteles interactivos son botones reales, con nombre accesible traducido y foco visible.
 - Los rótulos japoneses son paths SVG decorativos (`aria-hidden`, `lang="ja"`). No agregues una fuente japonesa al sitio.
 - El modo lectura es obligatorio y es el fallback de `prefers-reduced-motion` y de no-JS. Conservá la copia de no-JS en `<noscript>` para no hidratar contenido duplicado cuando la escena está activa.
+- Conservá una única firma en el pie, fuera de `<main>`, con el año UTC calculado en el servidor. En escena queda fija y visible sin sumar altura al scroll; en lectura y sin JavaScript queda en el flujo normal.
 - Mantené los acentos propios del modo lectura dentro de `.reading-shell`; el contenido compartido de Experiencia conserva su paleta cian en el diálogo.
 - Con movimiento reducido: sin pin, sin parallax, sin caminata y sin audio; las paradas se apilan como secciones normales.
 - Usá enlaces para navegación y botones para acciones. Conservá el foco visible, el orden de teclado y la lectura móvil. Targets mínimos de 44×44 px.
@@ -52,6 +53,7 @@
 - Mantené [design.md](design.md) y este archivo al día con las decisiones de diseño y las convenciones que cambien. Revisá también el [README](README.md) cuando cambien los flujos de uso, enlaces o comandos. Hacé la revisión antes de cada commit y push.
 - Durante las iteraciones, verificá según el impacto. Para documentación, texto o estilos menores, revisá `git diff --check`, los enlaces afectados y la vista local cuando corresponda. No corras la suite completa por un ajuste menor.
 - Si cambia la lógica, los componentes o la navegación, corré las pruebas y los checks que cubran el cambio. Para scroll, hidratación o layout responsive, priorizá los flujos afectados en Chromium, Firefox y WebKit; usá el build si la verificación depende del comportamiento de producción.
+- Mantené Playwright enfocado en recorridos críticos. Repetí en los tres motores los casos donde puede variar el comportamiento del navegador (hidratación, foco, toque o audio). Usá `*.chromium.spec.ts` para comprobaciones del servidor o de SEO y para recorridos secundarios; reservá las variantes visuales para la revisión local.
 - Probá el audio con reproducción nativa en Playwright; en CI de Ubuntu usá una salida virtual. Los fallos de audio adjuntan eventos del elemento multimedia y de visibilidad.
 - Reservá la suite completa (`npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`) para antes de publicar o cerrar una fase, o cuando el usuario la pida. No la ates a un hook de cada commit local. [GitHub Actions](.github/workflows/ci.yml) la sigue ejecutando en cada push y PR. Informá qué verificaste y qué quedó pendiente.
 
@@ -61,5 +63,6 @@
 - Para cerrar la meta de rendimiento móvil, compará la mediana de tres corridas de Lighthouse sobre el build de producción; no tomes el mejor puntaje como resultado. La última mediana de `/en` fue 82 (meta: 85).
 - Cuando el usuario pida explícitamente hacer commit y push, delegá ambas operaciones a `git-publisher`, definido en [`.codex/agents/git-publisher.toml`](.codex/agents/git-publisher.toml). Pasale los archivos autorizados, el destino conocido y las verificaciones hechas. Esperá su resultado y comunicá el hash, la rama y el resultado del push.
 - Si la herramienta de delegación solo permite elegir modelo y esfuerzo, usá los valores `model` y `model_reasoning_effort` del TOML e incluí sus instrucciones en el encargo.
-- Escribí mensajes de commit breves, en inglés y en imperativo. En un PR, incluí un resumen, las verificaciones realizadas y capturas de escritorio y móvil si cambia la UI.
+- Escribí mensajes de commit breves, en inglés y en imperativo.
+- En cada PR, resumí todos los cambios relevantes del diff contra la rama base y explicá su propósito e impacto. Detallá las verificaciones realizadas, sus resultados y los pendientes; adjuntá capturas de escritorio y móvil si cambia la UI.
 - Revisá los cambios visuales primero en local. Desplegá a producción en Vercel cuando el usuario lo autorice explícitamente.

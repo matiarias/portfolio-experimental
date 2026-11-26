@@ -44,6 +44,8 @@ Para abrir la trayectoria, probá [`/es#experience/details`](http://localhost:30
 Para ir directo a un logro, usá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
 El modo lectura se guarda en el navegador y también se activa con movimiento
 reducido o al navegar sin JavaScript.
+La firma «Matias Arias · año» queda fija en la esquina inferior derecha de la
+escena, también en móvil. En modo lectura va al final del contenido.
 
 ## Verificación
 
@@ -60,8 +62,10 @@ npm run test:e2e
 ```
 
 `npm run test:watch` mantiene Vitest abierto. Playwright sirve el build existente
-en el puerto 3100 y ejecuta los flujos en Chromium, Firefox y WebKit; volvé a
-correr `npm run build` si cambió el código. También acepta `PLAYWRIGHT_BASE_URL`
+en el puerto 3100. La suite E2E ejecuta 27 pruebas: 8 recorridos críticos
+en cada uno de Chromium, Firefox y WebKit, más 3 comprobaciones en Chromium
+(SEO, tarjetas sociales y scroll hasta Contacto). CI ejecuta la misma selección.
+Volvé a correr `npm run build` si cambió el código. Playwright también acepta `PLAYWRIGHT_BASE_URL`
 para probar una preview. En Ubuntu, CI usa una salida virtual para probar el
 MP3 real. Si la prueba de audio falla, el artefacto `playwright-results`
 incluye los eventos del medio y los cambios de visibilidad.
