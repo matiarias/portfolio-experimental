@@ -9,7 +9,9 @@ La dirección visual está documentada en [design.md](design.md). El approach an
 
 ## Estado de la rama
 
-En `feat/alley-scene`, «Ver experiencia» abre la trayectoria completa desde
+El callejón se integró a `main` en el [PR #1](https://github.com/matiarias/portfolio-experimental/pull/1)
+y pasó el [CI de `main`](https://github.com/matiarias/portfolio-experimental/actions/runs/45725098848).
+«Ver experiencia» abre la trayectoria completa desde
 la torre. El ramen abre la bio y la cabina abre los enlaces de contacto.
 El callejón conserva el parallax y el gato animado. Los reflejos de la
 acera toman el color del cartel apenas el gato entra en su fachada.
@@ -24,7 +26,7 @@ pausa la escena en pestañas ocultas. La Fase 6 incluye el reproductor de
 descarga ni suena hasta pulsar Reproducir. El [CI de Fase 6](https://github.com/matiarias/portfolio-experimental/actions/runs/45721819440)
 pasó en Ubuntu para `176baf3`. El alcance y el estado de la revisión final
 están en [design.md](design.md); las reglas, en [AGENTS.md](AGENTS.md).
-No se integra a `main` sin autorización explícita.
+El despliegue a producción requiere autorización explícita.
 
 ## Desarrollo local
 
@@ -35,8 +37,8 @@ npm ci
 npm run dev
 ```
 
-Abrí [localhost:3000](http://localhost:3000). La portada redirige a `/en` y la versión
-en español vive en [`/es`](http://localhost:3000/es). Para probar una parada
+Abrí [localhost:3000](http://localhost:3000). La portada redirige a [`/es`](http://localhost:3000/es)
+por defecto y la versión en inglés está en [`/en`](http://localhost:3000/en). Para probar una parada
 directamente, abrí por ejemplo [`/es#experience`](http://localhost:3000/es#experience).
 Para abrir la trayectoria, probá [`/es#experience/details`](http://localhost:3000/es#experience/details).
 Para ir directo a un logro, usá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
@@ -72,10 +74,16 @@ ruta sin otras pruebas en paralelo y anotá la mediana. Cerrá el servidor con
 `Ctrl+C` al terminar. La última mediana de `/en` fue 82; el detalle de las
 corridas y lo que falta investigar están en [design.md](design.md#revisión-de-rendimiento).
 
-Para validar en dispositivos físicos, recorré las cuatro paradas en iOS y
-Android, en vertical y horizontal, y cambiá de pestaña durante el paseo.
-Medí la fluidez del scroll en un Android de gama media. Con VoiceOver
-(Safari) y NVDA (Firefox o Chrome), probá este recorrido:
+### Revisión manual antes de Vercel
+
+Para probar el build sin desplegar, ejecutá `npm run build` y luego
+`npm run start -- --hostname 0.0.0.0 --port 3100`. Desde un teléfono conectado
+a la misma red, abrí `http://<IP-local-del-equipo>:3100/en` y `/es`.
+Cerrá el servidor al terminar.
+
+Recorré las cuatro paradas en Safari de iOS y Chrome de Android, en vertical
+y horizontal, y cambiá de pestaña durante el paseo. Con VoiceOver en Safari
+de iOS o macOS, y NVDA en Windows con Firefox o Chrome, probá también:
 
 - Activá «Saltar al contenido» y recorré los capítulos con teclado o gestos
   del lector de pantalla.
@@ -89,8 +97,12 @@ Medí la fluidez del scroll en un Android de gama media. Con VoiceOver
   en modo lectura.
 
 Registrá dispositivo, sistema, navegador, lector de pantalla y resultado.
-Para Android, adjuntá la traza de un recorrido completo y compará el
-ritmo de los frames con la meta de 60 fps (unos 16,7 ms por frame).
+En un Android de gama media, conectá el teléfono por USB con la depuración
+habilitada y abrí `chrome://inspect/#devices` desde Chrome de escritorio.
+Grabá en **Performance** un recorrido de Inicio a Contacto con desplazamiento
+continuo, sin aplicar throttling de CPU. Guardá la traza, anotá la frecuencia
+de pantalla y compará los tiempos y los frames perdidos durante el desplazamiento
+con la meta de 60 fps (unos 16,7 ms por frame).
 
 ## Contenido y recursos
 
@@ -107,9 +119,22 @@ ritmo de los frames con la meta de 60 fps (unos 16,7 ms por frame).
   provienen de Noto Sans JP ([licencia OFL](src/content/NotoSansJP-OFL.txt)); no se descarga la fuente.
 - La pista [`gentle-pathways.mp3`](public/media/gentle-pathways.mp3) y su
   título se configuran en [`soundtrack.ts`](src/content/soundtrack.ts).
-  Confirmá los permisos y créditos aplicables antes de publicarla.
+  Se conserva el MP3 actual por decisión del proyecto. Su origen informado
+  es un video público de YouTube; el repositorio no tiene un enlace a la
+  fuente, una licencia de redistribución ni un crédito verificable.
   El [loop del autocine](public/media/loop-crepusculo.wav) no se usa.
 - Con el servidor local activo, `node scripts/capture-social.mjs` regenera
   la [imagen para compartir](public/media/alley-social.png) a 1200 × 630.
-- En producción, configurá `SITE_URL` con el origen canónico. Las previews de Vercel
-  pueden usar su URL automática.
+
+## SEO y publicación
+
+- En Vercel, configurá `SITE_URL` como el origen HTTPS canónico (sin ruta) en
+  Production y Preview. Si no se define, se usa el dominio de producción del
+  proyecto que informa Vercel, si está disponible.
+- `/en` y `/es` tienen título, descripción, canonical y alternates propios;
+  `x-default` apunta a `/es`. Incluyen datos estructurados de perfil y tarjetas
+  Open Graph y X con la imagen del callejón. El favicon es [el gato](src/app/icon.svg).
+- En el dominio final, comprobá `/robots.txt` y `/sitemap.xml`; el sitemap
+  enumera los dos idiomas. Las previews usan `noindex` y no anuncian un sitemap.
+  Una vez publicado, enviá el sitemap en Google Search Console y comprobá las
+  tarjetas compartiendo ambas URLs.

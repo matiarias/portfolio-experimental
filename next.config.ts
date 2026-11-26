@@ -4,7 +4,7 @@ const config: NextConfig = {
   agentRules: false,
   devIndicators: false,
   async redirects() {
-    return [{ source: "/", destination: "/en", permanent: true }];
+    return [{ source: "/", destination: "/es", permanent: true }];
   },
 };
 
