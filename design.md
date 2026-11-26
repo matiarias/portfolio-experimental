@@ -9,8 +9,9 @@ separado y revisá los enlaces a los recursos archivados antes de moverlos.
 
 ## Idea
 
-Un callejón de Tokio a la noche, visto de perfil, con estética lofi y un gato
-pixel-art que guía el recorrido.
+Un callejón de Tokio a la noche, visto de perfil, con estética lofi y Paris
+como guía del recorrido. La gata pixel-art está inspirada en la mascota de
+Matias Arias.
 
 El scroll vertical no acerca la cámara al fondo: desplaza la calle en horizontal.
 No se avanza hacia adentro del callejón, se camina a lo largo de él.
@@ -59,9 +60,12 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   Los estados decorativos y las variantes finas de encuadre se revisan visualmente.
   En Windows, con `CI=1` y dos workers, las 27 pruebas pasaron en 75 s y la
   verificación local completa tardó 2 min 27 s, sin contar la instalación.
+  En paralelo, CI audita el lockfile npm y guarda el informe por corrida.
+  Las severidades altas o críticas hacen fallar ese job.
 - **Revisión final.** Las pruebas en iOS y Android físicos, la medición de
   60 fps en un Android de gama media y los recorridos con VoiceOver y NVDA
-  siguen pendientes. Los pasos para registrarlos están en el [README](README.md).
+  siguen pendientes. Los pasos para registrarlos están en la
+  [guía de revisión manual](#revisión-manual-antes-de-vercel).
   No hay un teléfono físico disponible en la sesión de revisión, ni un
   entorno con VoiceOver o NVDA activo.
 - **Pista.** Se conserva *Gentle Pathways* por decisión del proyecto. El
@@ -85,6 +89,28 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   varió entre 438 y 1075 ms. El siguiente paso es perfilar las tareas largas
   del arranque, antes de ajustar la escena. Esta medición no sustituye la
   prueba de fluidez en un teléfono real.
+
+### Revisión manual antes de Vercel
+
+- Para repetir Lighthouse, compilá y serví con `npm run start -- --port 3100`.
+  Con Chrome instalado, corré `npx --yes lighthouse@13.6.0 http://localhost:3100/es --only-categories=performance,accessibility`
+  y repetilo para `/en`. Hacé tres corridas por ruta sin otras pruebas en
+  paralelo y anotá la mediana. Metas: 85 en rendimiento y 95 en accesibilidad.
+- Para probar desde un teléfono, iniciá el build con
+  `npm run start -- --hostname 0.0.0.0 --port 3100`. Abrí `/es` y `/en` en
+  la IP local de la computadora desde la misma red. Recorré las cuatro
+  paradas en Safari de iOS y Chrome de Android, en vertical y horizontal.
+- Con VoiceOver en Safari y con NVDA en Windows (Firefox o Chrome), probá
+  «Saltar al contenido», el anuncio y la devolución de foco de cada diálogo,
+  los encabezados en lectura y el cambio de idioma desde un logro. Comprobá
+  que el audio se pause al ocultar la pestaña, abrir un diálogo o entrar en
+  lectura, y que solo se reanude con otro gesto.
+- En un Android de gama media, conectá el teléfono por USB con depuración
+  habilitada, abrí `chrome://inspect/#devices` en Chrome de escritorio y
+  capturá una traza en **Performance** de Inicio a Contacto, sin ralentizar
+  la CPU. Registrá modelo, sistema, navegador, frecuencia de pantalla,
+  tiempos de frame y frames perdidos durante el scroll. Meta: 60 fps
+  (unos 16,7 ms por frame).
 
 Nunca hacer merge a `main` sin un pedido explícito del usuario.
 

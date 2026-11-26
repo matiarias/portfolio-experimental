@@ -3,6 +3,24 @@ on: [push, pull_request]
 permissions:
   contents: read
 jobs:
+  dependency-audit:
+    name: Audit npm dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - name: Scan the npm lockfile
+        shell: bash
+        run: npm audit --package-lock-only --include=dev --audit-level=high --json | tee npm-audit.json
+      - name: Upload the dependency audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: npm-audit.json
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
