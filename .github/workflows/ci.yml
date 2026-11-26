@@ -62,8 +62,12 @@ jobs:
             echo "PULSE_COOKIE=$PULSE_COOKIE"
             echo "PULSE_SINK=playwright"
           } >> "$GITHUB_ENV"
-      - run: npm run test:e2e
+      - name: Run Playwright as the container user
+        shell: bash
         timeout-minutes: 5
+        run: |
+          install -d -o pwuser -g pwuser test-results
+          runuser -u pwuser --preserve-environment -- env HOME=/home/pwuser npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
