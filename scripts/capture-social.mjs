@@ -18,7 +18,7 @@ try {
       --storefront-gap: 150px;
       --ground-h: 112px;
     }
-    .alley-hud, .alley-progress, .scroll-hint, .band-foreground { display: none; }
+    .alley-hud, .alley-progress, .scroll-hint, .band-foreground, .portfolio-footer { display: none; }
     .storefront-art { height: 330px; }
     .storefront[data-stop="entrance"] .storefront-sign { padding-inline-start: 28px; }
     .storefront[data-stop="entrance"] .storefront-label { font-size: 60px; }

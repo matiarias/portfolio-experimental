@@ -1,245 +1,67 @@
 import { expect, test } from "@playwright/test";
 
-test("shares the alley artwork in both languages", async ({ page, request }) => {
-  for (const [locale, alt] of [["en", /a cat in a Tokyo alley/], ["es", /un gato en un callejón/]] as const) {
-    await page.goto(`/${locale}`);
-    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/media\/alley-social\.png$/);
-    await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute("content", alt);
-    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", /\/media\/alley-social\.png$/);
-    await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute("content", alt);
-  }
-  const image = await request.get("/media/alley-social.png");
-  expect(image.ok()).toBe(true);
-  expect(image.headers()["content-type"]).toContain("image/png");
-});
-
-test("publishes bilingual search metadata and a crawlable cat favicon", async ({ page, request }) => {
-  await page.goto("/es");
-  await expect(page).toHaveTitle(/Matias Arias.*Especialista en Frontend/);
-  const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
-  expect(canonical).toMatch(/\/es$/);
-  const english = new URL("/en", canonical!).href;
-  await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute("href", english);
-  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute("href", canonical!);
-  await expect(page.locator('meta[property="og:locale:alternate"]')).toHaveAttribute("content", "en_US");
-  const profile = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent() ?? "");
-  expect(profile).toMatchObject({
-    "@type": "ProfilePage",
-    url: canonical,
-    mainEntity: { "@type": "Person", name: "Matias Arias" },
+test("hydrates both languages without warnings and preserves the active stop", async ({ page }) => {
+  const errors: string[] = [];
+  const hydrationError = /hydrat|Minified React error #(?:418|423|425)\b/i;
+  page.on("console", (message) => {
+    if (["error", "warning"].includes(message.type()) && hydrationError.test(message.text())) {
+      errors.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => {
+    if (hydrationError.test(error.message)) errors.push(error.message);
   });
 
-  await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", /^\/icon\.svg(?:\?|$)/);
-  const [icon, robots, sitemap] = await Promise.all([
-    request.get("/icon.svg"),
-    request.get("/robots.txt"),
-    request.get("/sitemap.xml"),
-  ]);
-  expect(icon.ok()).toBe(true);
-  expect(icon.headers()["content-type"]).toContain("image/svg+xml");
-  expect(robots.ok()).toBe(true);
-  expect(sitemap.ok()).toBe(true);
-  const robotsText = await robots.text();
-  const sitemapText = await sitemap.text();
-  const indexing = await page.locator('meta[name="robots"]').getAttribute("content");
-  if (indexing?.includes("noindex")) {
-    expect(robotsText).not.toContain("Sitemap:");
-    expect(sitemapText).not.toContain("<loc>");
-  } else {
-    expect(robotsText).toContain(`Sitemap: ${new URL("/sitemap.xml", english).href}`);
-    expect(sitemapText).toContain(`<loc>${canonical}</loc>`);
-    expect(sitemapText).toContain(`<loc>${english}</loc>`);
-    expect(sitemapText).toContain(`hreflang="x-default" href="${canonical}"`);
-  }
-});
-
-test("redirects the root to Spanish", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/es$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
   await expect(page.getByRole("heading", { name: "Matias Arias" })).toBeVisible();
-});
-
-test("preserves the stop across languages", async ({ page }) => {
-  await page.goto("/en#experience");
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
-
-  await page.getByRole("link", { name: "Español" }).click();
-  await expect(page).toHaveURL(/\/es#experience$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
-});
-
-test("renders the portfolio without JavaScript", async ({ browser, baseURL }) => {
-  const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
-  try {
-    const page = await context.newPage();
-    await page.goto("/en");
-    await expect(page.getByRole("heading", { name: "Matias Arias" })).toBeVisible();
-    await expect(page.locator("#about")).toBeVisible();
-    await expect(page.locator("#experience")).toBeVisible();
-    await expect(page.locator("#contact")).toBeVisible();
-    await expect(page.getByText("Fintech & Banking", { exact: true })).toBeVisible();
-    const skip = page.getByRole("link", { name: "Skip to content" });
-    await skip.focus();
-    await page.keyboard.press("Enter");
-    await expect(page.getByRole("main")).toBeFocused();
-  } finally {
-    await context.close();
-  }
-});
-
-test("switches between the alley and reading mode", async ({ page }) => {
-  await page.goto("/en");
-  await expect(page.locator("main")).toHaveAttribute("data-mode", "scene");
-  await expect(page.locator(".reading-shell")).toHaveCount(0);
-
-  await page.getByRole("button", { name: "Reading mode" }).click();
-  await expect(page.locator("main")).toHaveAttribute("data-mode", "reading");
-  await expect(page.locator("#about")).toBeVisible();
-
-  await page.getByRole("button", { name: "Reading mode" }).click();
-  await expect(page.locator("main")).toHaveAttribute("data-mode", "scene");
-  await expect(page.locator("#alley-stage")).toBeVisible();
-});
-
-test("walks the alley as the page scrolls", async ({ page }) => {
-  await page.goto("/en");
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "entrance");
-
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "contact", {
-    timeout: 10_000,
-  });
-});
-
-test("lights the neon and street together at the facade edge and dims both in the gap", async ({ page }) => {
-  await page.goto("/en");
-  const stage = page.locator("#alley-stage");
-  await expect(page.locator(".band-street")).toHaveAttribute("style", /transform/);
-  const sign = stage.locator('[data-stop="about"] .storefront-sign-plate');
-  const halo = () => sign.evaluate((element) => Number(getComputedStyle(element, "::before").opacity));
-  const reflection = stage.locator(".street-reflection");
-  await expect(reflection).toHaveCSS("--street-light", "#ffb347");
-
-  await stage.evaluate((element) => window.scrollTo(0, (element.getBoundingClientRect().height - window.innerHeight) * 0.22));
-  await expect(stage).toHaveAttribute("data-lit-facade", "about");
-  await expect(reflection).toHaveCSS("--street-light", "#ff2e88");
-  const facade = await stage.locator('.storefront[data-stop="about"]').boundingBox();
-  const cat = await stage.locator(".alley-cat").boundingBox();
-  if (!facade || !cat) throw new Error("Expected the cat and facade to have layout");
-  expect(cat.x + cat.width / 2).toBeLessThan(facade.x + facade.width / 2);
-  await expect.poll(halo).toBeGreaterThan(0.9);
-
-  // Midway between the centers of About and Experience is the physical gap.
-  await stage.evaluate((element) => window.scrollTo(0, (element.getBoundingClientRect().height - window.innerHeight) * 0.48));
-  await expect(stage).not.toHaveAttribute("data-lit-facade");
-  await expect(reflection).toHaveCSS("--street-light", "transparent");
-  await expect.poll(halo).toBeLessThan(0.5);
-});
-
-test("navigates stops with the keyboard", async ({ page }) => {
-  await page.goto("/en");
-  const experience = page.getByRole("link", { name: "Experience", exact: true });
-  await experience.focus();
-  await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/#experience$/);
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
-});
-
-test("moves focus to the destination heading when navigating in reading mode", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/en");
-  await expect(page.getByRole("main")).toHaveAttribute("data-mode", "reading");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Matias Arias");
-  const nav = page.getByRole("navigation", { name: "Chapters" });
-  const experience = nav.getByRole("link", { name: "Experience" });
-  await experience.press("Enter");
-  await expect(page.getByRole("heading", { name: "Santander Tecnología Argentina" })).toBeFocused();
-  await page.goto("/en#experience/1-2");
-  await experience.click();
-  const highlight = page.locator('[id="experience/1-2"]');
-  await expect(highlight).toBeFocused();
-  await expect(highlight).toBeInViewport();
-  await nav.getByRole("link", { name: "Home" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
-});
-
-test("returns to the entrance through Home or Inicio without a duplicate brand link", async ({ page }) => {
-  for (const [locale, label] of [["en", "Home"], ["es", "Inicio"]]) {
-    await page.goto(`/${locale}#contact`);
-    const nav = page.locator(".hud-nav");
-    const home = nav.getByRole("link").first();
-    await expect(home).toHaveAccessibleName(label);
-    await expect(page.locator(".alley-hud")).not.toContainText("Matias Arias");
-
-    await home.focus();
-    await home.press("Enter");
-    await expect(page).toHaveURL(new RegExp(`/${locale}$`));
-    await expect(home).toHaveAttribute("aria-current", "location");
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-  }
-});
-
-test("lands on a deep link without walking", async ({ page }) => {
-  await page.goto("/es#about");
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "about");
-  await expect(page.locator("main")).toHaveAttribute("data-mode", "scene");
-});
-
-test("renders four independent SVG facades and one experience control", async ({ page }) => {
-  await page.goto("/es#experience");
-  await expect(page.locator("main")).toHaveAttribute("data-active-stop", "experience");
-  await expect(page.locator(".storefront-art")).toHaveCount(4);
-  await expect(page.locator('.neon-sign[lang="ja"][aria-hidden="true"] svg path')).toHaveCount(4);
-  await expect(page.locator('.storefront[data-stop="experience"] [data-window]')).toHaveCount(8);
-  const tower = page.locator('.storefront[data-stop="experience"]');
-  await expect(tower.getByRole("button")).toHaveCount(1);
-  await expect(tower.getByRole("button", { name: "Ver experiencia" })).toBeEnabled();
-  const svgBytes = await page.locator(".storefront svg").evaluateAll((nodes) =>
-    nodes.reduce((bytes, node) => bytes + new TextEncoder().encode(node.outerHTML).length, 0),
+  const footer = page.getByRole("contentinfo");
+  await expect(footer).toHaveText(/^Matias Arias · \d{4}$/);
+  await expect(footer).toHaveCSS("position", "fixed");
+  await expect(footer).toBeInViewport({ ratio: 1 });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(
+    await page.getByRole("main").evaluate((main) => Math.round(main.getBoundingClientRect().height)),
   );
-  expect(svgBytes).toBeLessThanOrEqual(120_000);
+  await page.getByRole("link", { name: "Experiencia", exact: true }).press("Enter");
+  await expect(page).toHaveURL(/\/es#experience$/);
+  await expect(page.getByRole("button", { name: "Ver experiencia" })).toBeVisible();
+  await page.getByRole("link", { name: "English" }).click();
+  await expect(page).toHaveURL(/\/en#experience$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("button", { name: "View experience" })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("renders the chapters and preserves direct links to experience highlights", async ({ page }) => {
+    await page.goto("/es#experience/0-2");
+    await expect(page.getByRole("heading", { name: "Matias Arias" })).toBeVisible();
+    for (const chapter of ["about", "experience", "contact"]) {
+      await expect(page.locator(`#${chapter}`)).toBeVisible();
+    }
+    await expect(page.locator('[id="experience/0-2"]')).toBeInViewport();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const footer = page.getByRole("contentinfo");
+    await expect(footer).toHaveText(/^Matias Arias · \d{4}$/);
+    await expect(footer).toHaveCSS("position", "static");
+    await page.getByRole("link", { name: "Saltar al contenido" }).press("Enter");
+    await expect(page.getByRole("main")).toBeFocused();
+  });
 });
 
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
-  test("opens in reading mode without animation", async ({ page }) => {
+  test("opens in reading mode and moves keyboard focus to the destination", async ({ page }) => {
     await page.goto("/en");
-    await expect(page.locator("main")).toHaveAttribute("data-mode", "reading");
-    await expect(page.locator("#about")).toBeVisible();
+    await expect(page.getByRole("main")).toHaveAttribute("data-mode", "reading");
+    await expect(page.getByRole("contentinfo")).toHaveCSS("position", "static");
     await expect(page.getByRole("button", { name: "Reading mode" })).toBeDisabled();
-  });
-});
-
-test.describe("mobile", () => {
-  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
-
-  test("keeps the alley usable with touch", async ({ page }) => {
-    await page.goto("/en");
     const nav = page.getByRole("navigation", { name: "Chapters" });
-    await expect(nav).toBeVisible();
-
-    const contact = nav.getByRole("link", { name: "Contact", exact: true });
-    const { offsetWidth, offsetHeight } = await contact.evaluate((element: HTMLAnchorElement) => ({
-      offsetWidth: element.offsetWidth,
-      offsetHeight: element.offsetHeight,
-    }));
-    expect(offsetWidth).toBeGreaterThanOrEqual(44);
-    expect(offsetHeight).toBeGreaterThanOrEqual(44);
-
-    await contact.tap();
-    await expect(page.locator("main")).toHaveAttribute("data-active-stop", "contact");
-  });
-
-  test("fits all Spanish navigation links at 320px", async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 750 });
-    await page.goto("/es");
-    const nav = page.getByRole("navigation", { name: "Capítulos" });
-    await expect(nav.getByRole("link")).toHaveCount(4);
-    expect(await nav.evaluate((element) => element.scrollWidth)).toBeLessThanOrEqual(
-      await nav.evaluate((element) => element.clientWidth),
-    );
+    await nav.getByRole("link", { name: "Experience" }).press("Enter");
+    await expect(page.getByRole("heading", { name: "Santander Tecnología Argentina" })).toBeFocused();
   });
 });

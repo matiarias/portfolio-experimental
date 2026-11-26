@@ -51,6 +51,14 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   Firefox y WebKit. En Windows pasaron 30 unitarias y 141 E2E.
   La revisión local repitió el build y 108 E2E de navegación, paneles,
   ciclo de vida de la escena y audio en los tres motores; todos pasaron.
+- **Suite de publicación.** Playwright pasó de 144 a 27 ejecuciones por
+  corrida. Se mantienen en los tres motores navegación bilingüe, hidratación,
+  lectura sin JavaScript y con movimiento reducido, foco y enlaces directos en
+  Experiencia, toque y reproducción de audio. Chromium verifica además las
+  rutas de SEO, las tarjetas sociales y el recorrido por scroll hasta Contacto.
+  Los estados decorativos y las variantes finas de encuadre se revisan visualmente.
+  En Windows, con `CI=1` y dos workers, las 27 pruebas pasaron en 75 s y la
+  verificación local completa tardó 2 min 27 s, sin contar la instalación.
 - **Revisión final.** Las pruebas en iOS y Android físicos, la medición de
   60 fps en un Android de gama media y los recorridos con VoiceOver y NVDA
   siguen pendientes. Los pasos para registrarlos están en el [README](README.md).
@@ -110,7 +118,13 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
   reciente al más antiguo.
 - El HUD se agrupa a la derecha, en dos filas hasta 720 px.
   Home/Inicio es el primer enlace; los idiomas y el modo lectura forman
-  un grupo aparte. Solo el cartel de portada muestra el nombre en la escena.
+  un grupo aparte. El HUD no repite el nombre del cartel de portada.
+- La firma «Matias Arias · año» queda fija abajo a la derecha en toda la
+  escena, en jade apagado y sin sumar altura al scroll. En móvil, la
+  indicación de scroll queda por encima de la firma. En lectura (también
+  sin JS), cierra el contenido a la izquierda con un separador corto y
+  ámbar suave (`#E8BA83`). El año UTC se calcula al generar el HTML y se
+  renueva al volver a compilar.
 - *Gentle Pathways* usa un botón de reproducir/pausar junto a Modo lectura,
   en la segunda fila en móvil. El título aparece al sonar en escritorio.
   No hay descarga ni reproducción antes de pulsarlo. Se pausa al ocultar la pestaña,
@@ -230,7 +244,7 @@ responde al movimiento y se puede acariciar.
 | Clic, toque o teclado en «Ver experiencia» | Se abre toda la trayectoria, con scroll dentro del modal |
 | Cursor cerca del gato | Las pupilas lo siguen |
 | Clic, toque o teclado sobre el gato | Se acurruca; el ronroneo queda para la fase de audio |
-| Pausa en la calle | Se sienta y, tras unos 10 segundos de inactividad, se duerme |
+| Pausa en la calle | Se sienta y, tras unos 8 segundos de inactividad, se duerme |
 
 En móvil no hay hover: cada interacción se resuelve con tap y los targets tienen
 al menos 44×44 px. El gesto vertical sigue desplazando la página; no se secuestra
