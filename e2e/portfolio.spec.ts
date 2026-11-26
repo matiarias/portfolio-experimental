@@ -20,7 +20,7 @@ test("publishes bilingual search metadata and a crawlable cat favicon", async ({
   expect(canonical).toMatch(/\/es$/);
   const english = new URL("/en", canonical!).href;
   await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute("href", english);
-  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute("href", english);
+  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute("href", canonical!);
   await expect(page.locator('meta[property="og:locale:alternate"]')).toHaveAttribute("content", "en_US");
   const profile = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent() ?? "");
   expect(profile).toMatchObject({
@@ -49,14 +49,14 @@ test("publishes bilingual search metadata and a crawlable cat favicon", async ({
     expect(robotsText).toContain(`Sitemap: ${new URL("/sitemap.xml", english).href}`);
     expect(sitemapText).toContain(`<loc>${canonical}</loc>`);
     expect(sitemapText).toContain(`<loc>${english}</loc>`);
-    expect(sitemapText).toContain(`hreflang="x-default" href="${english}"`);
+    expect(sitemapText).toContain(`hreflang="x-default" href="${canonical}"`);
   }
 });
 
-test("redirects the root to English", async ({ page }) => {
+test("redirects the root to Spanish", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveURL(/\/en$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveURL(/\/es$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
   await expect(page.getByRole("heading", { name: "Matias Arias" })).toBeVisible();
 });
 

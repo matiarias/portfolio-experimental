@@ -62,7 +62,8 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
 - **SEO y marca.** El favicon simplifica el rostro del gato: gris pizarra,
   ojos verdes y bigotes sobre índigo. Las tarjetas sociales usan la escena
   real; las dos rutas se declaran como versiones del mismo perfil y se
-  publican en el sitemap del dominio canónico.
+  publican en el sitemap del dominio canónico. La raíz redirige a `/es`,
+  que también es la variante `x-default`; `/en` conserva su URL.
 
 ### Revisión de rendimiento
 

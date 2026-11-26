@@ -37,8 +37,8 @@ npm ci
 npm run dev
 ```
 
-Abrí [localhost:3000](http://localhost:3000). La portada redirige a `/en` y la versión
-en español vive en [`/es`](http://localhost:3000/es). Para probar una parada
+Abrí [localhost:3000](http://localhost:3000). La portada redirige a [`/es`](http://localhost:3000/es)
+por defecto y la versión en inglés está en [`/en`](http://localhost:3000/en). Para probar una parada
 directamente, abrí por ejemplo [`/es#experience`](http://localhost:3000/es#experience).
 Para abrir la trayectoria, probá [`/es#experience/details`](http://localhost:3000/es#experience/details).
 Para ir directo a un logro, usá [`/es#experience/0-2`](http://localhost:3000/es#experience/0-2).
@@ -132,7 +132,7 @@ con la meta de 60 fps (unos 16,7 ms por frame).
   Production y Preview. Si no se define, se usa el dominio de producción del
   proyecto que informa Vercel, si está disponible.
 - `/en` y `/es` tienen título, descripción, canonical y alternates propios;
-  `x-default` apunta a `/en`. Incluyen datos estructurados de perfil y tarjetas
+  `x-default` apunta a `/es`. Incluyen datos estructurados de perfil y tarjetas
   Open Graph y X con la imagen del callejón. El favicon es [el gato](src/app/icon.svg).
 - En el dominio final, comprobá `/robots.txt` y `/sitemap.xml`; el sitemap
   enumera los dos idiomas. Las previews usan `noindex` y no anuncian un sitemap.

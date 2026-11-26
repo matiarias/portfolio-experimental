@@ -10,5 +10,5 @@ export const isPreview = process.env.VERCEL_ENV === "preview";
 
 export const languageUrls = {
   ...Object.fromEntries(locales.map((locale) => [locale, new URL(`/${locale}`, siteUrl).href])),
-  "x-default": new URL("/en", siteUrl).href,
+  "x-default": new URL("/es", siteUrl).href,
 };

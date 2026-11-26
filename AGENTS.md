@@ -3,7 +3,7 @@
 ## Stack y arranque
 
 - Usá Next.js App Router, React, TypeScript estricto, Tailwind CSS v4, GSAP, Node.js 24 y npm. Consultá [package.json](package.json), [package-lock.json](package-lock.json) y [.nvmrc](.nvmrc) para las versiones.
-- Instalá con `npm ci` y arrancá con `npm run dev`. La raíz redirige a `/en` y la versión en español está en `/es`. El [README](README.md) documenta la puesta en marcha y los recursos.
+- Instalá con `npm ci` y arrancá con `npm run dev`. La raíz redirige a `/es` por defecto; la versión en inglés está en `/en`. El [README](README.md) documenta la puesta en marcha y los recursos.
 - GSAP es el motor de animación del proyecto. `ScrollTrigger`, `Flip`, `DrawSVG`, `MotionPath`, `SplitText` y `CustomEase` vienen incluidos en el paquete `gsap` desde 3.13; `useGSAP` viene de `@gsap/react`.
 - No agregues librerías de animación, 3D o i18n sin justificarlo. Motion, three.js, Rive, Lottie, Lenis y next-intl quedan fuera de alcance por decisión de diseño.
 
@@ -21,7 +21,7 @@
 ## Convenciones de código
 
 - Renderizá contenido y metadatos por idioma en el servidor. Reservá el código cliente para estado, audio, historial, foco y animación.
-- Usá el origen canónico compartido de [`site-metadata.ts`](src/lib/site-metadata.ts) para metadatos, sitemap y robots. Conservá los alternates recíprocos EN/ES, `x-default` en `/en` y `noindex` en las previews de Vercel.
+- Usá el origen canónico compartido de [`site-metadata.ts`](src/lib/site-metadata.ts) para metadatos, sitemap y robots. Conservá los alternates recíprocos EN/ES, `x-default` en `/es` y `noindex` en las previews de Vercel.
 - Actualizá los diccionarios EN y ES juntos. Conservá `#about`, `#experience` y `#contact` en ambas rutas y el acceso directo sin JavaScript.
 - Mantené iguales el HTML del servidor y el primer render del cliente. Leé los valores del navegador después de hidratar o usá `useSyncExternalStore` con un snapshot inicial compatible con SSR.
 - Ante un aviso de hidratación, compará el HTML de la respuesta con el DOM y reproducilo en un navegador sin extensiones. Corregí las discrepancias propias en su origen. Reservá `suppressHydrationWarning` en `<html>` para atributos externos comprobados y conservá las pruebas de hidratación en Playwright.
