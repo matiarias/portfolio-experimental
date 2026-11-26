@@ -8,7 +8,7 @@ const track = { src: "/media/test.mp3", title: "Test track" } satisfies Soundtra
 const labels = dictionaries.es.soundtrack;
 
 function setup() {
-  const view = render(<SoundtrackControl track={track} labels={labels} suspended={false} />);
+  const view = render(<SoundtrackControl track={track} labels={labels} />);
   const audio = view.container.querySelector("audio");
   if (!audio) throw new Error("Expected an audio element");
   let paused = true;
@@ -44,22 +44,18 @@ describe("soundtrack", () => {
     expect(screen.queryByText(track.title)).not.toBeInTheDocument();
   });
 
-  it("pauses while hidden or in a dialog and never resumes by itself", () => {
-    const { play, pause, rerender } = setup();
+  it("keeps playing when hidden and stops when the player unmounts", () => {
+    const { play, pause, unmount } = setup();
     const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
     fireEvent.click(screen.getByRole("button", { name: labels.play }));
     hidden.mockReturnValue(true);
     fireEvent(document, new Event("visibilitychange"));
     hidden.mockReturnValue(false);
     fireEvent(document, new Event("visibilitychange"));
-    expect(pause).toHaveBeenCalledOnce();
+    expect(pause).not.toHaveBeenCalled();
     expect(play).toHaveBeenCalledOnce();
-    fireEvent.click(screen.getByRole("button", { name: labels.play }));
-    rerender(<SoundtrackControl track={track} labels={labels} suspended />);
-    rerender(<SoundtrackControl track={track} labels={labels} suspended={false} />);
-    expect(pause).toHaveBeenCalledTimes(2);
-    expect(play).toHaveBeenCalledTimes(2);
-    expect(screen.getByRole("button", { name: labels.play })).toBeInTheDocument();
+    unmount();
+    expect(pause).toHaveBeenCalledOnce();
   });
 
   it("shows the title when native play resolves without a playing event", async () => {

@@ -5,10 +5,9 @@ import { FiPause, FiPlay } from "react-icons/fi";
 import type { Dictionary } from "@/content/portfolio";
 import type { Soundtrack } from "@/content/soundtrack";
 
-export default function SoundtrackControl({ track, labels, suspended }: {
+export default function SoundtrackControl({ track, labels }: {
   track: Soundtrack;
   labels: Dictionary["soundtrack"];
-  suspended: boolean;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const attemptRef = useRef(0);
@@ -18,25 +17,10 @@ export default function SoundtrackControl({ track, labels, suspended }: {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
-    const pause = () => {
-      if (!audio.paused) audio.pause();
-    };
-    const onVisibility = () => {
-      if (document.hidden) pause();
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("pagehide", pause);
     return () => {
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pagehide", pause);
-      pause();
+      if (audio && !audio.paused) audio.pause();
     };
   }, []);
-
-  useEffect(() => {
-    if (suspended && audioRef.current && !audioRef.current.paused) audioRef.current.pause();
-  }, [suspended]);
 
   function onPause() {
     setRequested(false);
@@ -56,7 +40,7 @@ export default function SoundtrackControl({ track, labels, suspended }: {
 
   function toggle() {
     const audio = audioRef.current;
-    if (!audio || suspended || document.hidden) return;
+    if (!audio) return;
     const attempt = ++attemptRef.current;
     if (!audio.paused) {
       audio.pause();

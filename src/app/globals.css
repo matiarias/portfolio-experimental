@@ -1009,7 +1009,13 @@ a {
   height: 5px;
   border-radius: 50%;
   background: var(--neon-amber);
-  animation: paw 1.4s var(--ease-soft) infinite;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-paws span {
+    animation: paw 1.4s var(--ease-soft) 3;
+  }
 }
 
 .scroll-paws span:nth-child(2) {
@@ -1445,11 +1451,6 @@ a {
     opacity: 0.16;
   }
 
-  .scroll-paws span {
-    animation: none;
-    opacity: 0.6;
-  }
-
   .scroll-hint {
     bottom: calc(max(0.75rem, env(safe-area-inset-bottom, 0px)) + 1.5rem);
   }
@@ -1534,7 +1535,6 @@ a {
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .hud-nav a,
   .hud-locale a,
   .hud-reading {
     transition:
@@ -1567,11 +1567,6 @@ a {
    --------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-paws span {
-    animation: none;
-    opacity: 0.6;
-  }
-
   .skip-link {
     transition: none;
   }

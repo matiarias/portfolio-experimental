@@ -17,7 +17,6 @@ type Props = {
   suffix: string;
   reading: boolean;
   reduced: boolean;
-  panelOpen: boolean;
   barRef: RefObject<HTMLDivElement | null>;
   onNavigate: (stop: StopId) => void;
   onToggleReading: () => void;
@@ -30,7 +29,6 @@ export default function Hud({
   suffix,
   reading,
   reduced,
-  panelOpen,
   barRef,
   onNavigate,
   onToggleReading,
@@ -70,7 +68,7 @@ export default function Hud({
             <span>{copy.reading}</span>
           </button>
           {!reading && soundtrack && (
-            <SoundtrackControl track={soundtrack} labels={copy.soundtrack} suspended={panelOpen} />
+            <SoundtrackControl track={soundtrack} labels={copy.soundtrack} />
           )}
         </div>
       </header>

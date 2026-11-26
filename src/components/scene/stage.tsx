@@ -87,7 +87,7 @@ export default function Stage({ scrollHint, petLabel, petFeedback, activeStop, f
 
       let geometry = measure();
       let streetX = 0;
-      let facade: StopId | null = "entrance";
+      let facade: StopId | null | undefined;
       const apply = (value: number) => {
         const { layout, facades, parallax } = geometry;
         const x = progressToX(value, layout);

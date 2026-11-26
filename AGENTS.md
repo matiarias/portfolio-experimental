@@ -28,7 +28,7 @@
 - El progreso del scroll es una única fuente de verdad. Solo el motor escribe `transform` sobre las bandas; ningún componente anima propiedades que el motor controla.
 - Conservá `position: sticky` con un contenedor alto; ScrollTrigger mide el progreso, no fija la escena. `Alley` deriva la parada activa del hash: la navegación explícita agrega una entrada al historial; el scroll reemplaza la actual al asentarse o tras un salto grande.
 - El ancla horizontal del gato está al 38% del viewport y controla cuándo se activan las fachadas. La entrada conserva el origen CSS (`x = 0`); las demás fachadas usan el ancla en escritorio y el centro del viewport en móvil. Verificá el nombre y el rol de portada antes y después de hidratar si cambia la geometría.
-- Compartí `data-lit-facade` entre el neón del cartel y los reflejos de la acera; no uses `data-active-stop` para encenderlos.
+- Usá el cruce de fachada para sincronizar el HUD con `data-lit-facade`, que controla el neón y los reflejos. En los huecos el HUD conserva la última fachada; en lectura o con diálogo abierto sigue el hash. No uses `data-active-stop` para encender los reflejos.
 - En pestañas ocultas, pausá la lluvia y quitá solo el callback del ticker de la escena, no el ticker global de GSAP. Al reanudar, sincronizá con el scroll real sin simular un paseo.
 - Animá solo `transform` y `opacity`. No uses `filter: blur()` sobre superficies grandes: el glow se pre-hornea o se resuelve con gradientes.
 - Acotá en tiempo real las animaciones cortas de UI, como la entrada de un diálogo: el *lag smoothing* de GSAP estira esos tweens cuando el hilo principal se frena.
@@ -46,6 +46,7 @@
 - Usá enlaces para navegación y botones para acciones. Conservá el foco visible, el orden de teclado y la lectura móvil. Targets mínimos de 44×44 px.
 - El audio nunca arranca solo: siempre detrás de un gesto del usuario y muteado por defecto.
 - Configurá la pista del reproductor en [`soundtrack.ts`](src/content/soundtrack.ts); no descargues el MP3 antes del gesto ni reanudes la reproducción automáticamente.
+- La música iniciada por el usuario sigue al abrir diálogos o cambiar de pestaña. Se detiene al pulsar Pausa o dejar la escena, incluido el paso a modo lectura.
 
 ## Flujo de trabajo y verificación
 

@@ -33,6 +33,7 @@ test.describe("mobile", () => {
   test("navigates to the Experience facade and opens it by touch", async ({ page }) => {
     await page.goto("/es");
     const nav = page.getByRole("navigation", { name: "Capítulos" });
+    await expect(page.locator(".scroll-paws span").first()).toHaveCSS("animation-name", "paw");
     const footer = page.getByRole("contentinfo");
     await expect(footer).toBeInViewport({ ratio: 1 });
     const signature = await footer.boundingBox();
@@ -40,6 +41,8 @@ test.describe("mobile", () => {
     if (!signature || !hint) throw new Error("Expected the signature and scroll hint at the entrance");
     expect(hint.y + hint.height).toBeLessThan(signature.y);
     await nav.getByRole("link", { name: "Experiencia", exact: true }).tap();
+    await expect(page.locator("#alley-stage")).toHaveAttribute("data-lit-facade", "experience");
+    await expect(nav.getByRole("link", { name: "Experiencia", exact: true })).toHaveAttribute("aria-current", "location");
     const trigger = page.getByRole("button", { name: "Ver experiencia" });
     await expect(trigger).toBeInViewport({ ratio: 0.99 });
     await trigger.tap();
