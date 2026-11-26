@@ -44,16 +44,25 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   100 en accesibilidad en ambas rutas (Lighthouse móvil; metas: 85 y 95).
 - **Fase 6 — implementada y verificada en CI.** Reproductor de *Gentle Pathways*,
   reflejos y detalles del gato ajustados e imagen social renovada. La entrega
-  incluye capturas de escritorio y móvil y un borrador del PR. Abrir el PR
-  y desplegar requieren autorización.
-  [GitHub Actions](https://github.com/matiarias/portfolio-experimental/actions/runs/45721819440)
-  pasó para `176baf3`: lint, tipos, build, Vitest y Playwright en Chromium,
+  quedó integrada a `main` en el [PR #1](https://github.com/matiarias/portfolio-experimental/pull/1)
+  (`610e8af`). El [CI del PR](https://github.com/matiarias/portfolio-experimental/actions/runs/45724629338)
+  y el [de `main`](https://github.com/matiarias/portfolio-experimental/actions/runs/45725098848)
+  pasaron: lint, tipos, build, Vitest y Playwright en Chromium,
   Firefox y WebKit. En Windows pasaron 30 unitarias y 141 E2E.
+  La revisión local repitió el build y 108 E2E de navegación, paneles,
+  ciclo de vida de la escena y audio en los tres motores; todos pasaron.
 - **Revisión final.** Las pruebas en iOS y Android físicos, la medición de
   60 fps en un Android de gama media y los recorridos con VoiceOver y NVDA
   siguen pendientes. Los pasos para registrarlos están en el [README](README.md).
-  Los permisos y créditos de la pista también requieren confirmación antes
-  de publicar.
+  No hay un teléfono físico disponible en la sesión de revisión, ni un
+  entorno con VoiceOver o NVDA activo.
+- **Pista.** Se conserva *Gentle Pathways* por decisión del proyecto. El
+  origen informado es un video público de YouTube; no consta la licencia
+  de redistribución ni un crédito verificable.
+- **SEO y marca.** El favicon simplifica el rostro del gato: gris pizarra,
+  ojos verdes y bigotes sobre índigo. Las tarjetas sociales usan la escena
+  real; las dos rutas se declaran como versiones del mismo perfil y se
+  publican en el sitemap del dominio canónico.
 
 ### Revisión de rendimiento
 

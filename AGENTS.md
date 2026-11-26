@@ -21,6 +21,7 @@
 ## Convenciones de código
 
 - Renderizá contenido y metadatos por idioma en el servidor. Reservá el código cliente para estado, audio, historial, foco y animación.
+- Usá el origen canónico compartido de [`site-metadata.ts`](src/lib/site-metadata.ts) para metadatos, sitemap y robots. Conservá los alternates recíprocos EN/ES, `x-default` en `/en` y `noindex` en las previews de Vercel.
 - Actualizá los diccionarios EN y ES juntos. Conservá `#about`, `#experience` y `#contact` en ambas rutas y el acceso directo sin JavaScript.
 - Mantené iguales el HTML del servidor y el primer render del cliente. Leé los valores del navegador después de hidratar o usá `useSyncExternalStore` con un snapshot inicial compatible con SSR.
 - Ante un aviso de hidratación, compará el HTML de la respuesta con el DOM y reproducilo en un navegador sin extensiones. Corregí las discrepancias propias en su origen. Reservá `suppressHydrationWarning` en `<html>` para atributos externos comprobados y conservá las pruebas de hidratación en Playwright.
@@ -56,7 +57,7 @@
 
 ## Commits, PRs y despliegue
 
-- Estado del trabajo: Fases 5 y 6 implementadas en `feat/alley-scene`; CI validado en Ubuntu para `176baf3`. Usá [design.md](design.md) como registro de la revisión final y el [README](README.md) para repetirla. No des por validados los dispositivos físicos, los lectores de pantalla ni los permisos de audio con pruebas automatizadas. Nunca hagas merge a `main` sin un pedido explícito del usuario.
+- Estado del trabajo: Fases 5 y 6 integradas a `main` mediante el PR #1 (`610e8af`, CI aprobado). Usá [design.md](design.md) como registro de la revisión final y el [README](README.md#revisión-manual-antes-de-vercel) para repetirla. La emulación no valida los dispositivos físicos ni los lectores de pantalla. Nunca hagas merge a `main` sin un pedido explícito del usuario.
 - Para cerrar la meta de rendimiento móvil, compará la mediana de tres corridas de Lighthouse sobre el build de producción; no tomes el mejor puntaje como resultado. La última mediana de `/en` fue 82 (meta: 85).
 - Cuando el usuario pida explícitamente hacer commit y push, delegá ambas operaciones a `git-publisher`, definido en [`.codex/agents/git-publisher.toml`](.codex/agents/git-publisher.toml). Pasale los archivos autorizados, el destino conocido y las verificaciones hechas. Esperá su resultado y comunicá el hash, la rama y el resultado del push.
 - Si la herramienta de delegación solo permite elegir modelo y esfuerzo, usá los valores `model` y `model_reasoning_effort` del TOML e incluí sus instrucciones en el encargo.
