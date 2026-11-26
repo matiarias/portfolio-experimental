@@ -1,5 +1,8 @@
 name: CI
 on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -22,8 +25,12 @@ jobs:
           name: npm-audit-report
           path: npm-audit.json
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    container:
+      # Keep the image version aligned with @playwright/test in package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
+      options: --ipc=host
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -35,17 +42,28 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npx playwright install --with-deps chromium firefox webkit
       - name: Provision virtual audio output for browser tests
+        shell: bash
+        timeout-minutes: 2
         run: |
           if ! command -v pulseaudio >/dev/null || ! command -v pactl >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y pulseaudio pulseaudio-utils
+            apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update
+            apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 install -y --no-install-recommends pulseaudio pulseaudio-utils
           fi
-          pactl info >/dev/null 2>&1 || pulseaudio --start --exit-idle-time=-1
-          pactl load-module module-null-sink sink_name=playwright
-          echo "PULSE_SINK=playwright" >> "$GITHUB_ENV"
+          pulse_runtime="$(mktemp -d)"
+          chown pwuser:pwuser "$pulse_runtime"
+          runuser -u pwuser -- env XDG_RUNTIME_DIR="$pulse_runtime" pulseaudio --start --exit-idle-time=-1
+          runuser -u pwuser -- env XDG_RUNTIME_DIR="$pulse_runtime" pactl load-module module-null-sink sink_name=playwright
+          export PULSE_SERVER="unix:$pulse_runtime/pulse/native"
+          export PULSE_COOKIE=/home/pwuser/.config/pulse/cookie
+          pactl list short sinks
+          {
+            echo "PULSE_SERVER=$PULSE_SERVER"
+            echo "PULSE_COOKIE=$PULSE_COOKIE"
+            echo "PULSE_SINK=playwright"
+          } >> "$GITHUB_ENV"
       - run: npm run test:e2e
+        timeout-minutes: 5
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

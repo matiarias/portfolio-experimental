@@ -44,6 +44,9 @@ Playwright ejecuta 27 pruebas sobre el build de producción en el puerto 3100.
 Volvé a compilar si cambió el código o usá `PLAYWRIGHT_BASE_URL` para probar
 una preview. Para Lighthouse, dispositivos físicos y lectores de pantalla,
 consultá la [guía de revisión](design.md#revisión-manual-antes-de-vercel).
+GitHub Actions usa la imagen oficial de Playwright con los navegadores
+preinstalados. Corre en cada push y PR y cancela las corridas anteriores del
+mismo evento y rama cuando llega una nueva.
 
 CI también ejecuta `npm audit --package-lock-only --include=dev --audit-level=high`.
 El job falla ante vulnerabilidades altas o críticas; el artefacto

@@ -62,6 +62,9 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
   verificación local completa tardó 2 min 27 s, sin contar la instalación.
   En paralelo, CI audita el lockfile npm y guarda el informe por corrida.
   Las severidades altas o críticas hacen fallar ese job.
+  El job de verificación usa la imagen oficial de Playwright para evitar
+  descargar librerías de navegador con `apt` en cada corrida. Tiene un
+  límite de 10 min; la ejecución de Playwright, de 4 min.
 - **Revisión final.** Las pruebas en iOS y Android físicos, la medición de
   60 fps en un Android de gama media y los recorridos con VoiceOver y NVDA
   siguen pendientes. Los pasos para registrarlos están en la

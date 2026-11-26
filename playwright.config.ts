@@ -7,6 +7,7 @@ const preview = process.env.PLAYWRIGHT_BASE_URL;
 export default defineConfig({
   testDir: "./e2e",
   retries: process.env.CI ? 1 : 0,
+  globalTimeout: process.env.CI ? 4 * 60_000 : 0,
   workers: 2,
   use: {
     baseURL: preview ?? local,

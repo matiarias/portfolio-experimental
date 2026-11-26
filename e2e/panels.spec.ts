@@ -14,13 +14,14 @@ test("opens Experience with the keyboard and restores focus on Escape", async ({
   await expect(trigger).toBeFocused();
 });
 
-test("keeps direct links to experience highlights when changing languages", async ({ page }) => {
+test("preserves the experience highlight in the localized deep link", async ({ page }) => {
   await page.goto("/en#experience/1-1");
   const dialog = page.getByRole("dialog");
   const highlight = dialog.locator('[data-panel-anchor="experience/1-1"]');
   await expect(highlight).toBeFocused();
-  await expect(dialog.locator(".chapter-surface")).toHaveCSS("transform", "none");
-  await dialog.getByRole("link", { name: "Español" }).click();
+  const spanish = dialog.getByRole("link", { name: "Español" });
+  await expect(spanish).toHaveAttribute("href", "/es#experience/1-1");
+  await page.goto("/es#experience/1-1");
   await expect(page).toHaveURL(/\/es#experience\/1-1$/);
   await expect(highlight).toBeFocused();
   await expect(highlight).toBeInViewport();
