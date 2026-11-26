@@ -1,5 +1,7 @@
 # Callejón de noche · Matias Arias
 
+[Ver el portfolio en producción](https://mati-arias-portfolio.vercel.app/)
+
 ## Sobre el proyecto
 
 Paris, mi gata, es la verdadera protagonista de este portfolio. Está
@@ -28,6 +30,8 @@ npm run dev
 Abrí [localhost:3000](http://localhost:3000): `/` redirige a `/es` y la
 versión en inglés está en `/en`. Un enlace como `/es#experience/details`
 abre directamente la trayectoria.
+Si activás la música, sigue sonando al abrir los paneles; al entrar en modo
+lectura se detiene y necesita otro gesto para volver a sonar.
 
 ## Verificación
 
@@ -55,9 +59,11 @@ cuando npm las conoce.
 
 ## Publicación y recursos
 
-- En Vercel, configurá `SITE_URL` con el origen HTTPS canónico, sin ruta.
-  Tras publicar, verificá `/robots.txt`, `/sitemap.xml` y las tarjetas sociales
-  de `/es` y `/en`. Las previews usan `noindex`.
+- El origen canónico de producción para `SITE_URL` es
+  `https://mati-arias-portfolio.vercel.app` (sin ruta). Después de cada despliegue,
+  verificá [`robots.txt`](https://mati-arias-portfolio.vercel.app/robots.txt),
+  [`sitemap.xml`](https://mati-arias-portfolio.vercel.app/sitemap.xml) y las
+  tarjetas sociales de `/es` y `/en`. Las previews usan `noindex`.
 - [Contenido bilingüe](src/content/portfolio.ts) · [Dirección visual y estado de revisión](design.md)
   · [Reglas del proyecto](AGENTS.md).
 - Para regenerar la imagen social, ejecutá `node scripts/capture-social.mjs`

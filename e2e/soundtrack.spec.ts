@@ -30,7 +30,7 @@ test.afterEach(async ({ page }, info) => {
   if (events) await info.attach("native-audio-events", { body: JSON.stringify(events, null, 2), contentType: "application/json" });
 });
 
-test("loads the MP3 on a keyboard gesture and pauses without automatically resuming", async ({ page }) => {
+test("controls playback by keyboard and keeps it playing in a dialog and in the background", async ({ page }) => {
   const requests: string[] = [];
   page.on("request", (request) => {
     if (new URL(request.url()).pathname === soundtrackPath) requests.push(request.url());
@@ -59,17 +59,25 @@ test("loads the MP3 on a keyboard gesture and pauses without automatically resum
   await play.press("Enter");
   await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(pausedAt);
 
+  await page.getByRole("link", { name: "Experience", exact: true }).press("Enter");
+  await page.getByRole("button", { name: "View experience" }).press("Enter");
+  const dialog = page.getByRole("dialog", { name: "Experience" });
+  await expect(dialog).toBeVisible();
+  const openedAt = await audio.evaluate((element: HTMLAudioElement) => element.currentTime);
+  await expect.poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(openedAt);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+
   await page.evaluate(() => {
     Object.defineProperty(document, "hidden", { configurable: true, value: true });
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  await expect(audio).toHaveJSProperty("paused", true);
+  await expect(audio).toHaveJSProperty("paused", false);
   await page.evaluate(() => {
     Reflect.deleteProperty(document, "hidden");
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  await expect(play).toBeVisible();
-  await expect(audio).toHaveJSProperty("paused", true);
+  await expect(pause).toBeVisible();
 });
 
 test.describe("soundtrack on touch", () => {

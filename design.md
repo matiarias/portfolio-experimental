@@ -106,8 +106,8 @@ Cada fachada es una sección del portfolio. El gato es el indicador de progreso.
 - Con VoiceOver en Safari y con NVDA en Windows (Firefox o Chrome), probá
   «Saltar al contenido», el anuncio y la devolución de foco de cada diálogo,
   los encabezados en lectura y el cambio de idioma desde un logro. Comprobá
-  que el audio se pause al ocultar la pestaña, abrir un diálogo o entrar en
-  lectura, y que solo se reanude con otro gesto.
+  que el audio continúe al abrir un diálogo o cambiar de pestaña si el
+  navegador lo permite, y que se detenga al entrar en lectura sin reanudarse solo.
 - En un Android de gama media, conectá el teléfono por USB con depuración
   habilitada, abrí `chrome://inspect/#devices` en Chrome de escritorio y
   capturá una traza en **Performance** de Inicio a Contacto, sin ralentizar
@@ -148,6 +148,10 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
 - El HUD se agrupa a la derecha, en dos filas hasta 720 px.
   Home/Inicio es el primer enlace; los idiomas y el modo lectura forman
   un grupo aparte. El HUD no repite el nombre del cartel de portada.
+  Durante el paseo, el enlace activo cambia al mismo cruce que el cartel
+  y el reflejo. Entre fachadas conserva el último enlace activo.
+- Los tres puntos de la indicación de scroll pulsan tres veces en escritorio
+  y móvil. Con movimiento reducido no se animan.
 - La firma «Matias Arias · año» queda fija abajo a la derecha en toda la
   escena, en jade apagado y sin sumar altura al scroll. En móvil, la
   indicación de scroll queda por encima de la firma. En lectura (también
@@ -156,8 +160,9 @@ Nunca hacer merge a `main` sin un pedido explícito del usuario.
   renueva al volver a compilar.
 - *Gentle Pathways* usa un botón de reproducir/pausar junto a Modo lectura,
   en la segunda fila en móvil. El título aparece al sonar en escritorio.
-  No hay descarga ni reproducción antes de pulsarlo. Se pausa al ocultar la pestaña,
-  al abrir un diálogo o al salir de la escena y no se reanuda sola.
+  No hay descarga ni reproducción antes de pulsarlo. Sigue al abrir diálogos
+  o cambiar de pestaña, sujeto al navegador. Se detiene al pulsar Pausa o al
+  salir de la escena, incluido el modo lectura, y no se reanuda sola.
   El ícono y el título siguen la reproducción real: un intento de `play()`
   reemplazado por un toque posterior no puede confirmar el estado.
 - El gato queda anclado al 38% del ancho de pantalla. La calle se mueve debajo de él.

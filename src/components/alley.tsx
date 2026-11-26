@@ -27,14 +27,17 @@ export default function Alley({ locale, copy, year, children }: {
   const [preference, setPreference] = useReadingMode();
   const reading = reduced || preference === "reading";
 
-  // La URL es la única fuente de la parada activa. Evita carreras entre el
-  // scroll, el HUD y el cambio de idioma, y mantiene el deep link hidratado.
+  // La URL conserva la parada navegable; el HUD sigue la fachada en escena.
   const hash = useHash();
   const activeStop = stopFromHash(hash) ?? "entrance";
   const panelHash = panelFromLocation(hash);
   const suffix = panelHash ?? (activeStop === "entrance" ? "" : `#${activeStop}`);
   const panelTone = panelHash?.startsWith("#experience/") ? "experience" : panelHash === "#contact/details" ? "contact" : "about";
-  const [facadeStop, setFacadeStop] = useState<StopId | null>("entrance");
+  const [facade, setFacade] = useState<{ visible: StopId | null; last: StopId | null }>({
+    visible: "entrance",
+    last: null,
+  });
+  const hudStop = reading || panelHash ? activeStop : facade.last ?? activeStop;
   const panelOrigin = useRef<PanelOrigin | null>(null);
   const previousPanel = useRef<PanelHash | null>(null);
   const panelEntry = `${locale}:${useId()}`;
@@ -114,7 +117,7 @@ export default function Alley({ locale, copy, year, children }: {
     const previous = document.activeElement?.closest(".scene-hotspots")?.closest<HTMLElement>("[data-stop]");
     const stop = previous ? stopFromHash(`#${previous.dataset.stop}`) : null;
     if (stop && stop !== next) focusStopLink(stop);
-    setFacadeStop(next);
+    setFacade((previous) => ({ visible: next, last: next ?? previous.last }));
   }, []);
 
   useEffect(() => {
@@ -214,11 +217,10 @@ export default function Alley({ locale, copy, year, children }: {
       <Hud
         locale={locale}
         copy={copy}
-        activeStop={activeStop}
+        activeStop={hudStop}
         suffix={suffix}
         reading={reading}
         reduced={reduced}
-        panelOpen={panelHash !== null}
         barRef={barRef}
         onNavigate={navigate}
         onToggleReading={toggleReading}
@@ -230,13 +232,13 @@ export default function Alley({ locale, copy, year, children }: {
         ) : (
           <>
             <h1 className="scene-heading sr-only">{name}</h1>
-            <SceneActions.Provider value={{ availableStop: facadeStop, open: openPanel }}>
+            <SceneActions.Provider value={{ availableStop: facade.visible, open: openPanel }}>
               <Stage
                 scrollHint={copy.scrollHint}
                 petLabel={copy.petCat}
                 petFeedback={copy.catFeedback}
                 activeStop={activeStop}
-                facadeStop={facadeStop}
+                facadeStop={facade.visible}
                 barRef={barRef}
                 onStopChange={handleStopChange}
                 onFacadeChange={handleFacadeChange}
